@@ -30,6 +30,7 @@ Thumbs.db
 
 # Claude / agent work
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 
 # ------------------------------------------------------------------
 # SENSITIVE: competitive intelligence and strategic research.
