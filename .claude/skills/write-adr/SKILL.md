@@ -59,7 +59,7 @@ Save to `docs/architecture/adr/NNNN-short-title.md`. Replace every `{{...}}`.
 
 {{What problem are we solving? Which workloads / pillar / incumbent
 constraint forces this decision? Quote the relevant paragraphs from
-`ai-agent-workloads.md` or `initial-vision.md`. Do NOT restate unrelated
+`ai-agent-workloads.md` or `positioning.md`. Do NOT restate unrelated
 motivation.}}
 
 ## Decision

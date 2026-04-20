@@ -10,7 +10,7 @@ It is a property graph engine whose primary workloads are those produced by agen
 
 ## Evolution of the vision
 
-The founder's [`initial-vision.md`](../../initial-vision.md) (immutable) captured the **commercial** motivation: end the Neo4j pricing era so SaaS builders can use a graph DB as freely as Postgres. That remains true.
+The founder's immutable vision (held privately) captured the **commercial** motivation: end the incumbent's pricing era so SaaS builders can use a graph DB as freely as Postgres. That remains true.
 
 This file captures the **technical** target established on 2026-04-20: AI-agent workloads drive the feature set. Existing graph databases (Neo4j, Memgraph, Dgraph, TigerGraph, etc.) were designed in the pre-agent era; their storage layouts, query planners, and data types predate the workloads AI agents actually produce. We do not intend to be a faster re-implementation of yesterday's graph DB.
 

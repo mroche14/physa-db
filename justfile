@@ -24,9 +24,10 @@ fmt-check:
 lint:
     cargo clippy --workspace --all-targets --all-features -- -D warnings
 
-# Run the full test suite.
+# Run the full test suite. `--no-tests=pass` lets CI stay green while
+# crates remain stubs; remove once the first real test lands.
 test:
-    cargo nextest run --workspace --all-features
+    cargo nextest run --workspace --all-features --no-tests=pass
 
 # Run the proptest regression suite (slower, more thorough).
 test-prop:

@@ -42,11 +42,17 @@ No native CEP (complex event processing). Change-data-capture output is a goal (
 
 The code is Apache-2.0 end-to-end. There is no "enterprise edition" with gated features — multi-tenancy, clustering, per-tenant encryption keys, vector indices, MCP server are all in the OSS build. We will never adopt BSL, SSPL, or any "fair-code" licence.
 
-**Why:** the founding premise of the project is precisely to un-do the prevailing pricing pattern (see [`../../initial-vision.md`](../../initial-vision.md)).
+**Why:** the founding premise of the project is precisely to un-do the prevailing pricing pattern (see [`./positioning.md`](./positioning.md) §1).
 
 ## Not a mobile / embedded-edge product (initially)
 
 The embedded mode (library linked into a host process, see FM-039) is supported. But the targets (NVMe, 64 GB RAM) are datacentre-class. We don't target battery-powered devices or < 1 GB memory footprints.
+
+## Not a Windows target
+
+physa-db ships to **Unix servers** — Linux in production, macOS for developer parity. Windows is **not** a supported host or target platform. No `#[cfg(windows)]` branches, no PowerShell scripts, no Windows-specific filesystem handling.
+
+**Why:** server graph databases run on Linux. Supporting Windows costs CI minutes, test surface, and filesystem-semantics bugs (case-insensitive FS, no `fork`, CRLF, path-length limits) in exchange for zero realistic users of a server DB. Dev on macOS works because Unix semantics are the same. If a dependency requires Windows workarounds, we drop the dependency.
 
 ## Not an LLM host
 

@@ -17,7 +17,7 @@ Start at the top; every downstream file cites the upstream one.
 
 ## Files
 
-- [`positioning.md`](./positioning.md) — the technical positioning: **physa-db is an AI-agent-native graph database**. Pairs with [`../../initial-vision.md`](../../initial-vision.md), the immutable commercial vision. The two pillars are load-bearing together.
+- [`positioning.md`](./positioning.md) — the two load-bearing pillars: **commercial** (§1, end the incumbent's pricing era) and **technical** (§§2–7, AI-agent-native graph database).
 - [`ai-agent-workloads.md`](./ai-agent-workloads.md) — **authoritative source of the six AI-agent workload families** (W-A agent memory, W-B RAG, W-C knowledge graphs, W-D multi-modal assets, W-E agent observability, W-F temporal reasoning) and the derived data types / operators / indices / execution / storage / protocol / security requirements. Every AI-native feature traces back here.
 - [`feature-matrix.md`](./feature-matrix.md) — every capability physa-db will ship, with parity/novel/stretch tier, target milestone, ADR link, and — for AI-native rows — workload anchor.
 - [`performance-targets.md`](./performance-targets.md) — numerical targets: latency percentiles, throughput, scale, cold-start, recovery, plus AI-native targets (ANN recall vs latency, hybrid-query p95, ingest rate). Every target is a testable assertion the benchmark suite verifies.

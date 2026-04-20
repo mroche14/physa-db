@@ -103,9 +103,9 @@ just bench-compare main
 
 ### Links
 
-- FM row: [feature-matrix.md](../docs/requirements/feature-matrix.md)
-- Workload: [ai-agent-workloads.md](../docs/requirements/ai-agent-workloads.md)
-- ADR: [ADR-NNNN](../docs/architecture/adr/NNNN-*.md)
+- FM row: `docs/requirements/feature-matrix.md#FM-NNN`
+- Workload: `docs/requirements/ai-agent-workloads.md#W-X`
+- ADR: `docs/architecture/adr/NNNN-slug.md`
 - Prior art: <public paper/blog only — never link to `private/`>
 - Related issues: #A, #B
 

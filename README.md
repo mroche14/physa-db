@@ -14,7 +14,7 @@ physa-db is a single engine that does those workloads natively. See [`docs/requi
 
 ### The commercial reason — end the pricing era
 
-The graph database market is captive. The incumbent's licensing model makes it impossible to build a modern SaaS on top of it the way you'd build one on Postgres. OSS alternatives are either abandoned, non-Cypher, single-node, or slower. physa-db is Apache-2.0 end-to-end, with multi-tenancy and horizontal scaling natively — no enterprise-gated features. See [`initial-vision.md`](./initial-vision.md) (immutable).
+The graph database market is captive. The incumbent's licensing model makes it impossible to build a modern SaaS on top of it the way you'd build one on Postgres. OSS alternatives are either abandoned, non-Cypher, single-node, or slower. physa-db is Apache-2.0 end-to-end, with multi-tenancy and horizontal scaling natively — no enterprise-gated features. See [`docs/requirements/positioning.md`](./docs/requirements/positioning.md) §1.
 
 ## Two pillars, one database
 
@@ -37,8 +37,7 @@ Development progress (features in flight, benchmarks, open issues) is tracked on
 
 ## Quick links
 
-- [`initial-vision.md`](./initial-vision.md) — immutable founder's vision (commercial pillar)
-- [`docs/requirements/positioning.md`](./docs/requirements/positioning.md) — AI-agent-native positioning (technical pillar)
+- [`docs/requirements/positioning.md`](./docs/requirements/positioning.md) — positioning: commercial pillar (§1) + AI-agent-native technical pillar (§§2–7)
 - [`docs/requirements/ai-agent-workloads.md`](./docs/requirements/ai-agent-workloads.md) — authoritative source of the AI-agent workloads that drive every feature
 - [`docs/requirements/feature-matrix.md`](./docs/requirements/feature-matrix.md) — public feature list with tier and ADR links
 - [`docs/requirements/non-goals.md`](./docs/requirements/non-goals.md) — what physa-db explicitly is NOT
