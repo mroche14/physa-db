@@ -66,6 +66,10 @@ fn snapshot_dashboard() -> Result<()> {
     Ok(())
 }
 
+#[expect(
+    clippy::unnecessary_wraps,
+    reason = "stub becomes fallible when the gh API call lands"
+)]
 fn seed_issues(dry_run: bool) -> Result<()> {
     tracing::warn!(
         dry_run,
@@ -74,6 +78,10 @@ fn seed_issues(dry_run: bool) -> Result<()> {
     Ok(())
 }
 
+#[expect(
+    clippy::unnecessary_wraps,
+    reason = "stub becomes fallible when prompt file I/O is added"
+)]
 fn research_prompt(codename: &str) -> Result<()> {
     let prompt = format!(
         "You are a senior OSS-intel analyst. Profile competitor {codename}.\n\
@@ -92,6 +100,10 @@ fn research_prompt(codename: &str) -> Result<()> {
     Ok(())
 }
 
+#[expect(
+    clippy::unnecessary_wraps,
+    reason = "stub becomes fallible when criterion report aggregation is added"
+)]
 fn bench_report() -> Result<()> {
     tracing::warn!("bench-report: not yet implemented");
     Ok(())
