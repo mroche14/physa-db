@@ -1,0 +1,53 @@
+name: bench-regression
+
+on:
+  pull_request:
+    paths:
+      - "crates/**"
+      - "benchmarks/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+  schedule:
+    - cron: "30 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: bench-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  criterion:
+    name: criterion micro-benches
+    # Dedicated bench runner (self-hosted, pinned hardware) should be attached later.
+    # For now, ubuntu-latest is the placeholder so the workflow is wired up.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install cargo-criterion
+        run: cargo install cargo-criterion --version 1.1
+
+      - name: Fetch baseline from main
+        run: |
+          git fetch origin main:main
+          git worktree add /tmp/baseline main
+
+      - name: Run baseline benches (main)
+        working-directory: /tmp/baseline
+        run: cargo criterion --workspace -- --save-baseline main || echo "No benches on main yet"
+
+      - name: Run PR benches
+        run: cargo criterion --workspace -- --baseline main || echo "Baseline not populated yet"
+
+      - name: Post comparison comment (placeholder)
+        if: github.event_name == 'pull_request'
+        run: echo "TODO: parse criterion JSON and post comment via gh api"

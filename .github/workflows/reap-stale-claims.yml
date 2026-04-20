@@ -1,0 +1,132 @@
+name: Reap stale claims
+
+# Garbage-collect GitHub Issues that carry status:in-progress but have
+# shown no real activity in CLAIM_TTL_HOURS. Reverts them to
+# status:ready so another agent can pick them up via /next.
+#
+# Companion to the /next and /release skills. Implements AGENTS.md §6.1
+# (claim protocol): the fleet's last line of defence against agents
+# that crashed or were compacted mid-task.
+#
+# Activity = any commit on an agent/<n>-* branch (local or origin), OR
+# any comment on the issue (excluding the initial claim marker).
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"   # every 6 hours at :17 to avoid contention
+  workflow_dispatch:
+    inputs:
+      ttl_hours:
+        description: "Override TTL in hours (default 24)"
+        required: false
+        default: "24"
+      dry_run:
+        description: "If true, log would-be reaps but do not label-flip"
+        required: false
+        default: "false"
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: reap-stale-claims
+  cancel-in-progress: true
+
+jobs:
+  reap:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CLAIM_TTL_HOURS: ${{ inputs.ttl_hours || '24' }}
+      DRY_RUN: ${{ inputs.dry_run || 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reap stale claims
+        run: |
+          set -euo pipefail
+
+          TTL_SECONDS=$(( CLAIM_TTL_HOURS * 3600 ))
+          NOW=$(date -u +%s)
+
+          # Pull all open, in-progress issues.
+          mapfile -t ISSUES < <(gh issue list \
+            --label status:in-progress \
+            --state open \
+            --limit 200 \
+            --json number,title,updatedAt,assignees,labels \
+            --jq '.[] | [.number, .updatedAt] | @tsv')
+
+          if [[ ${#ISSUES[@]} -eq 0 ]]; then
+            echo "No in-progress issues. Nothing to do."
+            exit 0
+          fi
+
+          REAPED=0
+          SKIPPED=0
+          for row in "${ISSUES[@]}"; do
+            N="${row%%	*}"
+            UPDATED_ISO="${row##*	}"
+            UPDATED=$(date -u -d "$UPDATED_ISO" +%s)
+            AGE=$(( NOW - UPDATED ))
+
+            # Fast path: issue was updated within TTL → not stale.
+            if [[ $AGE -lt $TTL_SECONDS ]]; then
+              echo "  #$N updated ${AGE}s ago (< TTL). Skip."
+              SKIPPED=$((SKIPPED+1))
+              continue
+            fi
+
+            # Slow path: updatedAt may be stale because the agent committed
+            # on agent/<n>-* without touching the issue. Check commit
+            # activity on any matching branch.
+            LAST_COMMIT_AGE=$TTL_SECONDS  # default to "old" if no branch
+            for ref in $(git for-each-ref --format='%(refname:short)' \
+                         "refs/remotes/origin/agent/${N}-*" \
+                         "refs/heads/agent/${N}-*" 2>/dev/null); do
+              COMMIT_TS=$(git log -1 --format=%ct "$ref" 2>/dev/null || echo 0)
+              COMMIT_AGE=$(( NOW - COMMIT_TS ))
+              if [[ $COMMIT_AGE -lt $LAST_COMMIT_AGE ]]; then
+                LAST_COMMIT_AGE=$COMMIT_AGE
+              fi
+            done
+
+            if [[ $LAST_COMMIT_AGE -lt $TTL_SECONDS ]]; then
+              echo "  #$N updatedAt stale but branch commit ${LAST_COMMIT_AGE}s ago. Skip."
+              SKIPPED=$((SKIPPED+1))
+              continue
+            fi
+
+            # Stale. Reap unless dry-run.
+            echo "  #$N is STALE (issue ${AGE}s, branch ${LAST_COMMIT_AGE}s). Reaping."
+
+            if [[ "$DRY_RUN" == "true" ]]; then
+              echo "    [dry-run] would flip status:in-progress → status:ready and unassign."
+              continue
+            fi
+
+            # Collect the current assignee list so we can unassign them.
+            ASSIGNEES=$(gh issue view "$N" --json assignees \
+              --jq '.assignees | map(.login) | join(",")')
+
+            gh issue edit "$N" \
+              --add-label status:ready \
+              --remove-label status:in-progress \
+              ${ASSIGNEES:+--remove-assignee "$ASSIGNEES"}
+
+            gh issue comment "$N" --body "**Reaped** by \`reap-stale-claims\` workflow.
+
+The \`status:in-progress\` claim on this issue had no activity for more than **${CLAIM_TTL_HOURS} h** (last issue update: $UPDATED_ISO, last branch commit: ${LAST_COMMIT_AGE}s ago). Previous assignee(s): \`${ASSIGNEES:-<none>}\`.
+
+The claim has been released. Another agent can pick this up via \`/next\`. If the previous assignee is still working on it and was simply compacted, they should re-claim via \`/next\` on restart.
+
+<!-- reaper-marker -->"
+
+            REAPED=$((REAPED+1))
+          done
+
+          echo ""
+          echo "Reaper summary: ${REAPED} reaped, ${SKIPPED} skipped, ${#ISSUES[@]} total in-progress."

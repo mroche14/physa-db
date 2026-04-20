@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>physa-db — Project Dashboard</title>
+    <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <h1><a href="/">physa-db</a></h1>
+            <p class="tagline">The open-source graph database that ends the Neo4j pricing era.</p>
+            <nav>
+                <a href="https://github.com/dynovant/physa-db">GitHub</a>
+                <a href="https://github.com/dynovant/physa-db/blob/main/ROADMAP.md">Roadmap</a>
+                <a href="https://github.com/dynovant/physa-db/blob/main/AGENTS.md">AGENTS.md</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="stats" id="stats">
+            <div class="stat">
+                <div class="stat-value" data-stat="open-issues">—</div>
+                <div class="stat-label">Open issues</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" data-stat="in-progress">—</div>
+                <div class="stat-label">In progress</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" data-stat="done-30d">—</div>
+                <div class="stat-label">Done (30d)</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" data-stat="milestone">M0</div>
+                <div class="stat-label">Current milestone</div>
+            </div>
+        </section>
+
+        <section id="milestones">
+            <h2>Milestones</h2>
+            <div class="milestone-list" id="milestone-list">
+                <p class="muted">Loading…</p>
+            </div>
+        </section>
+
+        <section id="recent">
+            <h2>Recent activity</h2>
+            <ul class="activity" id="activity-list">
+                <li class="muted">Loading…</li>
+            </ul>
+        </section>
+
+        <section id="benchmarks-preview">
+            <h2>Benchmark tracker</h2>
+            <p class="muted">No benchmark results yet. First numbers land with M2.</p>
+        </section>
+
+        <footer>
+            <p class="muted">
+                Generated from GitHub Issues &amp; Projects v2.
+                Last refresh: <span id="last-refresh">—</span>.
+                See <a href="https://github.com/dynovant/physa-db/blob/main/docs/architecture/adr/0001-project-tracking-store.md">ADR-0001</a>.
+            </p>
+        </footer>
+    </main>
+
+    <script src="./src/app.js"></script>
+</body>
+</html>

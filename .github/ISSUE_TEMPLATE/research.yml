@@ -1,0 +1,30 @@
+name: Research
+description: A question that needs investigating before code is written.
+labels: ["type:research", "area:research", "status:ready"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Research question
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why does the answer matter?
+      description: Which downstream decision does this unblock?
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Candidate sources
+      description: Papers, competitor docs, Reddit threads, X posts, GH issues of other projects.
+  - type: textarea
+    id: deliverable
+    attributes:
+      label: Deliverable
+      description: What file gets created or updated? (e.g. `docs/research/competitors/neo4j.md`)
+      placeholder: "A filled-in competitor profile at docs/research/competitors/<name>.md"
+    validations:
+      required: true

@@ -1,0 +1,41 @@
+# Rust
+/target
+**/*.rs.bk
+Cargo.lock.bak
+
+# IDE
+/.idea
+/.vscode
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dashboard build output
+/dashboard/dist
+/dashboard/node_modules
+
+# Local env / secrets
+.env
+.env.*
+!.env.example
+
+# Benchmarks scratch
+/benchmarks/scratch
+/benchmarks/datasets
+
+# Generated state (dashboard snapshot lives on gh-pages branch, not main)
+/dashboard/data/state.json
+
+# Claude / agent work
+.claude/settings.local.json
+
+# ------------------------------------------------------------------
+# SENSITIVE: competitive intelligence and strategic research.
+# Must never be committed. See AGENTS.md §7 and ADR-0006.
+# ------------------------------------------------------------------
+/private/
+
+# Mise cache (tool downloads)
+.mise.local.toml

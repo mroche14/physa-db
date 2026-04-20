@@ -1,0 +1,44 @@
+name: Agent task
+description: A well-scoped unit of work for an AI agent to pick up.
+labels: ["status:ready", "agent:good-first-task"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: One sentence. What ships when this is done?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Testable bullets. The agent should know when to stop.
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: Files likely touched
+      description: Paths relative to repo root. Helps agents plan.
+  - type: textarea
+    id: prior
+    attributes:
+      label: Prior art / context
+      description: Research docs, ADRs, related issues, competitor implementations.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - storage
+        - query
+        - cluster
+        - server
+        - client
+        - benchmark
+        - research
+        - docs
+        - infra
+    validations:
+      required: true
