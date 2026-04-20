@@ -1,0 +1,24 @@
+{
+  "data": {
+    "repository": {
+      "milestones": {
+        "nodes": [
+          {
+            "title": "M0 — Foundation",
+            "state": "OPEN",
+            "dueOn": "2026-06-01T00:00:00Z",
+            "openIssueCount": 2,
+            "closedIssueCount": 3
+          },
+          {
+            "title": "M1 — Launch",
+            "state": "OPEN",
+            "dueOn": "2026-09-01T00:00:00Z",
+            "openIssueCount": 10,
+            "closedIssueCount": 0
+          }
+        ]
+      }
+    }
+  }
+}

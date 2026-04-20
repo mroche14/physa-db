@@ -38,23 +38,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: .
+          shared-key: xtask
+
       - name: Build state.json
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          mkdir -p dashboard/data
-          # Placeholder: this script will call the GitHub REST/GraphQL API
-          # and produce dashboard/data/state.json matching the schema in
-          # dashboard/src/app.js.
-          # Owned by the `scripts/build-dashboard-snapshot.sh` issue (to be filed).
-          cat > dashboard/data/state.json <<'JSON'
-          {
-            "generatedAt": "1970-01-01T00:00:00Z",
-            "stats": { "openIssues": 0, "inProgress": 0, "doneLast30d": 0, "currentMilestone": "M0" },
-            "milestones": [],
-            "activity": []
-          }
-          JSON
+          PHYSA_SNAPSHOT_OWNER: ${{ github.repository_owner }}
+          PHYSA_SNAPSHOT_REPO: ${{ github.event.repository.name }}
+        run: cargo run --release -p xtask -- snapshot-dashboard
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
