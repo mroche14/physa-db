@@ -1,0 +1,23 @@
+[package]
+name = "physa-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "Command-line interface for physa-db (admin, import, query)."
+
+[[bin]]
+name = "physa"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+physa-client = { path = "../physa-client" }
+tokio = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }

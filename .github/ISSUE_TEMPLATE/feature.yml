@@ -1,0 +1,32 @@
+name: Feature
+description: Propose a new capability for physa-db.
+labels: ["type:feature", "status:ready"]
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Why does this feature matter? Who benefits?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Concrete, testable bullets. An agent should be able to know when it's done.
+      placeholder: |
+        - [ ] `physa-core` exposes `Graph::insert_node` with signature …
+        - [ ] Benchmark `bench_insert_node_1m` lands and completes in <5s on the CI hardware
+        - [ ] Documentation in `docs/architecture/storage.md` is updated
+    validations:
+      required: true
+  - type: textarea
+    id: prior-art
+    attributes:
+      label: Prior art
+      description: Links to competitor implementations, papers, existing issues.
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+      description: What this issue is NOT about.

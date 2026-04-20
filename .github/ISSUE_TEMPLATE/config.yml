@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: AGENTS.md
+    url: https://github.com/dynovant/physa-db/blob/main/AGENTS.md
+    about: Read this before opening an agent-driven issue.
+  - name: Discussions
+    url: https://github.com/dynovant/physa-db/discussions
+    about: Open-ended design and research conversations belong here.

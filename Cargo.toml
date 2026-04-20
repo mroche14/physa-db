@@ -1,0 +1,65 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/physa-core",
+    "crates/physa-query",
+    "crates/physa-cluster",
+    "crates/physa-server",
+    "crates/physa-client",
+    "crates/physa-cli",
+    "xtask",
+]
+
+[workspace.package]
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.85"
+license = "Apache-2.0"
+repository = "https://github.com/dynovant/physa-db"
+authors = ["physa-db contributors"]
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+nursery = { level = "warn", priority = -1 }
+module_name_repetitions = "allow"
+missing_errors_doc = "allow"
+
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+# Errors
+thiserror = "2"
+anyhow = "1"
+# Logging / tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Collections
+smallvec = "1"
+indexmap = "2"
+# Testing
+proptest = "1"
+criterion = "0.5"
+iai-callgrind = "0.14"
+loom = "0.7"
+# Misc
+clap = { version = "4", features = ["derive"] }
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+
+[profile.bench]
+lto = "fat"
+codegen-units = 1
+
+# Optimize dev dependencies (tests, benches) for reasonable speed
+[profile.dev.package."*"]
+opt-level = 2

@@ -1,0 +1,60 @@
+name: Dashboard snapshot
+
+# Regenerates dashboard/data/state.json from GitHub Issues + Projects v2
+# and publishes the dashboard to GitHub Pages.
+#
+# See docs/architecture/adr/0001-project-tracking-store.md.
+
+on:
+  issues:
+    types: [opened, edited, closed, reopened, labeled, unlabeled, milestoned, demilestoned]
+  pull_request:
+    types: [opened, closed, reopened, labeled, unlabeled]
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: dashboard-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build state.json
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p dashboard/data
+          # Placeholder: this script will call the GitHub REST/GraphQL API
+          # and produce dashboard/data/state.json matching the schema in
+          # dashboard/src/app.js.
+          # Owned by the `scripts/build-dashboard-snapshot.sh` issue (to be filed).
+          cat > dashboard/data/state.json <<'JSON'
+          {
+            "generatedAt": "1970-01-01T00:00:00Z",
+            "stats": { "openIssues": 0, "inProgress": 0, "doneLast30d": 0, "currentMilestone": "M0" },
+            "milestones": [],
+            "activity": []
+          }
+          JSON
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dashboard
+      - id: deployment
+        uses: actions/deploy-pages@v4

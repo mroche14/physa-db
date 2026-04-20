@@ -1,0 +1,29 @@
+name: Performance
+description: Performance regression, optimisation opportunity, or benchmark work.
+labels: ["type:perf", "status:ready"]
+body:
+  - type: textarea
+    id: observation
+    attributes:
+      label: What did we observe?
+      description: Numbers first. p50/p95/p99, throughput, memory, CPU.
+    validations:
+      required: true
+  - type: textarea
+    id: baseline
+    attributes:
+      label: Baseline
+      description: What were we expecting? Link to prior benchmark run if one exists.
+    validations:
+      required: true
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Hardware & dataset
+    validations:
+      required: true
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Hypothesis
+      description: What do we think is causing this, and how will we validate?

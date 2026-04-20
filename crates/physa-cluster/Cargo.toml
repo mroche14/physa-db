@@ -1,0 +1,18 @@
+[package]
+name = "physa-cluster"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "Raft consensus, sharding, replication, and multi-tenancy for physa-db."
+
+[lints]
+workspace = true
+
+[dependencies]
+physa-core = { path = "../physa-core" }
+tokio = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
