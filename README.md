@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/dynovant/physa-db/actions"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/dynovant/physa-db/ci.yml?branch=main&label=CI&style=flat-square"></a>
+  <a href="https://github.com/mroche14/physa-db/actions"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/mroche14/physa-db/ci.yml?branch=main&label=CI&style=flat-square"></a>
   <img alt="License" src="https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square">
   <img alt="Rust" src="https://img.shields.io/badge/rust-2024-orange?style=flat-square">
   <img alt="Status" src="https://img.shields.io/badge/status-pre--alpha-lightgrey?style=flat-square">
