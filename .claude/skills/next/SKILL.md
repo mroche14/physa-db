@@ -36,6 +36,36 @@ the GitHub API ensures two agents can never both believe they own the
 same issue — the loser sees the winner's assignee on re-fetch and
 abandons.
 
+## Step 0 — Sync with the remote
+
+Before anything else, refresh every remote-tracking ref. On a
+multi-dev / multi-agent project the local view goes stale fast
+(branches pushed by others, new `agent/*` branches, advanced `main`),
+and every later check — existing claims, candidate branches, FF-pull
+of main — must read fresh data. A `/next` run on a stale clone can
+silently branch off an out-of-date `main` and ship a broken diff.
+
+```bash
+git fetch --all --prune --tags
+```
+
+Then verify local `main` is not diverged from `origin/main`. If
+local main carries commits that origin doesn't, something was
+committed directly to main and not pushed — that's a human issue, not
+ours to paper over:
+
+```bash
+LOCAL_AHEAD="$(git rev-list --count origin/main..main 2>/dev/null || echo 0)"
+if [[ "$LOCAL_AHEAD" -gt 0 ]]; then
+  echo "main has $LOCAL_AHEAD local-only commits not on origin — investigate before /next"
+  exit 1
+fi
+```
+
+If this fails, stop and report. Never claim an issue on top of a
+divergent local `main` — the branch you create will carry commits
+that do not belong to the issue.
+
 ## Step 1 — Pre-flight sanity checks
 
 ```bash
@@ -196,7 +226,16 @@ Look for:
 
 ## Step 7 — Start work
 
-Now, and only now, begin the actual implementation. Use:
+Before writing code, confirm the issue body carries an
+**Optimization research brief** (the section produced by
+`/plan-feature` step 3b). If it is missing — common on older issues
+or on tasks filed before that step existed — produce a short one
+inline *before* touching code. One hour of web/rustdoc/SOTA scanning
+now is the cheapest insurance against a compound-interest refactor
+later. If the issue is trivial plumbing (docs, CI, renames), a
+one-line "no optimisation surface" note is enough.
+
+Then, and only then, begin the actual implementation. Use:
 
 - `/run-stress <scenario>` for any storage / MVCC / cluster change.
 - `/run-bench <mode>` if the issue is labelled `type:perf`.

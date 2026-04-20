@@ -61,7 +61,9 @@ If the feature is commercial-pillar (FM-001..099), cite the relevant promise
 in [`docs/requirements/positioning.md`](../../../docs/requirements/positioning.md)
 §1 or an incumbent-compat need.
 
-## Step 3 — First-principles derivation (`AGENTS.md` §11)
+## Step 3 — First-principles derivation + optimization hunt (`AGENTS.md` §11)
+
+### 3a. Constraints and theoretical optimum
 
 In 5–15 lines, answer:
 
@@ -77,6 +79,59 @@ In 5–15 lines, answer:
 If you find yourself writing "because Neo4j does it" or "because Postgres
 uses X", STOP. That's analogy thinking (`AGENTS.md` §11). Rewrite from the
 constraint.
+
+### 3b. Hunt for the maximal-optimization path
+
+Before locking the implementation, actively scan for a better approach
+than the first one that came to mind. At project start the cost of
+picking a wrong primitive compounds faster than any other decision: an
+hour of research now is worth weeks of refactor later. This is not
+optional for features on hot paths or with durability/consistency
+implications.
+
+Scan, in this order:
+
+- **Papers & SOTA benchmarks.** Web-search the problem class (e.g.
+  "lock-free hash map rust 2025", "MVCC GC amortisation", "HNSW vs
+  DiskANN recall/QPS"). Prefer recent arXiv preprints, conference
+  talks (VLDB, SIGMOD, NSDI, ATC), and engineering blogs with real
+  numbers. Cite what you find.
+- **Rust ecosystem sweep.** For every candidate primitive, check
+  `docs.rs` and `lib.rs` (the index-of-crates sites): existing
+  production-grade crates, their benchmark claims, last-release date,
+  licence (Apache-2.0 / MIT compatible — no GPL-family), maintenance
+  status. A neglected crate with theoretical wins is a trap; a
+  well-maintained crate with a 95 %-perfect fit saves months.
+- **Rust stdlib & nightly.** Check whether the feature is better
+  handled by a soon-stabilising API (`core::simd` portable SIMD,
+  `allocator_api`, `strict_provenance`, `BufRead::read_until`).
+  Cite the tracking issue; choose based on the stabilisation ETA
+  versus our milestone.
+- **Hardware floor.** If this is a hot path, compute the theoretical
+  lower bound on the target hardware (NVMe seq read ~7 GB/s, DRAM
+  random ~100 ns, L1 ~4 cycles, AVX-512 width, etc.). A design that
+  leaves 10× on the table is not an optimisation — it's a ceiling.
+
+Produce a **research brief** (include it verbatim in the issue body):
+
+```
+### Optimization research brief
+
+Candidates evaluated:
+  1. <name> — <claim / cite> — picked / rejected: <reason>
+  2. <name> — <claim / cite> — picked / rejected: <reason>
+  ...
+
+Picked: <N> because <reason grounded in §3a optimum>.
+Rejected: <others with 1-line reason each>.
+Uncovered surprise: <a finding the naïve plan missed, or "none">.
+Hardware floor estimate: <lower bound> — our target: <value> (gap: <ratio>).
+```
+
+The brief is the receipts: future contributors must be able to see
+why the non-obvious choice won. If this step produces nothing
+surprising, say so explicitly — "obvious pick confirmed after sweep"
+is a valid outcome, but skipping the sweep is not.
 
 ## Step 4 — Acceptance criteria
 
@@ -136,6 +191,10 @@ Commercial | W-X (+ brief citation)
 
 ### First-principles derivation
 [5–15 lines]
+
+### Optimization research brief
+[candidates evaluated, pick, rejections with reasons, uncovered
+surprise or "none", hardware floor vs target]
 
 ### Acceptance criteria
 - [ ] ...
