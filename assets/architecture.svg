@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 620" width="1000" height="620" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" role="img" aria-label="physa-db architecture: five horizontal layers with a Rust core bar">
+  <rect x="70" y="30" width="40" height="500" rx="6" fill="#C77F3E"/>
+  <text x="90" y="280" transform="rotate(-90 90 280)" text-anchor="middle" font-size="14" font-weight="800" letter-spacing="4" fill="#ffffff">RUST CORE</text>
+
+  <g>
+    <rect x="150" y="30" width="780" height="80" rx="8" fill="#ffffff" stroke="#0B0D2E" stroke-width="2"/>
+    <text x="170" y="62" font-size="20" font-weight="700" fill="#0B0D2E">Client driver</text>
+    <text x="170" y="88" font-size="13" fill="#637B87">Native Rust · language bindings · Bolt v5 driver-compatible</text>
+  </g>
+  <path d="M 540 118 L 540 126" stroke="#0B0D2E" stroke-width="2"/>
+  <polygon points="534,124 540,132 546,124" fill="#0B0D2E"/>
+
+  <g>
+    <rect x="150" y="135" width="780" height="80" rx="8" fill="#ffffff" stroke="#0B0D2E" stroke-width="2"/>
+    <text x="170" y="167" font-size="20" font-weight="700" fill="#0B0D2E">Server — Bolt v5 wire protocol</text>
+    <text x="170" y="193" font-size="13" fill="#637B87">TLS · auth · connection pooling · streaming results</text>
+  </g>
+  <path d="M 540 223 L 540 231" stroke="#0B0D2E" stroke-width="2"/>
+  <polygon points="534,229 540,237 546,229" fill="#0B0D2E"/>
+
+  <g>
+    <rect x="150" y="240" width="780" height="80" rx="8" fill="#ffffff" stroke="#0B0D2E" stroke-width="2"/>
+    <text x="170" y="272" font-size="20" font-weight="700" fill="#0B0D2E">Cluster — Raft + sharding + multi-tenancy</text>
+    <text x="170" y="298" font-size="13" fill="#637B87">Consensus per shard · online re-sharding · tenant isolation at storage level</text>
+  </g>
+  <path d="M 540 328 L 540 336" stroke="#0B0D2E" stroke-width="2"/>
+  <polygon points="534,334 540,342 546,334" fill="#0B0D2E"/>
+
+  <g>
+    <rect x="150" y="345" width="780" height="80" rx="8" fill="#ffffff" stroke="#0B0D2E" stroke-width="2"/>
+    <text x="170" y="377" font-size="20" font-weight="700" fill="#0B0D2E">Query — GQL + openCypher planner</text>
+    <text x="170" y="403" font-size="13" fill="#637B87">Hybrid graph + vector + BM25 plans · MVCC snapshot isolation · AS OF temporal</text>
+  </g>
+  <path d="M 540 433 L 540 441" stroke="#0B0D2E" stroke-width="2"/>
+  <polygon points="534,439 540,447 546,439" fill="#0B0D2E"/>
+
+  <g>
+    <rect x="150" y="450" width="780" height="80" rx="8" fill="#ffffff" stroke="#0B0D2E" stroke-width="2"/>
+    <text x="170" y="482" font-size="20" font-weight="700" fill="#0B0D2E">Storage engine</text>
+    <text x="170" y="508" font-size="13" fill="#637B87">Graph-native layout · neighbourhood colocation · HNSW / IVF-PQ vectors · LSM writes</text>
+  </g>
+
+  <text x="540" y="575" text-anchor="middle" font-size="14" fill="#637B87" font-style="italic">
+    Five layers. One engine. No glue code between vector, graph, and text retrieval.
+  </text>
+</svg>
