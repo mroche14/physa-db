@@ -15,7 +15,7 @@ version = "0.0.0"
 edition = "2024"
 rust-version = "1.85"
 license = "Apache-2.0"
-repository = "https://github.com/dynovant/physa-db"
+repository = "https://github.com/mroche14/physa-db"
 authors = ["physa-db contributors"]
 
 [workspace.lints.rust]

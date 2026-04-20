@@ -40,6 +40,19 @@ jobs:
         shell: bash
         run: just ci
 
+  privacy:
+    name: privacy tree check (§7)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No private/ paths tracked
+        run: |
+          leaked=$(git ls-files private/)
+          if [ -n "$leaked" ]; then
+            printf 'ERROR: private/ paths are committed (AGENTS.md §7 violation):\n%s\n' "$leaked" >&2
+            exit 1
+          fi
+
   docs-links:
     name: docs link check
     runs-on: ubuntu-latest
