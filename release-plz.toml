@@ -1,22 +1,28 @@
 # release-plz configuration.
-# See https://release-plz.ieni.dev/docs/config for the full reference.
+# See https://release-plz.dev/docs/config for the full reference.
 
 [workspace]
 # Create a unified release PR for the whole workspace. We can split per-crate later if needed.
 release_always = false
 pr_name = "chore(release): physa-db {{ version }}"
 pr_labels = ["area:infra", "type:feature"]
+repo_url = "https://github.com/mroche14/physa-db"
+git_only = true
 publish_allow_dirty = false
-# Publishing to crates.io is disabled until v0.1.0. Flip to true when ready.
+# Publishing to crates.io is disabled until v0.1.0. Flip git_only to false and publish to true when ready.
 publish = false
 git_release_enable = true
 git_release_type = "auto"
 changelog_update = true
 semver_check = true
 
-# Per-package overrides can go here as we diverge versions.
+[[package]]
+name = "xtask"
+release = false
+changelog_update = false
 
 [changelog]
+trim = true
 header = """
 # Changelog
 

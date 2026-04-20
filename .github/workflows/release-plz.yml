@@ -1,16 +1,9 @@
 name: release-plz
 
-# Disabled until M3 (first crates.io publish).
-# Before re-enabling:
-#   1. Enable repo setting: Settings → Actions → General → Workflow permissions
-#      → "Allow GitHub Actions to create and approve pull requests".
-#      Otherwise the action hits HTTP 403 on every main push.
-#   2. Add CARGO_REGISTRY_TOKEN to repository secrets.
-#   3. Restore the `push: branches: [main]` trigger below.
 on:
   workflow_dispatch:
-  # push:
-  #   branches: [main]
+  push:
+    branches: [main]
 
 permissions:
   contents: write
@@ -21,15 +14,37 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  release-plz:
+  release-plz-release:
+    name: Release-plz release
     runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'mroche14' }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
       - uses: dtolnay/rust-toolchain@stable
-      - uses: MarcoIeni/release-plz-action@v0.5
+      - uses: release-plz/action@v0.5
+        with:
+          command: release
+          version: "0.3.157"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}  # enable when publishing starts
+
+  release-plz-pr:
+    name: Release-plz PR
+    runs-on: ubuntu-latest
+    needs: release-plz-release
+    if: ${{ github.repository_owner == 'mroche14' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: release-plz/action@v0.5
+        with:
+          command: release-pr
+          version: "0.3.157"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
