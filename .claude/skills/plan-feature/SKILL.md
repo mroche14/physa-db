@@ -58,8 +58,8 @@ non-goal ([`docs/requirements/non-goals.md`](../../../docs/requirements/non-goal
 check).
 
 If the feature is commercial-pillar (FM-001..099), cite the relevant promise
-in [`initial-vision.md`](../../../initial-vision.md) or an incumbent-compat
-need.
+in [`docs/requirements/positioning.md`](../../../docs/requirements/positioning.md)
+§1 or an incumbent-compat need.
 
 ## Step 3 — First-principles derivation (`AGENTS.md` §11)
 

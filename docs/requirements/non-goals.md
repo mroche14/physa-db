@@ -42,7 +42,7 @@ No native CEP (complex event processing). Change-data-capture output is a goal (
 
 The code is Apache-2.0 end-to-end. There is no "enterprise edition" with gated features — multi-tenancy, clustering, per-tenant encryption keys, vector indices, MCP server are all in the OSS build. We will never adopt BSL, SSPL, or any "fair-code" licence.
 
-**Why:** the founding premise of the project is precisely to un-do the prevailing pricing pattern (see [`../../initial-vision.md`](../../initial-vision.md)).
+**Why:** the founding premise of the project is precisely to un-do the prevailing pricing pattern (see [`./positioning.md`](./positioning.md) §1).
 
 ## Not a mobile / embedded-edge product (initially)
 

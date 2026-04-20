@@ -10,7 +10,7 @@ This project is designed from day one to be developed, reviewed, tested, and opt
 
 Build **the most efficient graph database the planet has ever seen**, in pure Rust, open source, with **two intertwined positioning pillars**:
 
-1. **Commercial pillar** — end the Neo4j pricing era (captured immutably in [`initial-vision.md`](./initial-vision.md)). Full feature parity with existing graph DBs, both dominant query languages — **GQL (ISO/IEC 39075:2024) AND openCypher** — supported natively, no compromise, Apache-2.0 end-to-end, no enterprise-gated features.
+1. **Commercial pillar** — end the incumbent's pricing era (summarised publicly in [`docs/requirements/positioning.md`](./docs/requirements/positioning.md) §1; founder's immutable long-form held privately). Full feature parity with existing graph DBs, both dominant query languages — **GQL (ISO/IEC 39075:2024) AND openCypher** — supported natively, no compromise, Apache-2.0 end-to-end, no enterprise-gated features.
 2. **Technical pillar** — be **AI-agent-native** (captured in [`docs/requirements/positioning.md`](./docs/requirements/positioning.md)). The workloads driving the feature set are those produced by agentic AI systems: vector + graph hybrid retrieval, long-term agent memory, knowledge graphs with provenance and confidence, multi-modal asset storage, agent-trace observability, temporal reasoning. Specifics live in [`docs/requirements/ai-agent-workloads.md`](./docs/requirements/ai-agent-workloads.md).
 
 The commercial pillar says *why* the project exists. The technical pillar says *why a user would pick us*. They compound: AI-agent-native features win workloads that never had a good graph DB answer, and Apache-2.0 + GQL/Cypher compatibility win migrations from the incumbent.

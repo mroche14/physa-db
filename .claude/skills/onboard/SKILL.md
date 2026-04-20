@@ -23,7 +23,7 @@ follows.
 
 | Pillar | Source of truth | The one-liner |
 |--------|-----------------|---------------|
-| **Commercial** — why the project exists | [`initial-vision.md`](../../../initial-vision.md) (immutable) | End the Neo4j pricing era. Apache-2.0, full Cypher/GQL compat, native multi-tenancy, SaaS-grade, no enterprise-gated features. |
+| **Commercial** — why the project exists | [`docs/requirements/positioning.md`](../../../docs/requirements/positioning.md) §1 | End the incumbent's pricing era. Apache-2.0, full Cypher/GQL compat, native multi-tenancy, SaaS-grade, no enterprise-gated features. |
 | **Technical** — why a user would pick us | [`docs/requirements/positioning.md`](../../../docs/requirements/positioning.md) + [`docs/requirements/ai-agent-workloads.md`](../../../docs/requirements/ai-agent-workloads.md) | **AI-agent-native graph database.** First-class support for the six agent workload families (W-A..W-F): agent memory, RAG, knowledge graphs, multi-modal assets, agent observability, temporal reasoning. |
 
 Neither pillar alone is enough. AI-native features win *new* workloads;
@@ -68,13 +68,12 @@ is missing, the artifact is premature and should not ship.
 ## 5. Reading order for a new agent
 
 1. [`AGENTS.md`](../../../AGENTS.md) — full agent contract (read §§0, 7, 10, 11, 12, 15 at minimum).
-2. [`initial-vision.md`](../../../initial-vision.md) — immutable founder vision.
-3. [`docs/requirements/positioning.md`](../../../docs/requirements/positioning.md) — the technical pillar.
-4. [`docs/requirements/ai-agent-workloads.md`](../../../docs/requirements/ai-agent-workloads.md) — the six workload families.
-5. [`docs/requirements/feature-matrix.md`](../../../docs/requirements/feature-matrix.md) — what ships (parity + AI-native rows).
-6. [`docs/requirements/non-goals.md`](../../../docs/requirements/non-goals.md) — what we refuse.
-7. [`ROADMAP.md`](../../../ROADMAP.md) — M0..M8 milestones. M1 = feature lock, M2 = architecture lock.
-8. [`docs/architecture/adr/`](../../../docs/architecture/adr/) — ADR-0001 + ADR-0006 *Accepted*; ADRs 0002-0005 *Proposed*.
+2. [`docs/requirements/positioning.md`](../../../docs/requirements/positioning.md) — the technical pillar.
+3. [`docs/requirements/ai-agent-workloads.md`](../../../docs/requirements/ai-agent-workloads.md) — the six workload families.
+4. [`docs/requirements/feature-matrix.md`](../../../docs/requirements/feature-matrix.md) — what ships (parity + AI-native rows).
+5. [`docs/requirements/non-goals.md`](../../../docs/requirements/non-goals.md) — what we refuse.
+6. [`ROADMAP.md`](../../../ROADMAP.md) — M0..M8 milestones. M1 = feature lock, M2 = architecture lock.
+7. [`docs/architecture/adr/`](../../../docs/architecture/adr/) — ADR-0001 + ADR-0006 *Accepted*; ADRs 0002-0005 *Proposed*.
 
 ## 6. The other skills you should know
 
