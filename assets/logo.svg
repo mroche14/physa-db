@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 80" width="360" height="80" role="img" aria-label="physa-db logo">
+  <g transform="translate(6, 8) scale(0.64)">
+    <line x1="30" y1="72" x2="70" y2="72" stroke="#0B0D2E" stroke-width="3" stroke-linecap="round"/>
+    <line x1="30" y1="72" x2="50" y2="26" stroke="#0B0D2E" stroke-width="3" stroke-linecap="round"/>
+    <line x1="50" y1="26" x2="70" y2="72" stroke="#0B0D2E" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="50" cy="26" r="9" fill="#C77F3E" stroke="#0B0D2E" stroke-width="2"/>
+    <circle cx="30" cy="72" r="9" fill="#0B0D2E"/>
+    <circle cx="70" cy="72" r="9" fill="#0B0D2E"/>
+  </g>
+  <text x="82" y="55" font-family="system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="44" font-weight="800" fill="#0B0D2E" letter-spacing="-1.2">physa<tspan fill="#C77F3E">-db</tspan></text>
+</svg>
