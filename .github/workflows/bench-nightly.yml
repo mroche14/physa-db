@@ -1,0 +1,93 @@
+name: bench-nightly
+
+# Nightly baseline run on the dedicated self-hosted bench runner.
+# Appends time-series JSON to the `gh-pages` branch under `bench-history/`.
+#
+# Why self-hosted: criterion wall-clock numbers on GitHub's shared ubuntu-latest
+# runners have 5-10% variance, which is larger than our regression threshold.
+# The self-hosted runner is pinned hardware with no competing workloads.
+#
+# Why not on PRs: running user-controlled code on a self-hosted runner from a
+# public repo is a well-known security footgun. The PR gate uses
+# bench-regression.yml on ubuntu-latest with iai-callgrind (deterministic,
+# so hardware variance doesn't matter).
+
+on:
+  schedule:
+    - cron: "30 3 * * *"   # 03:30 UTC nightly
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "crates/**/benches/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/bench-nightly.yml"
+      - ".github/scripts/bench-*.sh"
+
+permissions:
+  contents: write   # to push to gh-pages branch
+
+concurrency:
+  group: bench-nightly
+  cancel-in-progress: false
+
+jobs:
+  nightly:
+    name: nightly bench (iai + criterion)
+    runs-on: [self-hosted, bench, physa-db]
+    timeout-minutes: 90
+
+    env:
+      CARGO_TERM_COLOR: always
+      RUST_BACKTRACE: 1
+      # Ensure cargo/rustup are on PATH for non-login shells used by actions.
+      PATH: /home/github-runner/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Record hardware context
+        id: hw
+        run: |
+          mkdir -p bench-output
+          {
+            echo "commit=${{ github.sha }}"
+            echo "ref=${{ github.ref }}"
+            echo "date=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "kernel=$(uname -r)"
+            echo "cpu=$(lscpu | awk -F: '/Model name/ {gsub(/^ +/, "", $2); print $2; exit}')"
+            echo "cores=$(nproc)"
+            echo "mem_kb=$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
+            echo "rustc=$(rustc --version)"
+          } | tee bench-output/hardware.env
+
+      - name: Run iai (instruction-stable oracle)
+        run: |
+          mkdir -p target
+          just bench-iai 2>&1 | tee target/iai-run.txt
+
+      - name: Run criterion (wall-time time-series)
+        run: just bench
+        continue-on-error: true   # criterion noise shouldn't break the nightly archive
+
+      - name: Package results into time-series JSON
+        run: bash .github/scripts/bench-package-results.sh bench-output
+
+      - name: Upload raw bench artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-nightly-${{ github.sha }}
+          path: bench-output/
+          retention-days: 30
+
+      - name: Publish JSON to gh-pages:bench-history/
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./bench-output/publish
+          destination_dir: bench-history
+          keep_files: true
+          commit_message: "bench-nightly: ${{ github.sha }}"
+          user_name: "github-actions[bot]"
+          user_email: "github-actions[bot]@users.noreply.github.com"
