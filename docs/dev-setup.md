@@ -34,6 +34,8 @@ That's it. The `just` recipes expose every other workflow you need.
 | Macro benches (LDBC SNB SF1) | `just bench-macro 1` |
 | Stress (chaos) | `just stress chaos` |
 | Preview the dashboard | `just dashboard` then open http://localhost:8000 |
+| Check release automation | `just release-check` |
+| Check commit subjects | `just check-commits origin/main` |
 
 List everything with `just` alone.
 
@@ -46,6 +48,34 @@ just check-private
 ```
 
 It will fail loudly if anything under `private/` is staged.
+
+## Release automation
+
+`release-plz` is installed by `mise install` at the version pinned in
+`.mise.toml`. The GitHub workflow opens or updates a release PR after pushes to
+`main`; when that release PR is merged, it creates git tags and GitHub releases.
+Crates.io publishing stays disabled until M3 via `git_only = true` and
+`publish = false` in `release-plz.toml`.
+
+Run the local release gate before changing release configuration:
+
+```bash
+just release-check
+```
+
+This validates `release-plz.toml` against the schema emitted by the pinned
+`release-plz` binary, then runs `release-plz update` inside a temporary git
+worktree. The pinned `release-plz 0.3.157` CLI does not provide
+`update --dry-run`, so the temp-worktree recipe is the safe dry run: generated
+`CHANGELOG.md`, `Cargo.toml`, and `Cargo.lock` changes are printed and then
+discarded.
+
+Pull requests are also checked by the `Conventional Commits` workflow. Locally,
+use this before pushing:
+
+```bash
+just check-commits origin/main
+```
 
 ## First-time Rust setup
 
