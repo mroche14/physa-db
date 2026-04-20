@@ -77,3 +77,21 @@ Pure Rust. This is an inviolable technology choice, not an engineering preferenc
 ## Not beholden to ISO GQL if it diverges from user needs
 
 We implement GQL (FM-001) because the standard aligns with our design and unlocks portability. If the ISO spec evolves in ways that harm users, we extend rather than regress — via the `PHYSA` extension namespace clearly documented and shared between both dialects.
+
+## Not a generic KV-store backend (AFM-014)
+
+physa-db uses a graph-native columnar adjacency layout. We do not layer our graph engine on top of a generic KV-store (like RocksDB or FoundationDB).
+
+**Why:** Relational or KV-stores mapped to graphs are suboptimal for index-free adjacency and deep traversals, introducing unnecessary I/O overhead.
+
+## Not a system that relies on hard memory aborts (AFM-015)
+
+We do not use blunt memory trackers that abort queries simply because the process nears a limit.
+
+**Why:** Aborting queries is a poor user experience. The engine must gracefully spill to NVMe or use memory-mapped structures to maintain stability under memory pressure.
+
+## Not a proprietary query language ecosystem (AFM-016)
+
+We natively support standard query languages: GQL and openCypher. We will not invent a new, proprietary query language.
+
+**Why:** Standard languages reduce the learning curve, prevent vendor lock-in, and provide a seamless migration path from legacy systems.

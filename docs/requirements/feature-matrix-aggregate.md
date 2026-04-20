@@ -16,3 +16,7 @@
 | AFM-010 | In-Memory C++ Engine | Storage | 1 | In-memory structures with snapshot isolation | redesign |
 | AFM-011 | Analytical Storage Mode | Storage | 1 | Drops transaction guarantees for raw speed | non-goal |
 | AFM-012 | Streaming First Integration | Ops | 1 | Deep integrations with Kafka/Pulsar | adopt |
+| AFM-013 | Decoupled Compute and Storage | Cluster | 1 | Stateless query nodes, stateful storage nodes | redesign |
+| AFM-014 | Generic KV-Store Backend | Storage | 1 | LSM-tree (RocksDB) | non-goal |
+| AFM-015 | Hard Memory Tracker Aborts | Ops | 1 | Aborts queries when hitting memory high watermark | non-goal |
+| AFM-016 | Proprietary Query Language | Query | 1 | Custom language alongside standards | non-goal |
