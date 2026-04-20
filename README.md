@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="assets/logo.svg" alt="physa-db" width="320">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg">
+    <img src="assets/logo.svg" alt="physa-db" width="320">
+  </picture>
 </p>
 
 <p align="center">

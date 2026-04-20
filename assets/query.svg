@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500" width="1000" height="500" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" role="img" aria-label="physa-db hybrid query plan: graph traversal, vector similarity, and BM25 converge into a single query plan">
+  <rect x="0" y="0" width="1000" height="500" rx="12" fill="#F7F2E8"/>
   <g>
     <rect x="40" y="60" width="220" height="100" rx="8" fill="#ffffff" stroke="#C77F3E" stroke-width="2"/>
     <text x="50" y="85" font-size="13" font-weight="800" letter-spacing="1" fill="#C77F3E">GRAPH TRAVERSAL</text>
