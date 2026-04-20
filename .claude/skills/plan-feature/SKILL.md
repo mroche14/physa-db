@@ -97,7 +97,7 @@ Scan, in this order:
   talks (VLDB, SIGMOD, NSDI, ATC), and engineering blogs with real
   numbers. Cite what you find.
 - **Rust ecosystem sweep.** For every candidate primitive, check
-  [docs.rs](https://docs.rs) and [lib.rs](https://lib.rs): existing
+  `docs.rs` and `lib.rs` (the index-of-crates sites): existing
   production-grade crates, their benchmark claims, last-release date,
   licence (Apache-2.0 / MIT compatible — no GPL-family), maintenance
   status. A neglected crate with theoretical wins is a trap; a
