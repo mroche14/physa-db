@@ -5,9 +5,12 @@
 
 ## How skills work here
 
-Each subdirectory is one skill with a `SKILL.md` file. Agents invoke a skill
-by name (`/plan-feature`, `/run-stress chaos`, etc.), or Claude auto-invokes
-a skill when its description matches the user's request.
+Each subdirectory is one skill with a `SKILL.md` file. Claude Code exposes
+project skills as slash commands (`/plan-feature`, `/run-stress chaos`, etc.),
+or auto-invokes a skill when its description matches the user's request. Codex
+reads the same canonical skill directories through the `.agents/skills/`
+symlink bridge, but Codex skills are invoked with `$plan-feature`,
+`$run-stress`, etc., or by asking Codex to use the named skill.
 
 Skills exist to make **rules mechanical**. Rather than trusting every agent
 to remember `AGENTS.md` §§7, 11, 12, 15 from memory, skills bake the relevant
@@ -62,9 +65,10 @@ These are on the backlog; open an issue if you need one before it ships.
 
 ## Conventions
 
-- **Scope.** Every skill lives under `.claude/skills/<name>/SKILL.md`.
+- **Scope.** Every canonical skill lives under `.claude/skills/<name>/SKILL.md`.
   Project-level. No personal skills (`~/.claude/skills/`) — they would be
-  invisible to agents running on another machine.
+  invisible to agents running on another machine. Codex compatibility is handled
+  by `.agents/skills/<name>` symlinks that point back to these directories.
 - **Frontmatter.** `name` (optional; defaults to directory name), `description`
   (used by Claude to decide auto-invocation — front-load keywords),
   `when_to_use` (trigger phrases), `argument-hint`, `user-invocable`,
