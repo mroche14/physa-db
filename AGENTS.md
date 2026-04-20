@@ -227,6 +227,11 @@ Do not silently drop work. Do not force a workaround that compromises §0.
 - Adding a top-level dependency with a restrictive licence (GPL, AGPL, SSPL, BSL, commercial).
 - Any git operation with `--no-verify`.
 - **Committing anything from `private/` or referencing competitors by name in public files.**
+- **Committing, pushing, or otherwise persisting any credential, API key, token, password, or secret of any kind.** This includes:
+  - Scanning staged diffs for env-like patterns (`*_KEY=`, `*_TOKEN=`, `*_SECRET=`, `Bearer `, UUID-format API keys) before every commit.
+  - Never running commands that would print a cred to the terminal (`echo $SECRET`, `curl -v` with auth headers, `cat .env`, partial-prefix displays via `head -c`). To verify a cred exists, use existence checks only: `[ -n "$KEY" ] && echo OK`.
+  - If a cred is accidentally printed in the transcript, flag it to the human immediately — don't hide it.
+  - Pre-commit hooks (§13) MUST include a secret-scan gate; treat its failure as a hard stop, never `--no-verify`.
 - Introducing a "shortcut" — a deliberately-suboptimal approach chosen because the better one is harder. See §12.
 
 When in doubt, **ask**.
