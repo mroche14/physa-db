@@ -1,0 +1,40 @@
+{
+  "data": {
+    "repository": {
+      "projectsV2": {
+        "nodes": [
+          {
+            "number": 1,
+            "items": {
+              "pageInfo": { "hasNextPage": false, "endCursor": null },
+              "nodes": [
+                {
+                  "fieldValues": {
+                    "nodes": [
+                      {
+                        "__typename": "ProjectV2ItemFieldSingleSelectValue",
+                        "name": "In Progress",
+                        "field": { "name": "Status" }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "fieldValues": {
+                    "nodes": [
+                      {
+                        "__typename": "ProjectV2ItemFieldSingleSelectValue",
+                        "name": "Done",
+                        "field": { "name": "Status" }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

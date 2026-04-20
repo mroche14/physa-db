@@ -1,0 +1,19 @@
+{
+  "data": {
+    "repository": {
+      "issues": {
+        "pageInfo": { "hasNextPage": true, "endCursor": "CUR1" },
+        "nodes": [
+          {
+            "title": "Task A",
+            "url": "https://example.invalid/issues/1",
+            "state": "OPEN",
+            "createdAt": "2026-04-10T00:00:00Z",
+            "closedAt": null,
+            "labels": { "nodes": [{ "name": "status:in-progress" }] }
+          }
+        ]
+      }
+    }
+  }
+}

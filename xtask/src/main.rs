@@ -3,8 +3,11 @@
 //! Invoked through the `justfile` (`just snapshot-dashboard`, `just seed-issues`, …).
 //! Each subcommand is a first-class workflow that any contributor can reproduce locally.
 
+use std::path::PathBuf;
+
 use anyhow::Result;
 use clap::{Parser, Subcommand};
+use xtask::dashboard;
 
 #[derive(Parser)]
 #[command(name = "xtask", about = "physa-db workspace dev tasks")]
@@ -16,7 +19,14 @@ struct Cli {
 #[derive(Subcommand)]
 enum Cmd {
     /// Regenerate `dashboard/data/state.json` from GitHub Issues + Projects v2.
-    SnapshotDashboard,
+    SnapshotDashboard {
+        /// Print the JSON to stdout instead of writing to disk.
+        #[arg(long)]
+        dry_run: bool,
+        /// Override the output path (default: `dashboard/data/state.json`).
+        #[arg(long)]
+        out: Option<PathBuf>,
+    },
     /// Create GitHub issues from `docs/seed-issues.md`.
     SeedIssues {
         /// If true, print what would be created without calling the API.
@@ -34,6 +44,7 @@ enum Cmd {
 
 fn main() -> Result<()> {
     tracing_subscriber::fmt()
+        .with_writer(std::io::stderr)
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env()
                 .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
@@ -42,28 +53,14 @@ fn main() -> Result<()> {
 
     let cli = Cli::parse();
     match cli.cmd {
-        Cmd::SnapshotDashboard => snapshot_dashboard(),
+        Cmd::SnapshotDashboard { dry_run, out } => dashboard::run(&dashboard::Args {
+            dry_run,
+            output: out,
+        }),
         Cmd::SeedIssues { dry_run } => seed_issues(dry_run),
         Cmd::ResearchPrompt { codename } => research_prompt(&codename),
         Cmd::BenchReport => bench_report(),
     }
-}
-
-fn snapshot_dashboard() -> Result<()> {
-    // Placeholder. See issue "Implement `xtask snapshot-dashboard`" in docs/seed-issues.md.
-    tracing::warn!("snapshot-dashboard: not yet implemented — emits a placeholder state.json");
-    let placeholder = serde_json::json!({
-        "generatedAt": "1970-01-01T00:00:00Z",
-        "stats": { "openIssues": 0, "inProgress": 0, "doneLast30d": 0, "currentMilestone": "M0" },
-        "milestones": [],
-        "activity": []
-    });
-    std::fs::create_dir_all("dashboard/data")?;
-    std::fs::write(
-        "dashboard/data/state.json",
-        serde_json::to_string_pretty(&placeholder)?,
-    )?;
-    Ok(())
 }
 
 #[expect(

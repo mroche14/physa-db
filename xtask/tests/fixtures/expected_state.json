@@ -1,0 +1,67 @@
+{
+  "generatedAt": "2026-04-20T00:00:00Z",
+  "stats": {
+    "openIssues": 2,
+    "inProgress": 1,
+    "doneLast30d": 2,
+    "currentMilestone": "M0"
+  },
+  "milestones": [
+    {
+      "name": "M0",
+      "title": "Foundation",
+      "done": 3,
+      "total": 5
+    },
+    {
+      "name": "M1",
+      "title": "Launch",
+      "done": 0,
+      "total": 10
+    }
+  ],
+  "activity": [
+    {
+      "at": "2026-04-18T00:00:00Z",
+      "kind": "pr.opened",
+      "title": "Open PR",
+      "url": "https://example.invalid/pr/8"
+    },
+    {
+      "at": "2026-04-15T00:00:00Z",
+      "kind": "issue.closed",
+      "title": "Task C",
+      "url": "https://example.invalid/issues/3"
+    },
+    {
+      "at": "2026-04-12T00:00:00Z",
+      "kind": "pr.merged",
+      "title": "Merged PR",
+      "url": "https://example.invalid/pr/7"
+    },
+    {
+      "at": "2026-04-10T00:00:00Z",
+      "kind": "issue.opened",
+      "title": "Task A",
+      "url": "https://example.invalid/issues/1"
+    },
+    {
+      "at": "2026-04-08T00:00:00Z",
+      "kind": "issue.opened",
+      "title": "Task B",
+      "url": "https://example.invalid/issues/2"
+    },
+    {
+      "at": "2026-04-05T00:00:00Z",
+      "kind": "pr.opened",
+      "title": "Merged PR",
+      "url": "https://example.invalid/pr/7"
+    },
+    {
+      "at": "2026-04-01T00:00:00Z",
+      "kind": "issue.opened",
+      "title": "Task C",
+      "url": "https://example.invalid/issues/3"
+    }
+  ]
+}
