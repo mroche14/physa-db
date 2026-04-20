@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="physa-db brand symbol: a triangular three-node graph">
+  <line x1="30" y1="72" x2="70" y2="72" stroke="#F4E4CF" stroke-width="3" stroke-linecap="round"/>
+  <line x1="30" y1="72" x2="50" y2="26" stroke="#F4E4CF" stroke-width="3" stroke-linecap="round"/>
+  <line x1="50" y1="26" x2="70" y2="72" stroke="#F4E4CF" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="50" cy="26" r="9" fill="#C77F3E" stroke="#F4E4CF" stroke-width="2"/>
+  <circle cx="30" cy="72" r="9" fill="#F4E4CF"/>
+  <circle cx="70" cy="72" r="9" fill="#F4E4CF"/>
+</svg>
