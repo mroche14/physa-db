@@ -66,7 +66,7 @@ Self-explanatory.
 
 ## Not dependent on the JVM, Go, or any GC runtime
 
-Pure Rust. This is an inviolable technology choice, not an engineering preference — GC pauses are one of the specific problems we're solving.
+Pure Rust. This is an inviolable technology choice, not an engineering preference — GC pauses, memory bloat, and the need for complex heap tuning are specific problems we are solving. Operational simplicity is paramount; requiring specialized DBA skills just to maintain a stable baseline is a non-goal.
 
 ## Not beholden to ISO GQL if it diverges from user needs
 

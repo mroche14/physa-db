@@ -31,6 +31,7 @@ Target throughput queries / minute on SF100, warm cache: TBD per query.
 ## Cold start & recovery
 
 - **Cold start to first query** on a 1 TB graph: TBD (target: single-digit seconds).
+- **Cold start memory footprint**: < 100 MB baseline (no JVM bloat).
 - **Crash recovery** after kill -9 with WAL intact: TBD (target: sub-second on SF10).
 - **Catchup** of a fresh follower from a 1 TB leader: TBD (target: saturate the network link).
 
@@ -57,3 +58,4 @@ All numbers are:
 1. Median of ≥ 10 runs after warm-up.
 2. Produced by `just bench-macro` and checked in under `docs/benchmarks/results/YYYY-MM-DD-*.md`.
 3. Reproducible from commit SHA on the reference hardware.
+ardware.
