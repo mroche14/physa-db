@@ -1,0 +1,159 @@
+{
+  "labels": [
+    {
+      "name": "area:ai-native",
+      "color": "5319e7",
+      "description": "AI-agent-native features (vector, RAG, KG)"
+    },
+    {
+      "name": "area:benchmark",
+      "color": "9ecbff",
+      "description": "Benchmarks, perf tracking"
+    },
+    {
+      "name": "area:client",
+      "color": "539bf5",
+      "description": "Client libraries, SDKs"
+    },
+    {
+      "name": "area:cluster",
+      "color": "1f6feb",
+      "description": "Cluster, replication, sharding"
+    },
+    {
+      "name": "area:docs",
+      "color": "79b8ff",
+      "description": "Documentation, ADRs, examples"
+    },
+    {
+      "name": "area:dx",
+      "color": "bfdbf7",
+      "description": "Developer experience, tooling, skills"
+    },
+    {
+      "name": "area:infra",
+      "color": "c0d3eb",
+      "description": "Infrastructure, CI/CD"
+    },
+    {
+      "name": "area:query",
+      "color": "0366d6",
+      "description": "Query parser, planner, executor"
+    },
+    {
+      "name": "area:research",
+      "color": "6f42c1",
+      "description": "Research, competitor analysis"
+    },
+    {
+      "name": "area:server",
+      "color": "2188ff",
+      "description": "Server binary, protocols (Bolt, HTTP, MCP)"
+    },
+    {
+      "name": "area:storage",
+      "color": "0052cc",
+      "description": "Storage engine, WAL, codec, recovery"
+    },
+    {
+      "name": "type:adr",
+      "color": "5319e7",
+      "description": "Architecture Decision Record"
+    },
+    {
+      "name": "type:bug",
+      "color": "d73a4a",
+      "description": "Bug fix"
+    },
+    {
+      "name": "type:docs",
+      "color": "0075ca",
+      "description": "Documentation only"
+    },
+    {
+      "name": "type:feature",
+      "color": "0e8a16",
+      "description": "New feature"
+    },
+    {
+      "name": "type:perf",
+      "color": "fbca04",
+      "description": "Performance improvement (bench evidence)"
+    },
+    {
+      "name": "type:refactor",
+      "color": "c5def5",
+      "description": "Refactor, no behavior change"
+    },
+    {
+      "name": "type:research",
+      "color": "bfd4f2",
+      "description": "Investigation, spike"
+    },
+    {
+      "name": "type:stress",
+      "color": "e99695",
+      "description": "Stress / chaos / soak test"
+    },
+    {
+      "name": "status:blocked",
+      "color": "d73a4a",
+      "description": "Blocked by external dependency"
+    },
+    {
+      "name": "status:done",
+      "color": "cccccc",
+      "description": "Merged / resolved"
+    },
+    {
+      "name": "status:in-progress",
+      "color": "fbca04",
+      "description": "Claimed - see claim-marker comment"
+    },
+    {
+      "name": "status:needs-review",
+      "color": "1d76db",
+      "description": "PR open, awaiting review"
+    },
+    {
+      "name": "status:ready",
+      "color": "0e8a16",
+      "description": "Ready to pick up via /next"
+    },
+    {
+      "name": "priority:p0",
+      "color": "b60205",
+      "description": "Drop everything"
+    },
+    {
+      "name": "priority:p1",
+      "color": "d93f0b",
+      "description": "High priority"
+    },
+    {
+      "name": "priority:p2",
+      "color": "fbca04",
+      "description": "Normal priority"
+    },
+    {
+      "name": "priority:p3",
+      "color": "cccccc",
+      "description": "Nice to have"
+    },
+    {
+      "name": "agent:good-first-task",
+      "color": "7057ff",
+      "description": "Good for a newly-onboarded agent"
+    },
+    {
+      "name": "agent:long-running",
+      "color": "008672",
+      "description": "Task > 1 day of effort"
+    },
+    {
+      "name": "agent:needs-human",
+      "color": "e99695",
+      "description": "Requires human judgement - no auto-claim"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+name: Sync labels
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "23 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: sync-labels
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconcile declared labels
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          count="$(jq '.labels | length' .github/labels.yml)"
+          if [[ "$count" -ne 31 ]]; then
+            echo "Expected 31 labels in .github/labels.yml, found $count" >&2
+            exit 1
+          fi
+
+          jq -c '.labels[]' .github/labels.yml | while read -r label; do
+            name="$(jq -r '.name' <<<"$label")"
+            color="$(jq -r '.color' <<<"$label")"
+            description="$(jq -r '.description' <<<"$label")"
+
+            echo "Reconciling $name"
+            gh label create "$name" \
+              --color "$color" \
+              --description "$description" \
+              --force
+          done
+
+          echo "Declared labels reconciled. Stray labels are intentionally left untouched."

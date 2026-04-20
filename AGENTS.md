@@ -141,13 +141,17 @@ Every CI gate is a local `just` command — **if it passes locally, it must pass
 
 ### Labels (canonical set)
 
-| Prefix | Examples | Meaning |
+| Prefix | Canonical labels | Meaning |
 |--------|----------|---------|
-| `area:` | `area:storage`, `area:query`, `area:cluster`, `area:server`, `area:client`, `area:docs`, `area:benchmark`, `area:infra`, `area:dx` | Subsystem |
-| `type:` | `type:feature`, `type:bug`, `type:perf`, `type:refactor`, `type:research`, `type:docs`, `type:stress` | Nature of work |
+| `area:` | `area:storage`, `area:query`, `area:cluster`, `area:server`, `area:client`, `area:docs`, `area:benchmark`, `area:infra`, `area:dx`, `area:research`, `area:ai-native` | Subsystem |
+| `type:` | `type:feature`, `type:bug`, `type:perf`, `type:refactor`, `type:research`, `type:docs`, `type:stress`, `type:adr` | Nature of work |
 | `status:` | `status:ready`, `status:in-progress`, `status:blocked`, `status:needs-review`, `status:done` | Lifecycle |
 | `priority:` | `p0`, `p1`, `p2`, `p3` | Urgency |
 | `agent:` | `agent:good-first-task`, `agent:needs-human`, `agent:long-running` | Agent-specific hints |
+
+The source of truth for label metadata is [`.github/labels.yml`](./.github/labels.yml).
+The `sync-labels` workflow creates missing labels and updates declared labels
+on `main`; it does not delete stray labels automatically.
 
 ### Issue template
 Every issue must have:
