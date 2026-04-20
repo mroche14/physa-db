@@ -86,7 +86,7 @@ Every row below cites the workload family (from [`ai-agent-workloads.md`](./ai-a
 | FM-120 | ai-native | Token-budget-aware result shaping (`CONTEXT_WINDOW(results, budget)`) | Novel | M4 | — | — | W-B |
 | FM-121 | ai-native | `TO_JSONLD(node)` and Markdown summary output shaping | Novel | M4 | — | — | W-B, W-C |
 | FM-122 | ai-native | MCP (Model Context Protocol) server — agents call physa-db as a tool directly | Novel | M4 | — | — | W-A, W-B, W-C, W-D, W-E |
-| FM-123 | ai-native | High-throughput streaming ingest (target 100k events/s per tenant on reference HW) | Novel | M4 | — | — | W-E |
+| FM-123 | ai-native | High-throughput streaming ingest (AFM-008, AFM-012) (target 100k events/s per tenant on reference HW) | Novel | M4 | — | — | W-E |
 | FM-124 | ai-native | Time-partitioned storage layout with cold-tier auto-demotion | Novel | M6 | — | — | W-E |
 | FM-125 | ai-native | JSON-LD property type for structured log payloads | Novel | M4 | — | — | W-E |
 | FM-126 | ai-native | Per-tenant vector isolation (one tenant's vectors never in another's index) | Parity | M5 | — | — | W-A, W-B |
@@ -98,3 +98,4 @@ Every row below cites the workload family (from [`ai-agent-workloads.md`](./ai-a
 _Add rows as research surfaces new requirements. Row IDs are stable once published — do not renumber._
 
 _Tier column is the target milestone. Tiers may shift once M1 locks the feature set and M2 promotes the architecture ADRs — rows do not get renumbered, only re-tiered with a changelog entry._
+ a changelog entry._
