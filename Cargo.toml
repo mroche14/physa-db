@@ -13,7 +13,7 @@ members = [
 [workspace.package]
 version = "0.0.0"
 edition = "2024"
-rust-version = "1.85"
+rust-version = "1.95"
 license = "Apache-2.0"
 repository = "https://github.com/mroche14/physa-db"
 authors = ["physa-db contributors"]
@@ -44,8 +44,8 @@ smallvec = "1"
 indexmap = "2"
 # Testing
 proptest = "1"
-criterion = "0.5"
-iai-callgrind = "0.14"
+criterion = "0.8"
+iai-callgrind = "0.16"
 loom = "0.7"
 # Misc
 clap = { version = "4", features = ["derive"] }

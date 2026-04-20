@@ -5,7 +5,9 @@
 //! benches as `physa-core` grows; do not delete the file — the CI workflow
 //! expects at least one criterion target.
 
-use criterion::{Criterion, black_box, criterion_group, criterion_main};
+use std::hint::black_box;
+
+use criterion::{Criterion, criterion_group, criterion_main};
 
 fn smoke_noop(c: &mut Criterion) {
     c.bench_function("smoke_noop", |b| b.iter(|| black_box(0_u64)));
