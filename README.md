@@ -111,6 +111,12 @@ See [`AGENTS.md`](./AGENTS.md) for the full agent contract — engineering-disci
 
 Public development dashboard — features in flight, benchmarks, open issues — at a GitHub Pages URL *(pending first deploy)*.
 
+## Project labels
+
+Issue labels are declared in [`.github/labels.yml`](./.github/labels.yml) and reconciled by the `sync-labels` workflow on `main`. The workflow creates missing labels and updates declared metadata, but it never deletes stray labels automatically.
+
+To propose a new label, open a PR that updates both [`.github/labels.yml`](./.github/labels.yml) and the canonical table in [`AGENTS.md`](./AGENTS.md) §6. Include the prefix, color, description, and why the existing taxonomy cannot express the work.
+
 ## Quick links
 
 - [`docs/requirements/positioning.md`](./docs/requirements/positioning.md) — commercial pillar (§1) + AI-agent-native technical pillar (§§2–7)
