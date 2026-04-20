@@ -48,6 +48,12 @@ The code is Apache-2.0 end-to-end. There is no "enterprise edition" with gated f
 
 The embedded mode (library linked into a host process, see FM-039) is supported. But the targets (NVMe, 64 GB RAM) are datacentre-class. We don't target battery-powered devices or < 1 GB memory footprints.
 
+## Not a Windows target
+
+physa-db ships to **Unix servers** — Linux in production, macOS for developer parity. Windows is **not** a supported host or target platform. No `#[cfg(windows)]` branches, no PowerShell scripts, no Windows-specific filesystem handling.
+
+**Why:** server graph databases run on Linux. Supporting Windows costs CI minutes, test surface, and filesystem-semantics bugs (case-insensitive FS, no `fork`, CRLF, path-length limits) in exchange for zero realistic users of a server DB. Dev on macOS works because Unix semantics are the same. If a dependency requires Windows workarounds, we drop the dependency.
+
 ## Not an LLM host
 
 physa-db provides **hook points for embedding generation** (FM-117) and serves as a tool to agents via MCP (FM-122). It does **not** ship a bundled LLM, embedding model, or inference runtime. Users bring their own models.

@@ -17,7 +17,7 @@ Or batch via `xtask create-seed-issues` (to be implemented).
 ### Finalise CI matrix and cache
 - **Labels:** `area:infra`, `type:feature`, `status:ready`, `priority:p1`
 - **Acceptance:**
-  - [ ] `ci.yml` runs `just ci` on Linux + macOS + Windows
+  - [ ] `ci.yml` runs `just ci` on Linux + macOS (Windows is a non-goal — see `docs/requirements/non-goals.md`)
   - [ ] `Swatinem/rust-cache` configured with workspace-aware key
   - [ ] First green build on `main`
 
