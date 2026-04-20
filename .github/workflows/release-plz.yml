@@ -1,8 +1,16 @@
 name: release-plz
 
+# Disabled until M3 (first crates.io publish).
+# Before re-enabling:
+#   1. Enable repo setting: Settings → Actions → General → Workflow permissions
+#      → "Allow GitHub Actions to create and approve pull requests".
+#      Otherwise the action hits HTTP 403 on every main push.
+#   2. Add CARGO_REGISTRY_TOKEN to repository secrets.
+#   3. Restore the `push: branches: [main]` trigger below.
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
 
 permissions:
   contents: write
