@@ -1,0 +1,27 @@
+{
+  "data": {
+    "repository": {
+      "pullRequests": {
+        "pageInfo": { "hasNextPage": false, "endCursor": null },
+        "nodes": [
+          {
+            "title": "Merged PR",
+            "url": "https://example.invalid/pr/7",
+            "state": "MERGED",
+            "createdAt": "2026-04-05T00:00:00Z",
+            "closedAt": "2026-04-12T00:00:00Z",
+            "mergedAt": "2026-04-12T00:00:00Z"
+          },
+          {
+            "title": "Open PR",
+            "url": "https://example.invalid/pr/8",
+            "state": "OPEN",
+            "createdAt": "2026-04-18T00:00:00Z",
+            "closedAt": null,
+            "mergedAt": null
+          }
+        ]
+      }
+    }
+  }
+}

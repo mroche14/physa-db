@@ -1,0 +1,27 @@
+{
+  "data": {
+    "repository": {
+      "issues": {
+        "pageInfo": { "hasNextPage": false, "endCursor": null },
+        "nodes": [
+          {
+            "title": "Task B",
+            "url": "https://example.invalid/issues/2",
+            "state": "OPEN",
+            "createdAt": "2026-04-08T00:00:00Z",
+            "closedAt": null,
+            "labels": { "nodes": [] }
+          },
+          {
+            "title": "Task C",
+            "url": "https://example.invalid/issues/3",
+            "state": "CLOSED",
+            "createdAt": "2026-04-01T00:00:00Z",
+            "closedAt": "2026-04-15T00:00:00Z",
+            "labels": { "nodes": [] }
+          }
+        ]
+      }
+    }
+  }
+}
