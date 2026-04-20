@@ -1,5 +1,7 @@
 # physa-db
 
+![A constellation of obsidian polyhedral nodes suspended in deep space, connected by luminous copper data threads radiating from a central forge-core — representing physa-db's graph-native architecture, multi-tenant clusters, and hybrid retrieval workloads.](assets/hero-constellation.jpg)
+
 > **An open-source, Rust-native graph database purpose-built for AI-agent workloads — vector search, multi-hop retrieval, knowledge graphs, agent memory, media assets — with full GQL/openCypher compatibility and native multi-tenancy.**
 
 **Status:** Pre-alpha. Architecture phase. Not usable yet.
@@ -28,6 +30,8 @@ The AI-native features win *new* workloads that never had a good graph DB answer
 ## Development philosophy
 
 This project is **AI-agent-first** in its development workflow, too. Documentation, tooling, and issue structure are designed so that AI coding agents (Claude Code, Codex, Cursor, etc.) can pick up well-scoped issues and ship PRs with minimal human intervention. Humans own vision, review, and merges; agents own implementation velocity.
+
+![Five glyph-faced luminous translucent entities gathered in a loose circle around a floating crystalline artifact in a forest clearing at night, each holding a tool of light, with a ghostly architect silhouette observing from the back — the autonomous atelier of AI agents collaboratively building physa-db.](assets/hero-agent-atelier.jpg)
 
 See [`AGENTS.md`](./AGENTS.md) for the full agent contract, including the engineering discipline rules (§11 first-principles, §12 no-shortcuts, §15 features-before-architecture).
 
