@@ -4,21 +4,21 @@
 # mise reads rust-toolchain.toml for the compiler version.
 
 [tools]
-just = "1.36"
+just = "1.50.0"
 # nextest — faster, better test runner
-"cargo:cargo-nextest" = "0.9"
+"cargo:cargo-nextest" = "0.9.133"
 # criterion — benchmark runner
-"cargo:cargo-criterion" = "1.1"
+"cargo:cargo-criterion" = "1.1.0"
 # fuzzing
-"cargo:cargo-fuzz" = "0.12"
+"cargo:cargo-fuzz" = "0.13.1"
 # watch mode for `just dev`
-"cargo:cargo-watch" = "8.5"
+"cargo:cargo-watch" = "8.5.3"
 # security audit
-"cargo:cargo-audit" = "0.21"
+"cargo:cargo-audit" = "0.22.1"
 # release automation (reads release-plz.toml)
-"cargo:release-plz" = "0.3"
+"cargo:release-plz" = "0.3.157"
 # coverage
-"cargo:cargo-llvm-cov" = "0.6"
+"cargo:cargo-llvm-cov" = "0.8.5"
 
 [env]
 RUST_BACKTRACE = "1"
