@@ -58,8 +58,11 @@ bench-save baseline="current":
     cargo criterion --workspace -- --save-baseline {{baseline}}
 
 # Instruction-count benches (stable across hardware, good for CI gates).
+# List each crate that ships an `iai` bench target explicitly — cargo errors
+# on `--workspace --bench iai` if any member lacks that target. Add crates
+# here as they grow an `iai.rs` under their `benches/` directory.
 bench-iai:
-    cargo bench --bench iai --workspace
+    cargo bench -p physa-core --bench iai
 
 # Macro benchmarks (LDBC SNB / SNAP) on SF1.
 bench-macro sf="1":

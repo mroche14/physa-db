@@ -1,53 +1,92 @@
 name: bench-regression
 
+# PR-time regression gate (AGENTS.md §5).
+#
+# Uses iai-callgrind as the regression oracle. Instruction counts are
+# deterministic across runs on the same binary, so this gate can safely
+# run on GitHub's shared ubuntu-latest — no self-hosted needed.
+#
+# Triggers:
+#   - PRs labelled `type:perf` (formal perf work must gate on numbers)
+#   - PRs that touch any `benches/` file (new/changed bench means new/changed gate)
+
 on:
   pull_request:
+    types: [labeled, synchronize, opened, reopened]
     paths:
-      - "crates/**"
-      - "benchmarks/**"
+      - "crates/**/benches/**"
+      - "crates/**/src/**"
       - "Cargo.toml"
       - "Cargo.lock"
-  schedule:
-    - cron: "30 3 * * *"
-  workflow_dispatch:
+      - ".github/workflows/bench-regression.yml"
+      - ".github/scripts/bench-*.sh"
 
 permissions:
   contents: read
   pull-requests: write
 
 concurrency:
-  group: bench-${{ github.ref }}
+  group: bench-regression-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  criterion:
-    name: criterion micro-benches
-    # Dedicated bench runner (self-hosted, pinned hardware) should be attached later.
-    # For now, ubuntu-latest is the placeholder so the workflow is wired up.
+  iai:
+    # Skip unless the PR is explicitly labelled type:perf or changes benches.
+    if: |
+      contains(github.event.pull_request.labels.*.name, 'type:perf') ||
+      contains(github.event.pull_request.changed_files.*.filename, '/benches/')
+    name: iai instruction-count gate
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      CARGO_TERM_COLOR: always
+      REGRESSION_THRESHOLD: "2.0"
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - uses: dtolnay/rust-toolchain@stable
+
       - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: bench-regression
 
-      - name: Install cargo-criterion
-        run: cargo install cargo-criterion --version 1.1
-
-      - name: Fetch baseline from main
+      - name: Install valgrind + iai-callgrind-runner
         run: |
-          git fetch origin main:main
-          git worktree add /tmp/baseline main
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends valgrind
+          cargo install iai-callgrind-runner --version ^0.14 --locked
 
-      - name: Run baseline benches (main)
-        working-directory: /tmp/baseline
-        run: cargo criterion --workspace -- --save-baseline main || echo "No benches on main yet"
+      # ----------- PR HEAD -----------
+      - name: Run iai on PR HEAD
+        run: |
+          mkdir -p target
+          just bench-iai 2>&1 | tee target/iai-pr.txt
 
-      - name: Run PR benches
-        run: cargo criterion --workspace -- --baseline main || echo "Baseline not populated yet"
+      - name: Collect PR summaries
+        run: bash .github/scripts/bench-collect-iai.sh pr-summaries target/iai-pr.txt
 
-      - name: Post comparison comment (placeholder)
-        if: github.event_name == 'pull_request'
-        run: echo "TODO: parse criterion JSON and post comment via gh api"
+      # ----------- BASE (main) -----------
+      - name: Checkout base branch
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          git checkout ${{ github.event.pull_request.base.ref }}
+
+      - name: Run iai on base
+        run: |
+          just bench-iai 2>&1 | tee target/iai-base.txt
+        continue-on-error: true   # base may not yet have benches
+
+      - name: Collect base summaries
+        run: bash .github/scripts/bench-collect-iai.sh base-summaries target/iai-base.txt
+
+      # ----------- COMPARE -----------
+      - name: Compare PR vs base, post comment, enforce threshold
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: bash .github/scripts/bench-compare-iai.sh base-summaries pr-summaries

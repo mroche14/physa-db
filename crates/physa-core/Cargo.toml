@@ -18,3 +18,13 @@ serde = { workspace = true }
 
 [dev-dependencies]
 proptest = { workspace = true }
+criterion = { workspace = true }
+iai-callgrind = { workspace = true }
+
+[[bench]]
+name = "smoke"
+harness = false
+
+[[bench]]
+name = "iai"
+harness = false
