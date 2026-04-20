@@ -89,15 +89,15 @@ physa-db/
 
 ## 3. How to pick up work
 
-**TL;DR — invoke `/next` and it does all of this for you.** The skill encodes the protocol below and handles race conditions.
+**TL;DR — invoke the `next` skill and it does all of this for you.** In Claude Code this is `/next`; in Codex use `$next` or ask "use the next skill". The skill encodes the protocol below and handles race conditions.
 
-1. **Claim via `/next`** — selects the top-priority `status:ready` issue in the current milestone, atomically flips it to `status:in-progress`, assigns you, and creates an `agent/<issue-number>-<short-slug>` branch. See §6.1 for the claim protocol.
+1. **Claim via `next`** — selects the top-priority `status:ready` issue in the current milestone, atomically flips it to `status:in-progress`, assigns you, and creates an `agent/<issue-number>-<short-slug>` branch. See §6.1 for the claim protocol.
 2. **Follow the acceptance criteria** on the issue — they are contractual.
 3. **Every commit references the issue** with `Refs #N` in the body (or `Closes #N` on the final commit). Feeds the dashboard and the reaper's freshness check.
 4. **Open a PR** (`gh pr create --fill`) linking the issue. Include benchmark deltas if `type:perf`. The PR flips the issue to `status:needs-review`.
-5. **If you cannot finish**, invoke `/abandon <ready|blocked> <reason>` — never just walk away. A silent `status:in-progress` blocks the whole fleet.
+5. **If you cannot finish**, invoke `abandon <ready|blocked> <reason>` — never just walk away. A silent `status:in-progress` blocks the whole fleet.
 
-If no issue matches your task, **stop and open one first** via `/file-issue`. Issues are the system of record (§6).
+If no issue matches your task, **stop and open one first** via `file-issue`. Issues are the system of record (§6).
 
 ---
 
@@ -158,16 +158,16 @@ Every issue must have:
 
 ### 6.1 Claim protocol (autonomous agent coordination)
 
-When multiple agents work in parallel, GitHub acts as the lock manager. The protocol below prevents double-tasking without a central coordinator; the `/next` and `/abandon` skills encode it mechanically.
+When multiple agents work in parallel, GitHub acts as the lock manager. The protocol below prevents double-tasking without a central coordinator; the `next` and `abandon` skills encode it mechanically.
 
 - **Claim state.** An issue is claimed iff it carries `status:in-progress` **and** has at least one assignee. Both conditions together — a lone label or lone assignee is an invalid state.
-- **Claim (via `/next`).** The skill picks the top-priority `status:ready` issue in the active milestone, flips the label, adds the assignee, and posts a `<!-- claim-marker -->` comment. It then **re-fetches** the issue after ~2 s and aborts if a competing assignee appears — GitHub's label writes are eventually consistent across replicas, so the double-check is load-bearing.
-- **One agent, one claim.** An agent that already holds a claim must finish it (→ PR → `status:needs-review`) or `/abandon` it before claiming another.
+- **Claim (via `next`).** The skill picks the top-priority `status:ready` issue in the active milestone, flips the label, adds the assignee, and posts a `<!-- claim-marker -->` comment. It then **re-fetches** the issue after ~2 s and aborts if a competing assignee appears — GitHub's label writes are eventually consistent across replicas, so the double-check is load-bearing.
+- **One agent, one claim.** An agent that already holds a claim must finish it (→ PR → `status:needs-review`) or `abandon` it before claiming another.
 - **Branch discipline.** Work happens on `agent/<issue-number>-<slug>`. Every commit includes `Refs #N`. The reaper uses commit timestamps on this branch as a liveness signal.
-- **Clean exit.** Two sanctioned exits: a PR (flip to `status:needs-review`), or `/abandon <ready|blocked> <reason>` (flip back, unassign). Never leave a silent `status:in-progress`.
-- **Reaper.** `.github/workflows/reap-stale-claims.yml` runs every 6 h. Any `status:in-progress` issue with no issue activity **and** no commits on its `agent/` branch for 24 h is reverted to `status:ready` automatically. A compacted/crashed agent that restarts and re-claims via `/next` will take over normally.
+- **Clean exit.** Two sanctioned exits: a PR (flip to `status:needs-review`), or `abandon <ready|blocked> <reason>` (flip back, unassign). Never leave a silent `status:in-progress`.
+- **Reaper.** `.github/workflows/reap-stale-claims.yml` runs every 6 h. Any `status:in-progress` issue with no issue activity **and** no commits on its `agent/` branch for 24 h is reverted to `status:ready` automatically. A compacted/crashed agent that restarts and re-claims via `next` will take over normally.
 
-If you are extending the protocol (e.g. adding a claim TTL override label), update this section, the `/next` and `/abandon` skills, and the reaper workflow in the same PR.
+If you are extending the protocol (e.g. adding a claim TTL override label), update this section, the `next` and `abandon` skills, and the reaper workflow in the same PR.
 
 ---
 
@@ -352,38 +352,40 @@ M1 (see `ROADMAP.md`) is the milestone where all primary feature rows move from 
 
 ## 16. Skills — mechanical rule enforcement
 
-The repo ships a catalog of Claude Code skills under [`.claude/skills/`](./.claude/skills/). Each skill is a playbook that enforces one or more of the rules above so they are checked mechanically, not recalled from memory.
+The repo ships a catalog of skills under [`.claude/skills/`](./.claude/skills/). Each skill is a playbook that enforces one or more of the rules above so they are checked mechanically, not recalled from memory. Codex discovers the same canonical skill files through the symlink bridge under [`.agents/skills/`](./.agents/skills/); keep `.claude/skills/` as the source of truth and refresh the bridge when skills are added, renamed, or removed.
+
+Invocation syntax differs by agent. Claude Code exposes these as slash commands such as `/next`. Codex skills are not CLI slash commands; invoke them with `$next`, `$plan-feature`, etc., or by asking Codex to use the named skill.
 
 **Tier 0 (autonomy loop).** The entry and exit points for an agent that wants to keep working without a human prompt. Implements the claim protocol (§6.1).
 
 | Skill | Rule encoded | When to call |
 |-------|--------------|--------------|
-| `/next [milestone]` | §§3, 6.1 | Start of every new agent session, or after finishing a PR — claim the next ready issue |
-| `/abandon <ready\|blocked> <reason>` | §§3, 6.1 | When you cannot finish — unassign and flip label; never walk away silently |
+| `next [milestone]` | §§3, 6.1 | Start of every new agent session, or after finishing a PR — claim the next ready issue |
+| `abandon <ready\|blocked> <reason>` | §§3, 6.1 | When you cannot finish — unassign and flip label; never walk away silently |
 
 **Tier 1 (rule-enforcers).** Invoke at the right moment and the rule is respected automatically.
 
 | Skill | Rule encoded | When to call |
 |-------|--------------|--------------|
-| `/onboard` | §§0, 7, 11, 12, 15 | Start of every new agent session, or after compaction |
-| `/plan-feature <desc>` | §§11, 15 | Before any code — locks the FM row, workload anchor, derivation, AC |
-| `/write-adr <NNNN> <title>` | §§11, 15 | When `plan-feature` concluded an ADR is needed |
-| `/research-competitor <CODENAME> <real-name>` | §7, ADR-0006 | Any competitor profile — forces codename + private input + public delta |
-| `/pre-commit-check` | §§1, 4, 5, 7, 8 | Before every commit — local mirror of CI |
-| `/review-pr <num>` | §§1, 5, 7, 8, 11, 12, 15 | Reviewing any PR |
-| `/promote-adr <NNNN>` | §15 | Only at M2 exit — gates Proposed → Accepted |
+| `onboard` | §§0, 7, 11, 12, 15 | Start of every new agent session, or after compaction |
+| `plan-feature <desc>` | §§11, 15 | Before any code — locks the FM row, workload anchor, derivation, AC |
+| `write-adr <NNNN> <title>` | §§11, 15 | When `plan-feature` concluded an ADR is needed |
+| `research-competitor <CODENAME> <real-name>` | §7, ADR-0006 | Any competitor profile — forces codename + private input + public delta |
+| `pre-commit-check` | §§1, 4, 5, 7, 8 | Before every commit — local mirror of CI |
+| `review-pr <num>` | §§1, 5, 7, 8, 11, 12, 15 | Reviewing any PR |
+| `promote-adr <NNNN>` | §15 | Only at M2 exit — gates Proposed → Accepted |
 
 **Tier 2 (workflow automators).** Make the expensive / error-prone operations reproducible.
 
 | Skill | When to call |
 |-------|--------------|
-| `/run-stress <scenario>` | After any storage / MVCC / cluster change. Mandatory evidence for those PRs |
-| `/run-bench <mode> <baseline>` | Before claiming any perf win. Mandatory for `type:perf` PRs |
-| `/file-issue <title>` | End of `plan-feature`; any tracked task > 1 h of effort |
+| `run-stress <scenario>` | After any storage / MVCC / cluster change. Mandatory evidence for those PRs |
+| `run-bench <mode> <baseline>` | Before claiming any perf win. Mandatory for `type:perf` PRs |
+| `file-issue <title>` | End of `plan-feature`; any tracked task > 1 h of effort |
 
 Read [`.claude/skills/README.md`](./.claude/skills/README.md) for the full catalog, conventions, and the Tier 3 backlog (proptest / loom / fuzz scaffolds, regression diff tool, subagent delegations).
 
-**Rule.** If a skill exists for the action you are about to take, use it. A PR that could have been produced via `/plan-feature` + `/write-adr` + `/pre-commit-check` but skipped them is evidence that the author missed a rule — and is grounds for a review-request change.
+**Rule.** If a skill exists for the action you are about to take, use it. A PR that could have been produced via `plan-feature` + `write-adr` + `pre-commit-check` but skipped them is evidence that the author missed a rule — and is grounds for a review-request change.
 
 ---
 
