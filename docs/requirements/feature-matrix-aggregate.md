@@ -30,7 +30,7 @@
 | AFM-025 | Hybrid graph + vector query composition | Query | 4 | Compose ANN retrieval with graph expansion and filtering in one plan | adopt |
 | AFM-026 | Full-text search | Query | 5 | Integrated text index and ranking inside the database query surface | adopt |
 | AFM-027 | Geospatial search | Query | 3 | Native geo types or geo indexes in graph-aware queries | adopt |
-| AFM-028 | Graph algorithms library | Query | 6 | Built-in or tightly coupled algorithm suite over stored graphs | adopt |
+| AFM-028 | Classical graph algorithms library | Query | 7 | Centrality, community-detection, pathfinding, and connectivity algorithms run over the stored graph or a tightly coupled analytics surface | adopt |
 | AFM-029 | Streaming ingest / CDC connectors | Ops | 2 | Native ingestion from message buses or change streams | adopt |
 | AFM-030 | High-speed bulk import | Ops | 5 | Dedicated large-scale loader separate from transactional writes | adopt |
 | AFM-031 | Backup / restore / disaster recovery | Ops | 3 | Operational tooling for snapshot, restore, and recovery workflows | adopt |
@@ -56,3 +56,10 @@
 | AFM-054 | Redis-module / protocol adjacency | Packaging | 1 | Graph engine runs as a module or adjacent surface over Redis | non-goal |
 | AFM-055 | Gremlin compatibility | Query | 1 | Support Gremlin as an additional graph query language | non-goal |
 | AFM-056 | Graph over external SQL / lakehouse tables | Storage | 1 | Map graph abstractions onto existing SQL or lakehouse tables | non-goal |
+| AFM-057 | Analytical graph projection / graph catalog workspace | Query | 2 | Project a filtered graph into an in-memory or temporary analytical workspace before running algorithms | redesign |
+| AFM-058 | Node / graph embedding algorithms | Query | 5 | Built-in embedding procedures such as node2vec or FastRP write vectors back into the graph | open |
+| AFM-059 | Supervised graph ML pipelines | Tooling | 4 | Train node-classification or link-prediction models over graph-derived features and graph structure | open |
+| AFM-060 | Python / notebook graph-data-science workflow | Tooling | 4 | Vendor-maintained Python or notebook APIs orchestrate projections, algorithms, and ML jobs | open |
+| AFM-061 | Managed or isolated graph analytics workbench / sessions | Tooling | 3 | Separate analytics sessions or workbenches isolate heavy graph-ML jobs from the primary OLTP surface | open |
+| AFM-062 | Third-party graph ML / analytics framework integration | Tooling | 4 | Adapters or data loaders bridge the graph store into PyG, DGL, NetworkX, cuGraph, Spark, or GraphX | open |
+| AFM-063 | Graph ML model catalog / inference APIs | Tooling | 3 | Persist trained graph models and expose prediction or model-inspection APIs inside the DS surface | open |
