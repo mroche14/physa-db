@@ -20,7 +20,7 @@
 
 ---
 
-![Top-down editorial illustration of a Physarum polycephalum slime mold network mid-self-optimization — bright amber and cyan filamentous tubes branching across a dark hexagonal substrate, with reinforced trunks where data flows most and exploratory tendrils probing outward. The organism behind the project's name: a single-celled adaptive network that solves shortest-path and resilience problems by reinforcing efficient routes and atrophying weak ones — exactly what a graph-native database with adaptive query plans, agent memory, and multi-modal retrieval is engineered to do.](assets/hero-physarum.jpg)
+![Top-down editorial illustration of a self-organising graph network — discrete glowing nodes ringed in cyan are connected by amber and cyan filamentous tubes that thicken at a central convergence cluster where data flows densest, and taper into exploratory tendrils probing outward. Code-line patterns are faintly etched into the dark substrate. The image evokes the project's namesake organism, Physarum polycephalum — the slime mold that solves shortest-path and resilience problems by reinforcing efficient routes and atrophying weak ones — and stands in for what physa-db does at runtime: hybrid graph + vector + full-text retrieval over an adaptive query plan, with agent memory that reinforces useful facts and lets stale ones fade.](assets/hero.jpg)
 
 ## What it does
 
@@ -97,7 +97,7 @@ AI-native features win *new* workloads that never had a good graph-DB answer. Pa
 
 ---
 
-![Top-down editorial illustration of an AI-agent collaboration network — discrete glowing nodes ringed in cyan represent autonomous agents (Claude Code, Codex, Gemini, human reviewers); amber and cyan filamentous tubes connect them, thickening at the convergence cluster where work merges and thinning along exploratory tendrils where drafts and abandoned branches taper off. Faint code-line patterns are etched into the dark substrate. The development process itself behaves like a Physarum network: parallel exploration, reinforcement of paths that ship, atrophy of paths that don't.](assets/hero-agent-network.jpg)
+![Editorial illustration of AI coding agents collaborating to assemble a software artifact — a luminous crystalline lattice forms layer by layer at the center as four distinct light streams (amber, cyan, violet, gold) flow inward from each corner of the frame, trailing fragments of code-like syntax, each stream standing in for a different agent voice (Claude Code, Codex, Gemini, human reviewer). Where the streams meet, their colors meld into a brighter unified core: the merged, integrated commit. The development workflow itself is engineered as a converging system — parallel exploration, distinct perspectives, integration at the artifact.](assets/hero-collab.jpg)
 
 ## Built by AI agents, on purpose
 
