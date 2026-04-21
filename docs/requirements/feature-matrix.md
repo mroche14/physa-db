@@ -30,9 +30,9 @@ Each row links to the governing ADR (if any), the tracking issue (once filed), a
 | FM-013 | query | B-tree + hash indices | Parity | M3 | — | — |
 | FM-014 | query | Full-text search on properties | Parity | M6 | — | — |
 | FM-015 | query | Native vector search integrated with graph traversal | Novel | M3 | — | — |
-| FM-016 | query | Built-in graph algorithms (BFS, DFS, PageRank, SSSP, WCC, Louvain) | Parity | M6 | — | — |
+| FM-016 | query | Built-in graph algorithms (BFS, DFS, PageRank, SSSP, WCC, Louvain) (AFM-028) | Parity | M6 | — | — |
 | FM-017 | query | Temporal / as-of queries | Novel | M6 | — | — |
-| FM-018 | query | Subgraph / snapshot materialisation | Novel | M8 | — | — |
+| FM-018 | query | Subgraph / snapshot materialisation (AFM-057) | Novel | M8 | — | — |
 | FM-019 | query | Compiled query plans (JIT via `cranelift` or AoT codegen) | Novel | M6 | — | — |
 | FM-020 | query | Vectorised execution for analytical workloads | Novel | M6 | — | — |
 | FM-021 | cluster | Raft-based metadata consensus (AFM-011) | Parity | M5 | ADR-0005 | — |
@@ -75,7 +75,7 @@ Every row below cites the workload family (from [`ai-agent-workloads.md`](./ai-a
 | FM-106 | ai-native | Hybrid query plans (ANN → graph expansion → rerank) in one plan | Novel | M3 | — | — | W-B |
 | FM-107 | ai-native | Full-text (BM25) index + `RRF` / `HYBRID` scoring operators | Parity | M6 | — | — | W-B |
 | FM-108 | ai-native | Multi-hop retrieval over heterogeneous schema (planner picks direction) | Novel | M4 | — | — | W-B, W-C |
-| FM-109 | ai-native | Built-in graph algorithms: PageRank, SSSP, BFS/DFS with early termination, Louvain, Leiden | Parity | M6 | — | — | W-C |
+| FM-109 | ai-native | Built-in graph algorithms: PageRank, SSSP, BFS/DFS with early termination, Louvain, Leiden (AFM-028) | Parity | M6 | — | — | W-C |
 | FM-110 | ai-native | Bi-temporal model (valid-time + transaction-time) + `AS OF` / `BETWEEN` | Novel | M6 | — | — | W-F |
 | FM-111 | ai-native | Per-fact TTL / forgetting curves + reinforcement primitive | Novel | M3 | — | — | W-A |
 | FM-112 | ai-native | Provenance (source, timestamp, extraction confidence) per node/edge | Novel | M3 | — | — | W-C |
