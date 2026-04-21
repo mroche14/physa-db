@@ -34,11 +34,11 @@ We target **mixed transactional + small-to-medium analytical workloads** (LDBC S
 
 **Why:** OLAP warehouses have a different cost model (columnar on object store with large fan-out); merging those is a distraction.
 
-## Not a pure-analytical in-memory engine (AFM-011)
+## Not a pure-analytical in-memory engine (AFM-011, AFM-029)
 
-physa-db will not offer an "analytical mode" that disables ACID guarantees, logging, and crash recovery just to fit graphs into memory and run ingest faster. We guarantee durability and consistency.
+physa-db will not offer an "analytical mode" that disables ACID guarantees, logging, and crash recovery just to fit graphs into memory and run ingest faster. We guarantee durability and consistency. We also refuse a pure OLAP-only architecture that sacrifices high-frequency transactional point-updates (OLTP), as AI agent memory requires both.
 
-**Why:** The operational overhead of managing separate analytical and transactional configurations, and the risk of data loss on crash, violates our commitment to predictable, reliable graph storage.
+**Why:** The operational overhead of managing separate analytical and transactional configurations, and the risk of data loss on crash, violates our commitment to predictable, reliable graph storage. Pure OLAP engines are unsuitable for real-time agent state management.
 
 ## Not a streaming engine
 
@@ -95,3 +95,27 @@ We do not use blunt memory trackers that abort queries simply because the proces
 We natively support standard query languages: GQL and openCypher. We will not invent a new, proprietary query language.
 
 **Why:** Standard languages reduce the learning curve, prevent vendor lock-in, and provide a seamless migration path from legacy systems.
+
+## Not an application server / embedded JS runner (AFM-018)
+
+physa-db will not embed V8 or any JavaScript/WASM runtime to run user-provided microservices inside the database process.
+
+**Why:** Running application logic inside the storage engine causes unpredictable virtual memory bloat, compromises database stability, and introduces unnecessary security vulnerabilities. Compute and application logic belong in the application tier.
+
+## Not a native GraphQL backend (AFM-019)
+
+We will not parse GraphQL natively into internal query plans as our primary interface.
+
+**Why:** GraphQL is a powerful API layer but an inflexible database query language, lacking the necessary constructs for deep, recursive graph traversals or advanced analytics. Users should use standard GQL/openCypher, and layer GraphQL servers on top if needed.
+
+## Not a matrix-math execution engine (AFM-020)
+
+physa-db uses graph-native pointer/adjacency-based traversals, rather than translating queries into sparse matrix multiplications (GraphBLAS).
+
+**Why:** Matrix math limits performance for simple point-queries and CRUD operations. While fast for complex analytics, it introduces unnecessary overhead for the mixed transactional workloads that AI agents require.
+
+## Not a "Zero-ETL" virtualization layer (AFM-023)
+
+We are a primary database. We do not virtualize graph queries over existing external SQL databases or data lakes (like Iceberg or Snowflake) without importing the data.
+
+**Why:** Translating deep graph hops into remote SQL joins over a network sacrifices latency and predictability. Graph traversals require data locality and index-free adjacency to be consistently fast.
