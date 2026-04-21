@@ -94,6 +94,21 @@ novel to physa-db.}}
 {{Brief: for each rejected alternative, which constraint it violates
 or which overhead it forces.}}
 
+## Optimization research brief (`AGENTS.md` §11)
+
+{{Paste the exhaustive brief from `plan-feature §3b`: research window,
+**sources consulted (every URL, including dead-ends and "not
+applicable" reads)**, search queries + engines + date filters,
+candidates with version strings (`crate A.B.C` as of `crates.io`
+YYYY-MM-DD), SOTA method (name + year + citation + disposition
+adopt/adapt/reject), dead-ends explored, uncovered surprises,
+hardware floor vs target. All sources ≤ 12 months old unless an older
+source is justified inline.}}
+
+An ADR without this brief is a decision made without receipts. The
+reviewer must be able to retrace the full search, not only read the
+conclusion. An abbreviated brief is a rejected brief.
+
 ## Consequences
 
 **Positive**
@@ -129,6 +144,10 @@ Before opening the PR, verify:
 - [ ] `Features addressed` header lists at least one real `FM-NNN` row.
 - [ ] First-principles derivation contains **numbers** (bytes, μs, RTTs),
       not only prose.
+- [ ] "Optimization research brief" section present, exhaustive (every
+      URL consulted incl. dead-ends, queries with date filters, crate
+      versions from `crates.io`, SOTA method with year + disposition),
+      and all sources ≤ 12 months old (older sources justified inline).
 - [ ] At least one alternative is rejected with a constraint-based
       argument (not "it's uglier").
 - [ ] No competitor is named in public text. Use codenames or generic

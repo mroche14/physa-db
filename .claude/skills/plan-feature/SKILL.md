@@ -89,24 +89,54 @@ hour of research now is worth weeks of refactor later. This is not
 optional for features on hot paths or with durability/consistency
 implications.
 
+**Recency window (non-negotiable).** Sources must be ≤ 12 months old
+unless you can justify an older one inline (e.g. a seminal paper whose
+successors have not improved on it). Use date-filtered searches (arXiv
+`submittedDate` ≥ today − 12 months; Google `tbs=qdr:y`; GitHub
+`pushed:>YYYY-MM-DD`). For every library/crate, record the **latest
+stable version on `crates.io` at the date of this plan** — not the
+version pinned in our `Cargo.toml` six months ago. Stale inputs
+silently cap the design.
+
+**Exhaustive documentation (non-negotiable).** The research is only
+valuable if it is reproducible. The brief below records, without
+abbreviation:
+
+- every URL visited, including dead-ends and "not applicable" reads —
+  closing the search perimeter is how the next agent avoids re-doing
+  your work;
+- every search query + the engine/tool it ran on + the date filter
+  applied;
+- for every candidate library / crate / API, the exact version string
+  (`crate A.B.C` as of `crates.io` YYYY-MM-DD, Rust edition, compiler
+  channel, nightly tracking-issue URL) at the consult date;
+- for the SOTA method of the problem class, the method name +
+  publication year + citation URL, and physa-db's disposition
+  (**adopt / adapt / reject**) with a one-line reason.
+
+Silent sweeps are not sweeps. If you cannot list what you read, the
+work is not done — reviewers will reject a brief that hides its search.
+
 Scan, in this order:
 
 - **Papers & SOTA benchmarks.** Web-search the problem class (e.g.
-  "lock-free hash map rust 2025", "MVCC GC amortisation", "HNSW vs
+  "lock-free hash map rust 2026", "MVCC GC amortisation", "HNSW vs
   DiskANN recall/QPS"). Prefer recent arXiv preprints, conference
-  talks (VLDB, SIGMOD, NSDI, ATC), and engineering blogs with real
-  numbers. Cite what you find.
+  talks (VLDB, SIGMOD, NSDI, ATC, OSDI, EuroSys), and engineering
+  blogs with real numbers. Name the SOTA method explicitly — not "a
+  hash map", but "Abseil SwissTable (2018) + follow-ups through 2025".
 - **Rust ecosystem sweep.** For every candidate primitive, check
   `docs.rs` and `lib.rs` (the index-of-crates sites): existing
-  production-grade crates, their benchmark claims, last-release date,
-  licence (Apache-2.0 / MIT compatible — no GPL-family), maintenance
-  status. A neglected crate with theoretical wins is a trap; a
-  well-maintained crate with a 95 %-perfect fit saves months.
+  production-grade crates, their benchmark claims, **current latest
+  version on `crates.io`**, last-release date, licence (Apache-2.0 /
+  MIT compatible — no GPL-family), maintenance status. A neglected
+  crate with theoretical wins is a trap; a well-maintained crate with
+  a 95 %-perfect fit saves months.
 - **Rust stdlib & nightly.** Check whether the feature is better
   handled by a soon-stabilising API (`core::simd` portable SIMD,
-  `allocator_api`, `strict_provenance`, `BufRead::read_until`).
-  Cite the tracking issue; choose based on the stabilisation ETA
-  versus our milestone.
+  `allocator_api`, `strict_provenance`, `BufRead::read_until`). Cite
+  the tracking issue; choose based on the stabilisation ETA versus
+  our milestone.
 - **Hardware floor.** If this is a hot path, compute the theoretical
   lower bound on the target hardware (NVMe seq read ~7 GB/s, DRAM
   random ~100 ns, L1 ~4 cycles, AVX-512 width, etc.). A design that
@@ -117,21 +147,38 @@ Produce a **research brief** (include it verbatim in the issue body):
 ```
 ### Optimization research brief
 
-Candidates evaluated:
-  1. <name> — <claim / cite> — picked / rejected: <reason>
-  2. <name> — <claim / cite> — picked / rejected: <reason>
-  ...
+**Research window:** YYYY-MM-DD – YYYY-MM-DD (≤ 12 months unless justified).
 
-Picked: <N> because <reason grounded in §3a optimum>.
-Rejected: <others with 1-line reason each>.
-Uncovered surprise: <a finding the naïve plan missed, or "none">.
-Hardware floor estimate: <lower bound> — our target: <value> (gap: <ratio>).
+**Sources consulted (exhaustive — every URL visited, including dead-ends and "not applicable" reads):**
+  - <URL> — <title> — <date read> — <finding / "not applicable">
+  - <URL> — ...
+
+**Search queries used:**
+  - "<query>" on <engine/site> (date filter: last 12 months)
+  - ...
+
+**Candidates evaluated:**
+  1. <crate/lib name> <version X.Y.Z> (crates.io, YYYY-MM-DD) — <claim / cite> — picked / rejected: <reason>
+  2. ...
+
+**SOTA method for this problem class:** <method name>, <year>, <citation URL>. physa-db disposition: **adopt / adapt / reject** — <reason>.
+
+**Picked:** <N> because <reason grounded in §3a optimum>.
+
+**Rejected:** <others with 1-line reason each>.
+
+**Dead-ends explored:** <paths that looked promising but weren't> — why.
+
+**Uncovered surprise:** <finding the naïve plan missed, or "none">.
+
+**Hardware floor estimate:** <lower bound> — our target: <value> (gap: <ratio>).
 ```
 
 The brief is the receipts: future contributors must be able to see
-why the non-obvious choice won. If this step produces nothing
-surprising, say so explicitly — "obvious pick confirmed after sweep"
-is a valid outcome, but skipping the sweep is not.
+why the non-obvious choice won **and retrace the full search**. If
+this step produces nothing surprising, say so explicitly — "obvious
+pick confirmed after exhaustive sweep" is a valid outcome; skipping
+the sweep is not, and an abbreviated sweep is not a sweep.
 
 ## Step 4 — Acceptance criteria
 
