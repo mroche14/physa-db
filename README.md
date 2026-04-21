@@ -20,7 +20,7 @@
 
 ---
 
-![Isometric cross-section of a living data lattice: stacked hexagonal node cells with copper data streams flowing from a central processor, suggesting graph-native storage with colocated vector and text indices.](assets/hero-lattice.jpg)
+![Top-down editorial illustration of a Physarum polycephalum slime mold network mid-self-optimization — bright amber and cyan filamentous tubes branching across a dark hexagonal substrate, with reinforced trunks where data flows most and exploratory tendrils probing outward. The organism behind the project's name: a single-celled adaptive network that solves shortest-path and resilience problems by reinforcing efficient routes and atrophying weak ones — exactly what a graph-native database with adaptive query plans, agent memory, and multi-modal retrieval is engineered to do.](assets/hero-physarum.jpg)
 
 ## What it does
 
