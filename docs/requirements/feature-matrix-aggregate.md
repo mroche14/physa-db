@@ -19,4 +19,17 @@
 | AFM-013 | Decoupled Compute and Storage | Cluster | 1 | Stateless query nodes, stateful storage nodes | redesign |
 | AFM-014 | Generic KV-Store Backend | Storage | 1 | LSM-tree (RocksDB) | non-goal |
 | AFM-015 | Hard Memory Tracker Aborts | Ops | 1 | Aborts queries when hitting memory high watermark | non-goal |
-| AFM-016 | Proprietary Query Language | Query | 1 | Custom language alongside standards | non-goal |
+| AFM-016 | Proprietary Query Language | Query | 3 | Custom language alongside standards | non-goal |
+| AFM-017 | Native Multi-Model Storage | Storage | 1 | Handles documents, graphs, and KV in one engine | non-goal |
+| AFM-018 | Embedded JavaScript Microservices | Ops | 1 | V8 engine runs within the DB process | non-goal |
+| AFM-019 | Native GraphQL Interface | Query | 1 | Parses GraphQL directly to internal query plans | non-goal |
+| AFM-020 | Sparse Matrix Algebra Backend | Query | 1 | GraphBLAS matrix multiplication traversals | non-goal |
+| AFM-021 | In-Memory Dual-Representation Storage | Storage | 1 | Optimized in-memory structures | redesign |
+| AFM-022 | Sub-millisecond Cold Starts | Ops | 1 | Fast startup for serverless | adopt |
+| AFM-023 | Zero-ETL Virtualization Layer | Storage | 1 | Translates graph queries to remote SQL/Data Lakes | non-goal |
+| AFM-024 | Vectorized In-Memory Compute | Query | 1 | Apache Arrow based execution | adopt |
+| AFM-025 | Local Storage Cache | Storage | 1 | Caches remote data locally | redesign |
+| AFM-026 | Worst-Case Optimal Joins (WCOJ) | Query | 1 | Leapfrog triejoin variants | adopt |
+| AFM-027 | Factorized Execution | Query | 1 | Compressed intermediate query representations | adopt |
+| AFM-028 | Embedded Columnar Graph Engine | Storage | 1 | DuckDB-style embedded OLAP graph | adopt |
+| AFM-029 | Pure OLAP-only Focus | Ops | 1 | Sacrifices OLTP for pure OLAP speed | non-goal |
