@@ -16,7 +16,7 @@ Each row links to the governing ADR (if any), the tracking issue (once filed), a
 | ID | Area | Feature | Kind | Tier | ADR | Issue |
 |----|------|---------|------|------|-----|-------|
 | FM-001 | query | GQL (ISO/IEC 39075:2024) support | Parity | M3 | ADR-0002 | — |
-| FM-002 | query | openCypher compatibility (AFM-002) | Parity | M3 | ADR-0002 | — |
+| FM-002 | query | openCypher compatibility (AFM-020) | Parity | M3 | ADR-0002 | — |
 | FM-003 | server | Bolt v5 wire protocol | Parity | M4 | — | — |
 | FM-004 | server | HTTP/JSON query endpoint | Parity | M4 | — | — |
 | FM-005 | storage | ACID transactions with MVCC snapshot isolation | Parity | M3 | ADR-0004 | — |
@@ -35,14 +35,14 @@ Each row links to the governing ADR (if any), the tracking issue (once filed), a
 | FM-018 | query | Subgraph / snapshot materialisation | Novel | M8 | — | — |
 | FM-019 | query | Compiled query plans (JIT via `cranelift` or AoT codegen) | Novel | M6 | — | — |
 | FM-020 | query | Vectorised execution for analytical workloads | Novel | M6 | — | — |
-| FM-021 | cluster | Raft-based metadata consensus (AFM-003) | Parity | M5 | ADR-0005 | — |
+| FM-021 | cluster | Raft-based metadata consensus (AFM-011) | Parity | M5 | ADR-0005 | — |
 | FM-022 | cluster | Transparent horizontal scaling | Parity | M5 | ADR-0005 | — |
 | FM-023 | cluster | Online re-sharding with zero downtime | Novel | M5 | ADR-0005 | — |
 | FM-024 | cluster | Multi-region async replication | Parity | M6 | — | — |
 | FM-025 | cluster | Cross-region strong-consistency option | Stretch | M7 | — | — |
 | FM-026 | tenancy | Native multi-tenancy with namespaces | Parity | M5 | — | — |
 | FM-027 | tenancy | Per-tenant resource quotas | Parity | M5 | — | — |
-| FM-028 | tenancy | Per-tenant RBAC (AFM-005) | Parity | M5 | — | — |
+| FM-028 | tenancy | Per-tenant RBAC (AFM-017) | Parity | M5 | — | — |
 | FM-029 | tenancy | Per-tenant backup schedules | Parity | M5 | — | — |
 | FM-030 | ops | Slow-query log with plan explanation | Parity | M4 | — | — |
 | FM-031 | ops | Structured, queryable audit log | Parity | M5 | — | — |
@@ -53,7 +53,7 @@ Each row links to the governing ADR (if any), the tracking issue (once filed), a
 | FM-036 | ecosystem | Migration tool from dominant competitor dump format | Parity | M7 | — | — |
 | FM-037 | ecosystem | Kubernetes operator | Parity | M7 | — | — |
 | FM-038 | ecosystem | Terraform provider | Parity | M7 | — | — |
-| FM-039 | dx | Embedded mode (library usage, no server) (AFM-028) | Parity | M3 | — | — |
+| FM-039 | dx | Embedded mode (library usage, no server) (AFM-003) | Parity | M3 | — | — |
 | FM-040 | dx | Reproducible benchmark suite public to users | Novel | M6 | — | — |
 | FM-041 | ops | Zero-tuning auto-configured memory management | Novel | M4 | — | — |
 | FM-042 | ops | Graceful disk spill for memory pressure (no hard aborts) | Novel | M4 | — | — |
@@ -66,7 +66,7 @@ Every row below cites the workload family (from [`ai-agent-workloads.md`](./ai-a
 |----|------|---------|------|------|-----|-------|----------|
 | FM-100 | ai-native | `VECTOR<F16/F32, DIM>` first-class property type | Novel | M3 | — | — | W-A, W-B, W-D |
 | FM-101 | ai-native | `SPARSE_VECTOR` first-class property type (SPLADE-style) | Novel | M6 | — | — | W-B |
-| FM-102 | ai-native | HNSW index for dense vectors (AFM-004) | Parity | M3 | — | — | W-A, W-B, W-D |
+| FM-102 | ai-native | HNSW index for dense vectors (AFM-024) | Parity | M3 | — | — | W-A, W-B, W-D |
 | FM-103 | ai-native | IVF-PQ index for memory-efficient ANN at scale | Novel | M6 | — | — | W-B, W-D |
 | FM-104 | ai-native | Similarity operators: `COSINE`, `DOT`, `L2`, `HAMMING`, `JACCARD` | Parity | M3 | — | — | W-A, W-B |
 | FM-105 | ai-native | Retrieval operators: `NEAREST(v, K)`, `WITHIN_DISTANCE(v, r)` | Parity | M3 | — | — | W-B |
@@ -87,7 +87,7 @@ Every row below cites the workload family (from [`ai-agent-workloads.md`](./ai-a
 | FM-120 | ai-native | Token-budget-aware result shaping (`CONTEXT_WINDOW(results, budget)`) | Novel | M4 | — | — | W-B |
 | FM-121 | ai-native | `TO_JSONLD(node)` and Markdown summary output shaping | Novel | M4 | — | — | W-B, W-C |
 | FM-122 | ai-native | MCP (Model Context Protocol) server — agents call physa-db as a tool directly | Novel | M4 | — | — | W-A, W-B, W-C, W-D, W-E |
-| FM-123 | ai-native | High-throughput streaming ingest (AFM-008, AFM-012) (target 100k events/s per tenant on reference HW) | Novel | M4 | — | — | W-E |
+| FM-123 | ai-native | High-throughput streaming ingest (AFM-029) (target 100k events/s per tenant on reference HW) | Novel | M4 | — | — | W-E |
 | FM-124 | ai-native | Time-partitioned storage layout with cold-tier auto-demotion | Novel | M6 | — | — | W-E |
 | FM-125 | ai-native | JSON-LD property type for structured log payloads | Novel | M4 | — | — | W-E |
 | FM-126 | ai-native | Per-tenant vector isolation (one tenant's vectors never in another's index) | Parity | M5 | — | — | W-A, W-B |
@@ -99,5 +99,3 @@ Every row below cites the workload family (from [`ai-agent-workloads.md`](./ai-a
 _Add rows as research surfaces new requirements. Row IDs are stable once published — do not renumber._
 
 _Tier column is the target milestone. Tiers may shift once M1 locks the feature set and M2 promotes the architecture ADRs — rows do not get renumbered, only re-tiered with a changelog entry._
- a changelog entry._
- changelog entry._

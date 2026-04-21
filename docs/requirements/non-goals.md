@@ -34,7 +34,7 @@ We target **mixed transactional + small-to-medium analytical workloads** (LDBC S
 
 **Why:** OLAP warehouses have a different cost model (columnar on object store with large fan-out); merging those is a distraction.
 
-## Not a pure-analytical in-memory engine (AFM-011, AFM-029)
+## Not a pure-analytical in-memory engine
 
 physa-db will not offer an "analytical mode" that disables ACID guarantees, logging, and crash recovery just to fit graphs into memory and run ingest faster. We guarantee durability and consistency. We also refuse a pure OLAP-only architecture that sacrifices high-frequency transactional point-updates (OLTP), as AI agent memory requires both.
 
@@ -78,43 +78,43 @@ Pure Rust. This is an inviolable technology choice, not an engineering preferenc
 
 We implement GQL (FM-001) because the standard aligns with our design and unlocks portability. If the ISO spec evolves in ways that harm users, we extend rather than regress — via the `PHYSA` extension namespace clearly documented and shared between both dialects.
 
-## Not a generic KV-store backend (AFM-014)
+## Not a generic KV-store backend (AFM-004)
 
 physa-db uses a graph-native columnar adjacency layout. We do not layer our graph engine on top of a generic KV-store (like RocksDB or FoundationDB).
 
 **Why:** Relational or KV-stores mapped to graphs are suboptimal for index-free adjacency and deep traversals, introducing unnecessary I/O overhead.
 
-## Not a system that relies on hard memory aborts (AFM-015)
+## Not a system that relies on hard memory aborts (AFM-041)
 
 We do not use blunt memory trackers that abort queries simply because the process nears a limit.
 
 **Why:** Aborting queries is a poor user experience. The engine must gracefully spill to NVMe or use memory-mapped structures to maintain stability under memory pressure.
 
-## Not a proprietary query language ecosystem (AFM-016)
+## Not a proprietary query language ecosystem (AFM-022)
 
 We natively support standard query languages: GQL and openCypher. We will not invent a new, proprietary query language.
 
 **Why:** Standard languages reduce the learning curve, prevent vendor lock-in, and provide a seamless migration path from legacy systems.
 
-## Not an application server / embedded JS runner (AFM-018)
+## Not an application server / embedded JS runner (AFM-043)
 
 physa-db will not embed V8 or any JavaScript/WASM runtime to run user-provided microservices inside the database process.
 
 **Why:** Running application logic inside the storage engine causes unpredictable virtual memory bloat, compromises database stability, and introduces unnecessary security vulnerabilities. Compute and application logic belong in the application tier.
 
-## Not a native GraphQL backend (AFM-019)
+## Not a native GraphQL backend (AFM-023)
 
 We will not parse GraphQL natively into internal query plans as our primary interface.
 
 **Why:** GraphQL is a powerful API layer but an inflexible database query language, lacking the necessary constructs for deep, recursive graph traversals or advanced analytics. Users should use standard GQL/openCypher, and layer GraphQL servers on top if needed.
 
-## Not a matrix-math execution engine (AFM-020)
+## Not a matrix-math execution engine (AFM-005)
 
 physa-db uses graph-native pointer/adjacency-based traversals, rather than translating queries into sparse matrix multiplications (GraphBLAS).
 
 **Why:** Matrix math limits performance for simple point-queries and CRUD operations. While fast for complex analytics, it introduces unnecessary overhead for the mixed transactional workloads that AI agents require.
 
-## Not a "Zero-ETL" virtualization layer (AFM-023)
+## Not a "Zero-ETL" virtualization layer (AFM-008, AFM-056)
 
 We are a primary database. We do not virtualize graph queries over existing external SQL databases or data lakes (like Iceberg or Snowflake) without importing the data.
 
