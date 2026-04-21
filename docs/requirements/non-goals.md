@@ -95,3 +95,15 @@ We do not use blunt memory trackers that abort queries simply because the proces
 We natively support standard query languages: GQL and openCypher. We will not invent a new, proprietary query language.
 
 **Why:** Standard languages reduce the learning curve, prevent vendor lock-in, and provide a seamless migration path from legacy systems.
+
+## Not an application server / embedded JS runner (AFM-018)
+
+physa-db will not embed V8 or any JavaScript/WASM runtime to run user-provided microservices inside the database process.
+
+**Why:** Running application logic inside the storage engine causes unpredictable virtual memory bloat, compromises database stability, and introduces unnecessary security vulnerabilities. Compute and application logic belong in the application tier.
+
+## Not a native GraphQL backend (AFM-019)
+
+We will not parse GraphQL natively into internal query plans as our primary interface.
+
+**Why:** GraphQL is a powerful API layer but an inflexible database query language, lacking the necessary constructs for deep, recursive graph traversals or advanced analytics. Users should use standard GQL/openCypher, and layer GraphQL servers on top if needed.

@@ -19,4 +19,7 @@
 | AFM-013 | Decoupled Compute and Storage | Cluster | 1 | Stateless query nodes, stateful storage nodes | redesign |
 | AFM-014 | Generic KV-Store Backend | Storage | 1 | LSM-tree (RocksDB) | non-goal |
 | AFM-015 | Hard Memory Tracker Aborts | Ops | 1 | Aborts queries when hitting memory high watermark | non-goal |
-| AFM-016 | Proprietary Query Language | Query | 1 | Custom language alongside standards | non-goal |
+| AFM-016 | Proprietary Query Language | Query | 3 | Custom language alongside standards | non-goal |
+| AFM-017 | Native Multi-Model Storage | Storage | 1 | Handles documents, graphs, and KV in one engine | non-goal |
+| AFM-018 | Embedded JavaScript Microservices | Ops | 1 | V8 engine runs within the DB process | non-goal |
+| AFM-019 | Native GraphQL Interface | Query | 1 | Parses GraphQL directly to internal query plans | non-goal |
