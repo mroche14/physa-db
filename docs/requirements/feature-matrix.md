@@ -56,6 +56,7 @@ Each row links to the governing ADR (if any), the tracking issue (once filed), a
 | FM-039 | dx | Embedded mode (library usage, no server) | Parity | M3 | — | — |
 | FM-040 | dx | Reproducible benchmark suite public to users | Novel | M6 | — | — |
 | FM-041 | ops | Zero-tuning auto-configured memory management | Novel | M4 | — | — |
+| FM-042 | ops | Graceful disk spill for memory pressure (no hard aborts) | Novel | M4 | — | — |
 
 ## AI-agent-native rows (FM-100…)
 
