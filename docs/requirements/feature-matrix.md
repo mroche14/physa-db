@@ -57,6 +57,8 @@ Each row links to the governing ADR (if any), the tracking issue (once filed), a
 | FM-040 | dx | Reproducible benchmark suite public to users | Novel | M6 | — | — |
 | FM-041 | ops | Zero-tuning auto-configured memory management | Novel | M4 | — | — |
 | FM-042 | ops | Graceful disk spill for memory pressure (no hard aborts) | Novel | M4 | — | — |
+| FM-043 | tenancy | External auth providers: SSO / LDAP / OIDC / SAML (AFM-019) | Parity | M5 | — | — |
+| FM-044 | ops | Fully managed cloud service (AFM-032) | Parity | M7 | — | — |
 
 ## AI-agent-native rows (FM-100…)
 
