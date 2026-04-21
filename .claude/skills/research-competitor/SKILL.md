@@ -65,6 +65,10 @@ Partial coverage produces partial conclusions. For each competitor, **every** so
 - **Independent benchmarks** — third-party perf reports. Weight independent > vendor-authored.
 - **Implementation patterns** — the **engineering choice** for each feature (data structures, wire protocols, consensus algorithms, GC strategies, concrete file formats), not just the feature name.
 
+**Version discipline.** Consult every source at the **current stable / main branch** (for code) or the **latest published release line** (for docs / blogs / benchmarks). Pin the exact commit SHA, tag, or release date in the profile's References section — a two-year-old fork exposes a different feature surface. Stale reads produce stale conclusions.
+
+**Documentation trail (exhaustive).** The References section of the private profile lists **every URL consulted**, not only those cited in the body — including dead-ends and "not applicable" reads. For each entry: URL, title, date read, one-line finding. Silent reads are not reads; the next agent must be able to retrace the full search perimeter without re-doing it.
+
 Coverage gaps are surfaced in the private file's "Open questions" section and filed as `type:research` issues — never silently omitted.
 
 ## Step 2 — Write the PRIVATE profile

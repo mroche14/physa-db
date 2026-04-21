@@ -229,11 +229,21 @@ Look for:
 Before writing code, confirm the issue body carries an
 **Optimization research brief** (the section produced by
 `/plan-feature` step 3b). If it is missing — common on older issues
-or on tasks filed before that step existed — produce a short one
-inline *before* touching code. One hour of web/rustdoc/SOTA scanning
-now is the cheapest insurance against a compound-interest refactor
-later. If the issue is trivial plumbing (docs, CI, renames), a
-one-line "no optimisation surface" note is enough.
+or on tasks filed before that step existed — produce one inline
+*before* touching code. One hour of web/rustdoc/SOTA scanning now is
+the cheapest insurance against a compound-interest refactor later. If
+the issue is trivial plumbing (docs, CI, renames), a one-line "no
+optimisation surface" note is enough.
+
+The inline brief must meet the same bar as `plan-feature §3b`:
+≤ 12 months recency on sources, crate versions at their current
+`crates.io` values, **every URL consulted logged exhaustively** (not
+only those cited — dead-ends and "not applicable" reads too), search
+queries + engines + date filters recorded, SOTA method named with
+year + citation + disposition (adopt / adapt / reject), hardware
+floor vs target. A brief that is three bullets is not a brief —
+produce the full exhaustive form or `/abandon blocked
+"under-specified: requires plan-feature with exhaustive research brief"`.
 
 Then, and only then, begin the actual implementation. Use:
 

@@ -94,6 +94,20 @@ just stress <scenario>
 just bench-compare main
 ```
 
+### Optimization research brief
+
+<Exhaustive per `plan-feature §3b` — research window, every URL
+consulted (including dead-ends and "not applicable" reads), search
+queries with engines + date filters, candidate libs with current
+`crates.io` versions at plan date, SOTA method with year + citation +
+disposition (adopt / adapt / reject), dead-ends explored, picked /
+rejected with reasons, hardware floor vs target. Sources ≤ 12 months
+old unless justified. Paste the brief from the planning step verbatim.>
+
+<If this issue is trivial plumbing (docs, CI, renames, asset bumps,
+label-only changes): write **"no optimisation surface"** on a single
+line and move on.>
+
 ### Out of scope
 
 <What this issue is NOT doing. Protect the scope against creep.>
@@ -114,6 +128,8 @@ just bench-compare main
 - [ ] Title is imperative, ≤ 72 chars.
 - [ ] Labels: area, type, status, priority, agent.
 - [ ] FM row cited (or "not applicable — explain").
+- [ ] Optimization research brief present and exhaustive (or explicit
+      "no optimisation surface" for trivial plumbing).
 - [ ] No competitor names.
 - [ ] No reference to `private/` paths or files.
 ```
