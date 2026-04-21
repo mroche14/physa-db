@@ -58,4 +58,3 @@ All numbers are:
 1. Median of ≥ 10 runs after warm-up.
 2. Produced by `just bench-macro` and checked in under `docs/benchmarks/results/YYYY-MM-DD-*.md`.
 3. Reproducible from commit SHA on the reference hardware.
-ardware.

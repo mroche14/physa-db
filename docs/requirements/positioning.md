@@ -12,13 +12,13 @@ It is a property graph engine whose primary workloads are those produced by agen
 
 The founder's immutable vision (held privately) captured the **commercial** motivation: end the incumbent's pricing era so SaaS builders can use a graph DB as freely as Postgres. That remains true.
 
-This file captures the **technical** target established on 2026-04-20: AI-agent workloads drive the feature set. Existing graph databases (Neo4j, Memgraph, Dgraph, TigerGraph, etc.) were designed in the pre-agent era; their storage layouts, query planners, and data types predate the workloads AI agents actually produce. We do not intend to be a faster re-implementation of yesterday's graph DB.
+This file captures the **technical** target established on 2026-04-20: AI-agent workloads drive the feature set. Existing graph databases were designed in the pre-agent era; their storage layouts, query planners, and data types predate the workloads AI agents actually produce. We do not intend to be a faster re-implementation of yesterday's graph DB.
 
 The two pillars compound:
 
 | Motivation | Pillar |
 |------------|--------|
-| Commercial — the reason the project exists | End Neo4j lock-in; free, horizontally scalable, multi-tenant, Apache-2.0 |
+| Commercial — the reason the project exists | End incumbent lock-in; free, horizontally scalable, multi-tenant, Apache-2.0 |
 | Technical — the reason a user would pick us | AI-agent-native features natively: vectors, hybrid retrieval, media assets, agent memory, provenance, streaming results |
 
 ## What "AI-agent-native" concretely means
@@ -36,12 +36,12 @@ We commit to being best-in-class at the workloads below. Specifics live in [`ai-
 ## What stays from the generic graph DB promise
 
 - Full GQL (ISO/IEC 39075:2024) and openCypher support (ADR-0002).
-- Bolt v5 wire protocol for Neo4j-driver compatibility.
+- Bolt v5 wire protocol for migration-friendly driver compatibility.
 - ACID transactions with MVCC snapshot isolation.
 - Native multi-tenancy, horizontal scaling, online re-sharding.
 - Apache-2.0 end-to-end, no enterprise-gated features.
 
-These are necessary but not sufficient. They win migrations *from* Neo4j; AI-agent features win *new* workloads that never had a good graph DB answer.
+These are necessary but not sufficient. They win migrations from incumbent graph platforms; AI-agent features win *new* workloads that never had a good graph DB answer.
 
 ## Non-overlap with other categories
 
