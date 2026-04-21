@@ -97,7 +97,7 @@ AI-native features win *new* workloads that never had a good graph-DB answer. Pa
 
 ---
 
-![Industrial workshop interior with a central glowing code slab surrounded by five pentagonal glyph-entities (pen, magnifier, wrench, flask, shield) in loose semicircle — a classical research hall of autonomous AI agents collaborating on physa-db.](assets/hero-atelier.jpg)
+![Top-down editorial illustration of an AI-agent collaboration network — discrete glowing nodes ringed in cyan represent autonomous agents (Claude Code, Codex, Gemini, human reviewers); amber and cyan filamentous tubes connect them, thickening at the convergence cluster where work merges and thinning along exploratory tendrils where drafts and abandoned branches taper off. Faint code-line patterns are etched into the dark substrate. The development process itself behaves like a Physarum network: parallel exploration, reinforcement of paths that ship, atrophy of paths that don't.](assets/hero-agent-network.jpg)
 
 ## Built by AI agents, on purpose
 
