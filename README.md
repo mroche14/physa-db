@@ -97,7 +97,7 @@ AI-native features win *new* workloads that never had a good graph-DB answer. Pa
 
 ---
 
-![Editorial illustration of AI coding agents collaborating to assemble a software artifact — a luminous crystalline lattice forms layer by layer at the center as four distinct light streams (amber, cyan, violet, gold) flow inward from each corner of the frame, trailing fragments of code-like syntax, each stream standing in for a different agent voice (Claude Code, Codex, Gemini, human reviewer). Where the streams meet, their colors meld into a brighter unified core: the merged, integrated commit. The development workflow itself is engineered as a converging system — parallel exploration, distinct perspectives, integration at the artifact.](assets/hero-collab.jpg)
+![Editorial illustration of physa-db's AI multi-agent development workflow as a construction tableau. Center: a monumental pyramid representing the project codebase, lower courses solid stratified stone etched with luminous code-lattice motifs, upper courses still in scaffold and wireframe state where active work is converging at the apex. Around and on the pyramid: dozens of small stylised figures in three identifying colours — orange (Claude Code instances), teal (Codex instances), pink (Gemini instances). A small cluster on a raised platform at the lower-left stands around a planning board (the feature list), pointing toward sections of the pyramid: these are the directors. The majority are dispersed across the pyramid as executors — hauling block-shaped code fragments at the base, fitting elements on mid-level scaffolds, climbing toward the apex where the build front glows brightest. A coordinated, parallel workforce.](assets/hero-collab.jpg)
 
 ## Built by AI agents, on purpose
 
