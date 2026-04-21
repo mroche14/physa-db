@@ -49,6 +49,38 @@ silently branch off an out-of-date `main` and ship a broken diff.
 git fetch --all --prune --tags
 ```
 
+Then prune local branches whose upstream was deleted AND whose commits
+are already reachable from `origin/main`. `--prune` cleans
+remote-tracking refs but leaves local branches behind; left alone they
+accumulate across every `/next` cycle, clutter `git branch`, and can
+confuse the Step 1 sanity check if one of them matches `agent/*`.
+
+**Safety rule:** a `[gone]` upstream alone is not enough — another
+agent (or a previous self) may have local-only commits that were
+never pushed, or were pushed and then the remote branch was deleted
+for a reason other than merge. Deleting such a branch with `-D`
+silently drops unmerged work. So check reachability first:
+
+```bash
+git branch --list --format='%(refname:short) %(upstream:track)' \
+  | awk '$2 == "[gone]" {print $1}' \
+  | while read -r br; do
+      # Skip if this branch has ANY commit not reachable from origin/main.
+      # That means real work is at risk — leave the branch alone and
+      # surface it for the human / original agent.
+      UNREACHABLE="$(git rev-list --count "$br" --not origin/main 2>/dev/null || echo 999)"
+      if [[ "$UNREACHABLE" == "0" ]]; then
+        git branch -D "$br"
+      else
+        echo "skipping $br: $UNREACHABLE commit(s) not on origin/main — inspect manually"
+      fi
+    done
+```
+
+Only branches that are **strict subsets** of `origin/main` get deleted
+— those are provably safe (the squash-merge already absorbed their
+content). Branches with any divergence survive the sweep.
+
 Then verify local `main` is not diverged from `origin/main`. If
 local main carries commits that origin doesn't, something was
 committed directly to main and not pushed — that's a human issue, not
