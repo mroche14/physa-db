@@ -182,7 +182,7 @@ We group AI-agent workloads into six families. Any agentic system in production 
 
 ### Protocols
 
-- Bolt v5 (Neo4j driver compatibility).
+- Bolt v5 for migration-friendly driver compatibility.
 - HTTP/JSON query endpoint.
 - gRPC with reflection.
 - **MCP (Model Context Protocol) server** so agents can treat physa-db as a tool directly.
