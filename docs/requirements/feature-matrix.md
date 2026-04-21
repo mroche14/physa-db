@@ -53,7 +53,7 @@ Each row links to the governing ADR (if any), the tracking issue (once filed), a
 | FM-036 | ecosystem | Migration tool from dominant competitor dump format | Parity | M7 | — | — |
 | FM-037 | ecosystem | Kubernetes operator | Parity | M7 | — | — |
 | FM-038 | ecosystem | Terraform provider | Parity | M7 | — | — |
-| FM-039 | dx | Embedded mode (library usage, no server) | Parity | M3 | — | — |
+| FM-039 | dx | Embedded mode (library usage, no server) (AFM-028) | Parity | M3 | — | — |
 | FM-040 | dx | Reproducible benchmark suite public to users | Novel | M6 | — | — |
 | FM-041 | ops | Zero-tuning auto-configured memory management | Novel | M4 | — | — |
 | FM-042 | ops | Graceful disk spill for memory pressure (no hard aborts) | Novel | M4 | — | — |
@@ -100,3 +100,4 @@ _Add rows as research surfaces new requirements. Row IDs are stable once publish
 
 _Tier column is the target milestone. Tiers may shift once M1 locks the feature set and M2 promotes the architecture ADRs — rows do not get renumbered, only re-tiered with a changelog entry._
  a changelog entry._
+ changelog entry._

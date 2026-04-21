@@ -34,11 +34,11 @@ We target **mixed transactional + small-to-medium analytical workloads** (LDBC S
 
 **Why:** OLAP warehouses have a different cost model (columnar on object store with large fan-out); merging those is a distraction.
 
-## Not a pure-analytical in-memory engine (AFM-011)
+## Not a pure-analytical in-memory engine (AFM-011, AFM-029)
 
-physa-db will not offer an "analytical mode" that disables ACID guarantees, logging, and crash recovery just to fit graphs into memory and run ingest faster. We guarantee durability and consistency.
+physa-db will not offer an "analytical mode" that disables ACID guarantees, logging, and crash recovery just to fit graphs into memory and run ingest faster. We guarantee durability and consistency. We also refuse a pure OLAP-only architecture that sacrifices high-frequency transactional point-updates (OLTP), as AI agent memory requires both.
 
-**Why:** The operational overhead of managing separate analytical and transactional configurations, and the risk of data loss on crash, violates our commitment to predictable, reliable graph storage.
+**Why:** The operational overhead of managing separate analytical and transactional configurations, and the risk of data loss on crash, violates our commitment to predictable, reliable graph storage. Pure OLAP engines are unsuitable for real-time agent state management.
 
 ## Not a streaming engine
 

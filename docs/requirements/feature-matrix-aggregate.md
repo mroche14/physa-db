@@ -29,3 +29,7 @@
 | AFM-023 | Zero-ETL Virtualization Layer | Storage | 1 | Translates graph queries to remote SQL/Data Lakes | non-goal |
 | AFM-024 | Vectorized In-Memory Compute | Query | 1 | Apache Arrow based execution | adopt |
 | AFM-025 | Local Storage Cache | Storage | 1 | Caches remote data locally | redesign |
+| AFM-026 | Worst-Case Optimal Joins (WCOJ) | Query | 1 | Leapfrog triejoin variants | adopt |
+| AFM-027 | Factorized Execution | Query | 1 | Compressed intermediate query representations | adopt |
+| AFM-028 | Embedded Columnar Graph Engine | Storage | 1 | DuckDB-style embedded OLAP graph | adopt |
+| AFM-029 | Pure OLAP-only Focus | Ops | 1 | Sacrifices OLTP for pure OLAP speed | non-goal |
