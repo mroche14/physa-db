@@ -81,6 +81,60 @@ Only branches that are **strict subsets** of `origin/main` get deleted
 — those are provably safe (the squash-merge already absorbed their
 content). Branches with any divergence survive the sweep.
 
+Then sweep **remote** orphan `agent/*` branches. Local pruning above
+only catches branches whose remote was already deleted. The opposite
+case is just as common and more damaging: a PR opened from
+`agent/N-*` is **closed without merge** (intentional abandonment after
+the work was redone or invalidated), but the remote branch is left
+alive. Over time these accumulate, fool `/next` into believing work is
+in flight on issues that are long-resolved, and — worst — silently
+re-introduce stale FM / AFM IDs or competitor codenames if a future
+agent cherry-picks them. Two real-world regression triggers we have
+hit: (1) a stale branch's `feature-matrix-aggregate.md` re-using
+`AFM-017..019` after main reassigned those IDs, and (2) a branch's
+`non-goals.md` additions duplicating concepts main had already merged
+under different IDs. Both fixable, both costly to debug.
+
+Safety rule mirrors local pruning: only delete remote branches that
+are either **fully reachable from `origin/main`** (a leftover after a
+squash-merge the human did not push-delete), or tied to a **PR closed
+without merge** (the diff is preserved by GitHub regardless of branch
+existence — audit trail survives). Anything else has unmerged work
+worth keeping alive for human review.
+
+```bash
+git for-each-ref --format='%(refname:short)' 'refs/remotes/origin/agent/*' \
+  | sed 's|^origin/||' \
+  | while read -r br; do
+      UNREACHABLE="$(git rev-list --count "origin/$br" --not origin/main 2>/dev/null || echo 999)"
+      if [[ "$UNREACHABLE" == "0" ]]; then
+        # Fully absorbed by main — safe delete.
+        git push origin --delete "$br" \
+          && echo "swept origin/$br (fully reachable from main)"
+      else
+        # Has divergent commits. Last PR closed without merge?
+        PR_STATE="$(gh pr list --state all --head "$br" \
+          --json state,mergedAt,createdAt \
+          --jq 'sort_by(.createdAt) | reverse | .[0]
+                | "\(.state):\(.mergedAt // "null")"' 2>/dev/null)"
+        if [[ "$PR_STATE" == "CLOSED:null" ]]; then
+          # Explicitly abandoned — safe delete (PR keeps the diff).
+          git push origin --delete "$br" \
+            && echo "swept origin/$br (PR closed-not-merged)"
+        else
+          # Open PR, no PR yet, or genuinely merged elsewhere.
+          echo "keeping origin/$br: $UNREACHABLE divergent commit(s), PR state=${PR_STATE:-none}"
+        fi
+      fi
+    done
+```
+
+What this does NOT delete: branches with divergent commits and no PR
+(work in flight), branches with an OPEN PR (under review), branches
+that merged via something other than squash and look divergent for
+hash reasons (rare, kept conservatively). Those surface as `keeping
+origin/...` lines for human inspection.
+
 Then verify local `main` is not diverged from `origin/main`. If
 local main carries commits that origin doesn't, something was
 committed directly to main and not pushed — that's a human issue, not
