@@ -30,11 +30,37 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  prepare:
+    name: determine whether iai gate should run
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.decide.outputs.should_run }}
+    steps:
+      - name: Decide from labels and changed files
+        id: decide
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          labels='${{ toJson(github.event.pull_request.labels.*.name) }}'
+          if jq -e '.[] | select(. == "type:perf")' <<<"$labels" >/dev/null; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if gh api "repos/$REPO/pulls/$PR_NUMBER/files" --paginate --jq '.[].filename' \
+            | grep -Eq '^crates/.+/benches/'; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          fi
+
   iai:
-    # Skip unless the PR is explicitly labelled type:perf or changes benches.
-    if: |
-      contains(github.event.pull_request.labels.*.name, 'type:perf') ||
-      contains(github.event.pull_request.changed_files.*.filename, '/benches/')
+    needs: prepare
+    if: needs.prepare.outputs.should_run == 'true'
     name: iai instruction-count gate
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -47,6 +73,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Install just
+        uses: taiki-e/install-action@v2
+        with:
+          tool: just
 
       - uses: dtolnay/rust-toolchain@stable
 

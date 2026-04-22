@@ -14,7 +14,9 @@ This directory holds the living design documentation for physa-db.
 1. **Draft** a new ADR as `adr/NNNN-kebab-title.md` using the template below.
 2. Status starts as **Proposed**.
 3. Discussion happens on the related GitHub issue (link it).
-4. Once merged, status becomes **Accepted**.
+4. **Process ADRs** may become **Accepted** on merge if they are not gated by
+   `AGENTS.md` §15. **Architectural ADRs** remain **Proposed** until the
+   relevant feature rows are locked and the ADR is promoted explicitly.
 5. If a later ADR invalidates this one, mark this one **Superseded by ADR-NNNN** — do NOT edit the body.
 
 ## ADR template

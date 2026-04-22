@@ -29,6 +29,10 @@ allowed-tools:
 claim ships with the exact command, hardware, dataset, before/after
 numbers, and std dev. This skill is the one legitimate path.
 
+If `just bench-macro` prints `status: placeholder`, stop there: the macro
+harness is not implemented yet, so the run only proves command wiring and may
+not be cited as a performance result.
+
 ## Pick the mode
 
 | Mode | Tool | What it measures | Stability |

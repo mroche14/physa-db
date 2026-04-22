@@ -1,6 +1,8 @@
 # Performance targets
 
-> Testable assertions. Every target is verified by `just bench-macro` against a known dataset and hardware profile.
+> Testable assertions. Verification runs through `just bench-macro` once the
+> real macro harness lands; at M0/M1 the command is only a truthful placeholder
+> scaffold.
 
 ## Reference hardware
 
@@ -56,5 +58,5 @@ CI fails any PR that regresses any cell in this document by > **2%** without an 
 
 All numbers are:
 1. Median of ≥ 10 runs after warm-up.
-2. Produced by `just bench-macro` and checked in under `docs/benchmarks/results/YYYY-MM-DD-*.md`.
+2. Produced by `just bench-macro` once the real harness exists, then checked in under `docs/benchmarks/results/YYYY-MM-DD-*.md`.
 3. Reproducible from commit SHA on the reference hardware.
