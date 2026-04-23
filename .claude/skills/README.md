@@ -8,9 +8,11 @@
 Each subdirectory is one skill with a `SKILL.md` file. Claude Code exposes
 project skills as slash commands (`/plan-feature`, `/run-stress chaos`, etc.),
 or auto-invokes a skill when its description matches the user's request. Codex
-reads the same canonical skill directories through the `.agents/skills/`
-symlink bridge, but Codex skills are invoked with `$plan-feature`,
-`$run-stress`, etc., or by asking Codex to use the named skill.
+reads the same canonical skill directories through a single directory-level
+symlink (`.agents/skills -> ../.claude/skills`) — adding or removing a skill
+here makes it visible to Codex automatically, no bridge-refresh step. Codex
+skills are invoked with `$plan-feature`, `$run-stress`, etc., or by asking
+Codex to use the named skill.
 
 Skills exist to make **rules mechanical**. Rather than trusting every agent
 to remember `AGENTS.md` §§7, 11, 12, 15 from memory, skills bake the relevant
@@ -68,7 +70,8 @@ These are on the backlog; open an issue if you need one before it ships.
 - **Scope.** Every canonical skill lives under `.claude/skills/<name>/SKILL.md`.
   Project-level. No personal skills (`~/.claude/skills/`) — they would be
   invisible to agents running on another machine. Codex compatibility is handled
-  by `.agents/skills/<name>` symlinks that point back to these directories.
+  automatically by the `.agents/skills -> ../.claude/skills` directory symlink —
+  add a skill here, it shows up for Codex on its own.
 - **Frontmatter.** `name` (optional; defaults to directory name), `description`
   (used by Claude to decide auto-invocation — front-load keywords),
   `when_to_use` (trigger phrases), `argument-hint`, `user-invocable`,
