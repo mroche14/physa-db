@@ -1,54 +1,129 @@
 # Contributing to physa-db
 
-Welcome. This project is designed so both humans and AI agents can contribute with a minimum of friction.
+physa-db is developed with AI coding agents (Claude Code, Codex, Cursor, …). Whether you are the solo maintainer or a brand-new external contributor, the workflow is the same: open an agent in the repo, run `/onboard`, then `/next`. The skills shipped in [`.claude/skills/`](./.claude/skills/) encode every rule from [`AGENTS.md`](./AGENTS.md) so you don't have to memorise them — invoking the right skill at the right moment is enough.
 
-## If you are a human contributor
+## Contents
 
-1. Read [`README.md`](./README.md) and [`ROADMAP.md`](./ROADMAP.md).
-2. Skim [`AGENTS.md`](./AGENTS.md) — it describes how the project is driven day-to-day. The rules apply to you too, not just to AI agents.
-3. Pick an open issue labelled `status:ready`. Comment that you're picking it up.
-4. Branch from `main` as `human/<gh-handle>/<slug>` (reserved `agent/*` prefix for AI agents).
-5. Open a PR using the template. Expect review within 48h.
+- [Quickstart](#quickstart)
+- [The dev loop, step by step](#the-dev-loop-step-by-step)
+- [Skills by moment](#skills-by-moment)
+- [Error recovery](#error-recovery)
+- [Issue lifecycle](#issue-lifecycle)
+- [Branch & commit conventions](#branch--commit-conventions)
+- [Code of conduct](#code-of-conduct)
+- [Licensing](#licensing)
+- [Security](#security)
 
-## If you are an AI agent
+## Quickstart
 
-The entire workflow is encoded as project skills versioned under [`.claude/skills/`](./.claude/skills/) (Claude Code) and mirrored via symlinks under [`.agents/skills/`](./.agents/skills/) (Codex). A fresh clone already has every skill you need — no separate install.
-
-**First session (one-time setup):**
+**Prerequisites:** [`mise`](https://mise.jdx.dev/) · `git` · `gh` (GitHub CLI — `/next` needs it authenticated).
 
 ```bash
 git clone https://github.com/mroche14/physa-db.git
 cd physa-db
-mise install         # pinned toolchain: Rust, just, nextest, criterion, …
-gh auth login        # the /next skill claims GitHub Issues atomically
+claude .            # or: codex, cursor, …
 ```
 
-Then open your agent in the repo (Claude Code, Codex, Cursor, …) and run:
+Then, inside your agent:
 
-1. **`/onboard`** — mandatory first read: two pillars, rules (§§7, 11, 12, 15), reading order.
-2. **`/next`** — claims the next `status:ready` issue atomically, creates `agent/<n>-<slug>` branch, and either invokes `/plan-feature` or resumes prior work.
+1. **`/onboard`** — installs the pinned toolchain (`mise install`), verifies `gh auth`, reads the rules and pillars, lists ready tasks. Run it first in every fresh session and after any context-compaction.
+2. **`/next`** — claims the next `status:ready` GitHub Issue atomically, creates the `agent/<n>-<slug>` branch, and invokes `/plan-feature` if the issue has no plan yet.
 
-**While working:**
+After that, you're inside the dev loop.
 
-| Skill | When |
+Codex syntax: the same skills are invoked with `$onboard`, `$next`, `$plan-feature`, etc. — or by asking Codex to "use the `<name>` skill".
+
+## The dev loop, step by step
+
+```
+/onboard → /next → /plan-feature → [code + tests] → /pre-commit-check → commit + push → gh pr create → /wait-ci
+                                                                                                          ├─ ✅ green   → done
+                                                                                                          ├─ ❌ fail    → fix & repush  OR  /abandon blocked
+                                                                                                          └─ ⏳ timeout → surface & resume later
+```
+
+| # | Step | What happens |
+|---|---|---|
+| 1 | `/onboard` | Env bootstrap (`mise install` + `gh auth status`) · read AGENTS.md §§0–2, 11, 12, 15 · list `status:ready` + `agent:good-first-task` |
+| 2 | `/next` | Atomically claim a ready issue (sets `status:in-progress` + `assignee`) · create `agent/<n>-<slug>` branch off up-to-date `main` · sync remote, prune stale branches |
+| 3 | `/plan-feature` | Locate the FM row · identify workload anchor in `ai-agent-workloads.md` · first-principles derivation · lock acceptance criteria · decide whether an ADR is needed |
+| 3b | `/write-adr` *(conditional)* | ADR template with FM refs and quantitative derivation — always starts as Proposed |
+| 4 | Write code + tests | Follow AGENTS.md §§1, 4, 11, 12. No `unimplemented!()` stubs. Cite research inline. |
+| 5 | `/run-stress` *(conditional)* | Mandatory evidence for any PR touching storage / MVCC / cluster (AGENTS.md §5) |
+| 5b | `/run-bench` *(conditional)* | Mandatory evidence for any PR labelled `type:perf` (AGENTS.md §§1.2, 8) |
+| 6 | `/pre-commit-check` | Local mirror of the CI gate: fmt, clippy, tests, doc-tests, link-check, private path check, secrets scan, conventional commit subject |
+| 7 | `git commit && git push && gh pr create` | Conventional commit subject · PR template auto-fills summary + test plan · branch `agent/<n>-<slug>` carries the issue number |
+| 8 | `/wait-ci` | Poll CI, walk the PR test-plan checklist, report the verdict on the PR · returns `success` / `pending-human` / `fail` (see [#52](https://github.com/mroche14/physa-db/issues/52) for current status of this skill) |
+
+"Done" is **PR green + checklist resolved**, not "PR open". See AGENTS.md §6.1.
+
+## Skills by moment
+
+The skills catalog organised by *when to use*, not by tier. Every skill lives under `.claude/skills/<name>/SKILL.md` and is visible to Codex via the directory symlink `.agents/skills -> ../.claude/skills`.
+
+| Moment | Skill | Enforces | Mandatory for |
+|---|---|---|---|
+| Start of session | [`/onboard`](.claude/skills/onboard/SKILL.md) | all rules | every new agent session |
+| Pick up work | [`/next`](.claude/skills/next/SKILL.md) | §§3, 6.1 | every new task |
+| Before code | [`/plan-feature`](.claude/skills/plan-feature/SKILL.md) | §§11, 15 | every feature / behavioural change |
+| Design doc | [`/write-adr`](.claude/skills/write-adr/SKILL.md) | §§11, 15 | when `/plan-feature` flagged it |
+| Competitor research | [`/research-competitor`](.claude/skills/research-competitor/SKILL.md) | §7, ADR-0006 | any competitor profile |
+| Before commit | [`/pre-commit-check`](.claude/skills/pre-commit-check/SKILL.md) | §§1, 4, 5, 7, 8 | every commit |
+| Storage / MVCC / cluster change | [`/run-stress`](.claude/skills/run-stress/SKILL.md) | §5 | every such PR |
+| Perf claim | [`/run-bench`](.claude/skills/run-bench/SKILL.md) | §§1.2, 8 | every `type:perf` PR |
+| After push | `/wait-ci` *(see [#52](https://github.com/mroche14/physa-db/issues/52))* | §6.1 | every `gh pr create` |
+| Reviewing a PR | [`/review-pr`](.claude/skills/review-pr/SKILL.md) | §§1, 5, 7, 8, 11, 12, 15 | every PR review |
+| Track follow-up | [`/file-issue`](.claude/skills/file-issue/SKILL.md) | §6 | any task > 1 h of effort |
+| Can't finish | [`/abandon`](.claude/skills/abandon/SKILL.md) | §§3, 6.1 | every unfinished task |
+| Promote ADR to Accepted | [`/promote-adr`](.claude/skills/promote-adr/SKILL.md) | §15 | M2 exit |
+
+**Rule (AGENTS.md §16):** if a skill exists for the action you are about to take, use it. A PR that could have been produced via `plan-feature` + `write-adr` + `pre-commit-check` but skipped them is evidence that the author missed a rule.
+
+## Error recovery
+
+| Situation | Action |
 |---|---|
-| `/plan-feature <desc>` | Before any code. Locks FM row + workload anchor + derivation + acceptance criteria |
-| `/write-adr <NNNN> <title>` | When `/plan-feature` concluded an ADR is needed |
-| `/research-competitor <CODENAME>` | Any competitor profile — codename-only, private input, public delta |
-| `/pre-commit-check` | Before every commit — local mirror of the CI gate |
-| `/run-stress <scenario>` | After any storage / MVCC / cluster change (mandatory evidence) |
-| `/run-bench <mode> <baseline>` | Before claiming any perf win (mandatory for `type:perf` PRs) |
-| `/review-pr <num>` | Reviewing any PR |
-| `/file-issue <title>` | Any tracked task > 1 h of effort |
-| `/abandon ready <reason>` | When you can't finish — always releases the claim, never walk away silently |
+| `/next` finds no ready task | Check `status:blocked` for work waiting on you. If nothing fits, there genuinely is no ready work — surface it to the human. |
+| `/plan-feature` can't locate the FM row for the issue | The issue is under-specified. Run `/abandon blocked "missing FM row"`, file a `needs-spec` follow-up issue, exit. |
+| `/pre-commit-check` fails | Fix the reported issue (fmt / clippy / tests / secrets / private path). Re-run until green. Never `--no-verify`. |
+| CI red after push (your change) | `/wait-ci` (or `gh pr checks <n>`) gives you the failing job + logs. Fix, commit, push, `/wait-ci` again. |
+| CI red after push (pre-existing rot, not your diff) | File a follow-up issue via `/file-issue`, add a surgical exclusion in the config that owns it (e.g. `lychee.toml`), reference the follow-up issue in the exclusion comment. Keeps your PR mergeable without papering over the root cause. |
+| You are stuck (context / dependency / environment) | `/abandon blocked "<reason>"` — releases the claim back to the pool. Don't walk away silently. |
+| Session ended mid-task, claim still yours | New session: `/onboard` then `/next`. The skill sees your existing claim and resumes instead of claiming a new issue. |
+| Context lost to compaction | `/onboard` again — it's idempotent and designed to re-hydrate. |
+| You left a dormant claim > 24 h | [`reap-stale-claims.yml`](.github/workflows/reap-stale-claims.yml) reverts it to `status:ready` automatically. No cleanup needed from you. |
 
-Codex users: invoke the same skills with `$onboard`, `$next`, `$plan-feature`, etc.
+## Issue lifecycle
 
-**Full contract:** read [`AGENTS.md`](./AGENTS.md) §§0–16 in full before touching anything. It is authoritative.
+```
+          ┌──────────── /next ────────────┐
+          │                               ▼
+  status:ready ──────────────────→ status:in-progress + assignee
+          ▲                               │
+          │ reap-stale-claims             │ open PR
+          │ (> 24 h dormant)              ▼
+          │                          PR open (CI runs)
+          │                               │
+          │   /abandon ready              │ /wait-ci → green
+          ├───────────────────────────────┤
+          │                               ▼
+          │                         PR merged → issue closed
+          │
+  status:blocked ← /abandon blocked (needs-human / waiting on dep)
+```
+
+A claim is always live — an agent holds it (assignee + `status:in-progress`), or releases it (`/abandon` → `ready` / `blocked`), or closes it via merged PR. No silent walk-aways.
+
+## Branch & commit conventions
+
+- **Branch names:** `agent/<issue-n>-<slug>` (AI agents, set by `/next`) · `human/<gh-handle>/<slug>` (human contributors) · `chore/<scope>-<slug>` (infra / DX / docs not tied to a feature issue).
+- **Commit subjects:** [Conventional Commits](https://www.conventionalcommits.org/) — `type(scope): imperative subject`. Enforced by the `Conventional Commits` CI check.
+- **PR size:** ≤ 600 lines non-generated code. If bigger, split (AGENTS.md §1.4).
+- **PR body:** use the template. Fill the `## Test plan` section with imperative checklist items — `/wait-ci` pattern-matches them against its predicate library.
 
 ## Code of conduct
 
-Be excellent. Detailed CoC to be added; in the meantime, the Rust community norms apply.
+Be excellent. A detailed CoC will follow; in the meantime, the Rust community norms apply.
 
 ## Licensing
 
@@ -56,4 +131,4 @@ By contributing, you agree that your contribution is licensed under Apache-2.0, 
 
 ## Security
 
-Please do NOT open public issues for security vulnerabilities. Contact the maintainer at `55630565+mroche14@users.noreply.github.com` (temporary; a security policy will be set up with M0).
+Do **not** open public issues for security vulnerabilities. Use GitHub's private vulnerability reporting: [report a security issue](https://github.com/mroche14/physa-db/security/advisories/new). Details in [`SECURITY.md`](./SECURITY.md).
