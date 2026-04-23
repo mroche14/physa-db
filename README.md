@@ -22,6 +22,21 @@
 
 ![Top-down editorial illustration of a self-organising graph network — discrete glowing nodes ringed in cyan are connected by amber and cyan filamentous tubes that thicken at a central convergence cluster where data flows densest, and taper into exploratory tendrils probing outward. Code-line patterns are faintly etched into the dark substrate. The image evokes the project's namesake organism, Physarum polycephalum — the slime mold that solves shortest-path and resilience problems by reinforcing efficient routes and atrophying weak ones — and stands in for what physa-db does at runtime: hybrid graph + vector + full-text retrieval over an adaptive query plan, with agent memory that reinforces useful facts and lets stale ones fade.](assets/hero.jpg)
 
+## Contents
+
+- [What it does](#what-it-does)
+- [The hybrid query, at a glance](#the-hybrid-query-at-a-glance)
+- [Architecture](#architecture)
+- [Why physa-db?](#why-physa-db)
+- [Built by AI agents, on purpose](#built-by-ai-agents-on-purpose)
+- [Getting started](#getting-started)
+  - [As a human contributor](#as-a-human-contributor)
+  - [As an AI agent](#as-an-ai-agent)
+- [Status & dashboard](#status--dashboard)
+- [Project labels](#project-labels)
+- [Quick links](#quick-links)
+- [License](#license)
+
 ## What it does
 
 - **Graph + vector + full-text in one query plan.** No cross-service round-trips between a graph DB, a vector DB, and a search engine. Ask for three-hop neighbourhoods ranked by embedding similarity and BM25 — one transaction, one result stream.
@@ -104,6 +119,41 @@ AI-native features win *new* workloads that never had a good graph-DB answer. Pa
 physa-db is **AI-agent-first** in its development workflow as well as in its feature set. Documentation, tooling, ADRs, and issue structure are shaped so AI coding agents (Claude Code, Codex, Cursor, etc.) can pick up well-scoped issues and ship PRs with minimal human intervention. Humans own vision, review, and merges; agents own implementation velocity.
 
 See [`AGENTS.md`](./AGENTS.md) for the full agent contract — engineering-discipline rules (§11 first-principles, §12 no-shortcuts, §15 features-before-architecture) and the credential-safety protocol (§10).
+
+## Getting started
+
+**Prerequisites:** [`mise`](https://mise.jdx.dev/) · `git` · `gh` (GitHub CLI authenticated via `gh auth login`).
+
+### As a human contributor
+
+```bash
+git clone https://github.com/mroche14/physa-db.git
+cd physa-db
+mise install        # pinned toolchain (Rust + just + nextest + criterion + …)
+just dev            # watch-mode tests + clippy
+```
+
+Then read [`CONTRIBUTING.md`](./CONTRIBUTING.md), pick an open issue labelled [`status:ready`](https://github.com/mroche14/physa-db/issues?q=is%3Aopen+is%3Aissue+label%3Astatus%3Aready), and branch from `main` as `human/<gh-handle>/<slug>`.
+
+### As an AI agent
+
+Works with Claude Code, Codex, Cursor, or any agent that honours [`.claude/skills/`](./.claude/skills/).
+
+```bash
+git clone https://github.com/mroche14/physa-db.git
+cd physa-db
+mise install
+gh auth login       # /next claims GitHub Issues atomically — gh must be authenticated
+```
+
+Open your agent in the repo directory. Every project skill auto-loads from [`.claude/skills/`](./.claude/skills/) (or [`.agents/skills/`](./.agents/skills/) for Codex) — no separate install.
+
+Then run, in order:
+
+1. **`/onboard`** — mandatory first read: pillars, rules, causal chain, reading order.
+2. **`/next`** — claims the next `status:ready` issue, creates `agent/<n>-<slug>` branch, invokes `/plan-feature` if needed.
+
+Everything else (`/plan-feature`, `/write-adr`, `/pre-commit-check`, `/run-stress`, `/run-bench`, `/review-pr`, `/file-issue`, `/abandon`) is documented in [`CONTRIBUTING.md`](./CONTRIBUTING.md) and [`AGENTS.md`](./AGENTS.md) §16.
 
 ## Status & dashboard
 
