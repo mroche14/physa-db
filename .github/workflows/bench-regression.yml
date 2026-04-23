@@ -70,7 +70,7 @@ jobs:
       REGRESSION_THRESHOLD: "2.0"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 

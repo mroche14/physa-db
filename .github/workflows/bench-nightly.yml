@@ -45,7 +45,7 @@ jobs:
       PATH: /home/github-runner/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install just
         uses: taiki-e/install-action@v2

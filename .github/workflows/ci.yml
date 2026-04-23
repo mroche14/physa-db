@@ -23,7 +23,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install just and cargo-nextest
         uses: taiki-e/install-action@v2
@@ -44,7 +44,7 @@ jobs:
     name: privacy tree check (§7)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: No private/ paths tracked
         run: |
           leaked=$(git ls-files private/)
@@ -57,7 +57,7 @@ jobs:
     name: docs link check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: lycheeverse/lychee-action@v2
         with:
           args: --verbose --no-progress --exclude-loopback './**/*.md'

@@ -41,7 +41,7 @@ jobs:
       CLAIM_TTL_HOURS: ${{ inputs.ttl_hours || '24' }}
       DRY_RUN: ${{ inputs.dry_run || 'false' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
