@@ -149,3 +149,7 @@ immediately claimable.
   next task.
 - Do not `/abandon` and leave yourself as assignee. The whole point
   is to release the claim; keeping the assignee defeats the protocol.
+- Do not put personal information (email, legal name, home path,
+  hostname) into the `$REASON` or the follow-up comment. The comment
+  is public. AGENTS.md §10 forbids PII on public surfaces; refer to
+  yourself only by the GitHub handle the assignee already exposes.

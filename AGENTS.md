@@ -236,6 +236,34 @@ Do not silently drop work. Do not force a workaround that compromises §0.
   - Never running commands that would print a cred to the terminal (`echo $SECRET`, `curl -v` with auth headers, `cat .env`, partial-prefix displays via `head -c`). To verify a cred exists, use existence checks only: `[ -n "$KEY" ] && echo OK`.
   - If a cred is accidentally printed in the transcript, flag it to the human immediately — don't hide it.
   - Pre-commit hooks (§13) MUST include a secret-scan gate; treat its failure as a hard stop, never `--no-verify`.
+- **Writing personal information (PII) to any public surface.** Public surfaces include: GitHub issue bodies, issue comments, PR titles, PR bodies, PR comments, review comments, release notes, CHANGELOG entries, commit messages that will be pushed, committed files, and any `gh api --method POST/PATCH` payload. PII includes:
+  - Real-address email (anything not `@users.noreply.github.com`).
+  - Full legal names (first + last). The GitHub handle alone is allowed — that's already public.
+  - Phone numbers, postal addresses, physical locations more precise than country / region.
+  - Absolute filesystem paths containing `/home/<name>/`, `/Users/<name>/`, or hostnames.
+  - `whoami`, `hostname`, MAC addresses, IPs of dev / home machines.
+
+  Identity resolver rule: any skill that needs to write "who did this"
+  on a public surface uses this chain, in order, and never falls
+  through to `git config --get user.email` or `whoami`:
+
+  1. `git config --local --get physa.agent-id` — opt-in repo-scoped
+     alias; lets a dev label multiple concurrent agents.
+  2. `gh api user --jq .login` — the GitHub login; already public.
+  3. Interactive prompt on first run, stored back to
+     `git config --local physa.agent-id`.
+
+  `/next` implements this in Step 0.5; other skills reuse the same
+  chain. Reading `user.email` is forbidden for any path that writes
+  to a public surface — the field is designed for commit authoring
+  (often a real email) and is not a display handle.
+
+  Mechanical enforcement: `/pre-commit-check` Gate 6 fails on any
+  staged email literal except `*@users.noreply.github.com`, and on
+  any staged skill file containing `git config --get user.email`.
+  Treat that gate's failure the same as a secret leak: fix, re-stage,
+  never `--no-verify`.
+
 - Introducing a "shortcut" — a deliberately-suboptimal approach chosen because the better one is harder. See §12.
 
 When in doubt, **ask**.

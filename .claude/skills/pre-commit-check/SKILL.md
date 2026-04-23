@@ -3,9 +3,9 @@ name: pre-commit-check
 description: >
   Run all physa-db pre-commit gates in one pass — formatting, clippy with
   -D warnings, tests, doc tests, private/ path check, conventional-commit
-  message format, and a secrets scan. Must pass locally before any commit.
-  Runs the CI core gate plus additional pre-commit-only checks such as
-  secrets scanning and commit-message validation.
+  message format, and a secrets + PII scan. Must pass locally before any
+  commit. Runs the CI core gate plus additional pre-commit-only checks
+  such as secrets / PII scanning and commit-message validation.
 when_to_use: >
   "pre-commit", "check before commit", "ready to commit", right before
   staging a change for commit.
@@ -81,9 +81,9 @@ just check-private
 This refuses the commit if any path under `private/` is staged. Never
 bypass with `--no-verify`.
 
-## Gate 6 — Secrets scan
+## Gate 6 — Secrets & PII scan
 
-Run a quick ripgrep for likely-secret patterns over the staged diff:
+Run a ripgrep sweep for likely-secret patterns over the staged diff:
 
 ```bash
 git diff --cached | rg -i '(api[_-]?key|secret|token|password|bearer|private[_-]?key|BEGIN (RSA|OPENSSH|PGP))' || echo "no obvious secrets"
@@ -91,6 +91,67 @@ git diff --cached | rg -i '(api[_-]?key|secret|token|password|bearer|private[_-]
 
 Review every match. A false positive is fine; a true match MUST be
 replaced with an env-var indirection before commit.
+
+Then run the PII sweep (AGENTS.md §10). Two checks:
+
+**Check 6a — email literals in the staged diff.** Any real-address
+email is a hard stop; only GitHub noreply aliases and lines listed in
+`.pii-allowlist` are permitted.
+
+```bash
+# Extract staged additions, strip noreply aliases, match emails,
+# suppress allowlisted literals.
+ALLOWLIST=.pii-allowlist
+ALLOWLIST_ARGS=()
+[[ -f "$ALLOWLIST" ]] && ALLOWLIST_ARGS=(-v -f "$ALLOWLIST")
+
+PII_HITS="$(git diff --cached -U0 \
+  | rg '^\+' \
+  | rg -v '^\+\+\+' \
+  | rg -o '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}' \
+  | rg -v '@users\.noreply\.github\.com$' \
+  | (if [[ -f "$ALLOWLIST" ]]; then rg -v -f "$ALLOWLIST"; else cat; fi))"
+
+if [[ -n "$PII_HITS" ]]; then
+  echo "BLOCKED: PII email literals in staged diff:"
+  echo "$PII_HITS"
+  echo "Fix: remove the literal, refer to the GitHub handle, or add a"
+  echo "deliberate allow-line to .pii-allowlist with a comment explaining why."
+  exit 1
+fi
+```
+
+**Check 6b — banned identity source in staged skill bodies.** A
+committed skill file MUST NOT call `git config --get user.email` from
+an executable code block, because the value will later be published
+by whatever public-surface writer the skill feeds. The only allowed
+usage is in documentation text that explicitly forbids the pattern.
+
+```bash
+SKILL_LEAKS="$(git diff --cached --name-only --diff-filter=AM \
+  | rg '\.claude/skills/.*\.md$|\.github/agent-prompts/' \
+  | while read -r f; do
+      [[ -f "$f" ]] || continue
+      # Flag the pattern inside ```bash fences, ignore it in prose.
+      awk '
+        /^```bash/ { in_block = 1; next }
+        /^```/     { in_block = 0; next }
+        in_block && /git config[^#]*user\.email/ { print FILENAME ":" NR ": " $0 }
+      ' "$f"
+    done)"
+
+if [[ -n "$SKILL_LEAKS" ]]; then
+  echo "BLOCKED: skill body reads user.email in an executable block:"
+  echo "$SKILL_LEAKS"
+  echo "Fix: use the resolver chain from AGENTS.md §10 (physa.agent-id"
+  echo "→ gh api user --jq .login → interactive prompt)."
+  exit 1
+fi
+```
+
+`.pii-allowlist` format: one regex per line, `#`-comments allowed.
+Use sparingly — every entry weakens the gate. Typical case: a test
+fixture that intentionally embeds a fake email.
 
 ## Gate 7 — Conventional commit message
 
@@ -136,7 +197,7 @@ Gate                         | Result
 3 Clippy -D warnings         | PASS
 4 Tests                      | PASS
 5 Privacy check              | PASS
-6 Secrets scan               | PASS (0 matches)
+6 Secrets & PII scan         | PASS (0 matches)
 7 Conventional commit        | N/A (no message drafted)
 8 Markdown link integrity    | PASS
 
