@@ -152,6 +152,39 @@ If this fails, stop and report. Never claim an issue on top of a
 divergent local `main` — the branch you create will carry commits
 that do not belong to the issue.
 
+## Step 0.5 — Resolve the agent identity (non-PII)
+
+Every later step that writes the agent's identity to a surface — a
+GitHub comment, a PR body, a branch name, a log — must read from
+**this** resolver, never from `git config --get user.email`. The git
+`user.email` field is designed for commit authoring (often a real
+address); reusing it as a public display handle leaks PII onto issues
+and PR threads. AGENTS.md §10 forbids that leak.
+
+Resolution order (first match wins):
+
+```bash
+# 1. Opt-in repo-scoped alias — lets a dev run several agents from one clone.
+AGENT_ID="$(git config --local --get physa.agent-id 2>/dev/null || true)"
+
+# 2. Zero-config default — the GitHub handle is already public (it's the
+#    value GitHub itself puts on the assignee, labels, commits via noreply).
+if [[ -z "$AGENT_ID" ]]; then
+  AGENT_ID="$(gh api user --jq .login 2>/dev/null || true)"
+fi
+
+# 3. First-run bootstrap — interactive only; no silent fallback to user.email.
+if [[ -z "$AGENT_ID" ]]; then
+  read -rp "Agent display name (stored in .git/config as physa.agent-id): " AGENT_ID
+  [[ -n "$AGENT_ID" ]] || { echo "no identity provided — abort"; exit 1; }
+  git config --local physa.agent-id "$AGENT_ID"
+fi
+```
+
+Do **not** read `git config --get user.email`, `whoami`, `hostname`,
+or `$HOME` for any identity that will be written to a public surface.
+Those strings are PII under AGENTS.md §10.
+
 ## Step 1 — Pre-flight sanity checks
 
 ```bash
@@ -171,10 +204,9 @@ task's diff.
 ## Step 2 — Check for an existing claim by this agent
 
 A crashed / compacted agent that restarts must *resume*, not claim a
-second issue.
+second issue. `$AGENT_ID` was resolved safely in Step 0.5 — reuse it.
 
 ```bash
-AGENT_ID="$(git config --get user.email || echo "$(whoami)@$(hostname)")"
 # Issues I already claimed:
 gh issue list --assignee @me --label status:in-progress --state open
 ```
@@ -237,26 +269,23 @@ Pick the top candidate. Let `N` be its issue number.
 
 ```bash
 N=<top issue number>
-TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-AGENT="$(git config --get user.email || echo "$(whoami)@$(hostname)")"
 
-# (a) Flip labels + assign in one API call each.
+# (a) Flip labels + assign in one API call each. The assignee is the
+#     authoritative lock owner; no free-text claim comment is needed.
 gh issue edit "$N" \
   --add-label status:in-progress \
   --remove-label status:ready \
   --add-assignee "@me"
 
-# (b) Post the claim marker comment.
-gh issue comment "$N" --body "Claimed by \`$AGENT\` at $TS via \`/next\`.
-
-<!-- claim-marker:$AGENT -->"
-
-# (c) DOUBLE-CHECK: re-fetch and confirm we are the sole assignee
-# and the label is set.
+# (b) DOUBLE-CHECK: re-fetch and confirm we are the sole assignee
+#     and the label is set. Compare against the resolver-derived login,
+#     never against $AGENT_ID directly (which may be an opt-in alias).
 sleep 2
+MY_LOGIN="$(gh api user --jq .login)"
 VERDICT="$(gh issue view "$N" --json assignees,labels \
-  --jq '(.assignees | length == 1) and
-        (.assignees[0].login == "<my-gh-login>") and
+  --jq --arg me "$MY_LOGIN" '
+        (.assignees | length == 1) and
+        (.assignees[0].login == $me) and
         ([.labels[].name] | contains(["status:in-progress"]))')"
 
 if [[ "$VERDICT" != "true" ]]; then
@@ -266,6 +295,13 @@ if [[ "$VERDICT" != "true" ]]; then
   # Go back to Step 3, exclude #N, retry.
 fi
 ```
+
+**Why no claim-marker comment.** The (label, assignee) pair is the
+lock; a GitHub issue can hold both atomically. A redundant comment
+adds a public surface that leaks whatever identity string the author
+put in it — exactly the leak §10 forbids. The assignee event in the
+issue timeline already records **who** claimed, and **when**, in a
+structured, auditable way.
 
 **Why double-check**: GitHub's label + assignee are eventually
 consistent across replicas. In the 1–2 s window between our write and
@@ -472,3 +508,8 @@ If the rerun also stalls, treat as 9d and escalate.
 - Do not walk away from a PR you opened. Own it through the first CI
   round; if you cannot stay, call `/abandon` with a clear hand-off
   comment on the PR so the next agent (or human) knows the state.
+- Do not read `git config --get user.email` as an identity source,
+  and do not echo `$HOME`, `whoami`, or `hostname` into any GitHub
+  comment, PR body, or issue body. Those strings are PII under
+  AGENTS.md §10. Use the resolver from Step 0.5 instead — it returns
+  the already-public GitHub login by default.

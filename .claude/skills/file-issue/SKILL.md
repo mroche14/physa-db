@@ -164,3 +164,7 @@ Or via the browser with the template pre-filled if you prefer the UI.
   `plan-feature` first to add it.
 - Do not use `status:in-progress` at creation time. Start at
   `status:ready`; the agent picking up the work flips it.
+- Do not include personal information in the issue body (email
+  addresses, legal names, phone numbers, home directory paths,
+  hostnames). The issue is public. Refer to yourself or other
+  contributors only by their GitHub handle. See AGENTS.md §10.
