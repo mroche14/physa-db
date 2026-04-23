@@ -1,8 +1,13 @@
 # ADR-0001: Project tracking — GitHub Issues + GitHub Projects v2, with a static JSON snapshot for the dashboard
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-04-20
+- **Accepted on:** 2026-04-20
 - **Context issue:** _(to be opened once repo is pushed)_
+
+> **Note on status.** ADR-0001 is a process ADR, not an architecture ADR gated
+> by `AGENTS.md` §15. It became Accepted once the project adopted GitHub Issues
+> + Projects v2 + the dashboard snapshot workflow as the tracking system.
 
 ## Context
 

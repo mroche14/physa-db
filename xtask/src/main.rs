@@ -6,7 +6,7 @@
 use std::path::PathBuf;
 
 use anyhow::Result;
-use clap::{Parser, Subcommand};
+use clap::{ArgAction, Parser, Subcommand};
 use xtask::dashboard;
 
 #[derive(Parser)]
@@ -30,7 +30,7 @@ enum Cmd {
     /// Create GitHub issues from `docs/seed-issues.md`.
     SeedIssues {
         /// If true, print what would be created without calling the API.
-        #[arg(long, default_value_t = true)]
+        #[arg(long, default_value_t = true, action = ArgAction::Set)]
         dry_run: bool,
     },
     /// Emit the agent prompt that walks through profiling a competitor codename.

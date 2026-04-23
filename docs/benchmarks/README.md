@@ -2,12 +2,15 @@
 
 Performance claims without reproducible numbers are marketing. This directory defines **how** we benchmark, **what** we benchmark, and **where** results live.
 
+At M0/M1, only the micro-benchmark surface is implemented. `just bench-macro`
+is wired as a truthful placeholder scaffold until the real macro harness lands.
+
 ## Principles
 
 1. **Reproducible.** Every result must come with: command line, hardware spec, dataset version, commit SHA.
 2. **Comparative.** We run the same workload against the same hardware on at least two competitors (baseline = current market leader for that workload).
 3. **Honest.** We publish our losses too. Losses drive the roadmap.
-4. **Regression-gated.** A PR that regresses a tracked benchmark by >5% requires an ADR justifying the trade-off before merge.
+4. **Regression-gated.** A PR that regresses a tracked benchmark by >2% requires an ADR justifying the trade-off before merge.
 
 ## Layered benchmark strategy
 

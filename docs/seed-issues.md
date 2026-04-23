@@ -6,7 +6,7 @@ Each block below is ready to become a GitHub issue. When the repo is pushed to G
 gh issue create --title "<title>" --body-file <(echo "<body>") --label "<labels>"
 ```
 
-Or batch via `xtask create-seed-issues` (to be implemented).
+Or batch via `xtask seed-issues --dry-run` (current stub; real importer tracked separately).
 
 **Reminder:** competitor names must never appear in public issues. Use codenames (`Competitor ALPHA`, `BETA`, …). The codename↔name map is a local thread note, never committed. See ADR-0006.
 

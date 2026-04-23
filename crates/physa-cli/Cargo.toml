@@ -12,6 +12,14 @@ description = "Command-line interface for physa-db (admin, import, query)."
 name = "physa"
 path = "src/main.rs"
 
+[[bin]]
+name = "physa-bench"
+path = "src/bin/physa-bench.rs"
+
+[[bin]]
+name = "physa-stress"
+path = "src/bin/physa-stress.rs"
+
 [lints]
 workspace = true
 
