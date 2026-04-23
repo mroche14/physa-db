@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.repository_owner == 'mroche14' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -37,7 +37,7 @@ jobs:
     needs: release-plz-release
     if: ${{ github.repository_owner == 'mroche14' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: false
