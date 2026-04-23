@@ -30,8 +30,7 @@
 - [Why physa-db?](#why-physa-db)
 - [Built by AI agents, on purpose](#built-by-ai-agents-on-purpose)
 - [Getting started](#getting-started)
-  - [As a human contributor](#as-a-human-contributor)
-  - [As an AI agent](#as-an-ai-agent)
+- [The dev loop](#the-dev-loop)
 - [Status & dashboard](#status--dashboard)
 - [Project labels](#project-labels)
 - [Quick links](#quick-links)
@@ -122,38 +121,35 @@ See [`AGENTS.md`](./AGENTS.md) for the full agent contract — engineering-disci
 
 ## Getting started
 
-**Prerequisites:** [`mise`](https://mise.jdx.dev/) · `git` · `gh` (GitHub CLI authenticated via `gh auth login`).
+physa-db is developed with AI coding agents — Claude Code, Codex, Cursor, or anything that honours [`.claude/skills/`](./.claude/skills/) (Codex reads the same files through [`.agents/skills/`](./.agents/skills/)). Whether you are the solo maintainer or a new external contributor, the workflow is identical: open an agent, run `/onboard`, then `/next`.
 
-### As a human contributor
-
-```bash
-git clone https://github.com/mroche14/physa-db.git
-cd physa-db
-mise install        # pinned toolchain (Rust + just + nextest + criterion + …)
-just dev            # watch-mode tests + clippy
-```
-
-Then read [`CONTRIBUTING.md`](./CONTRIBUTING.md), pick an open issue labelled [`status:ready`](https://github.com/mroche14/physa-db/issues?q=is%3Aopen+is%3Aissue+label%3Astatus%3Aready), and branch from `main` as `human/<gh-handle>/<slug>`.
-
-### As an AI agent
-
-Works with Claude Code, Codex, Cursor, or any agent that honours [`.claude/skills/`](./.claude/skills/).
+**Prerequisites:** [`mise`](https://mise.jdx.dev/) · `git` · `gh` (GitHub CLI — `/next` needs it authenticated).
 
 ```bash
 git clone https://github.com/mroche14/physa-db.git
 cd physa-db
-mise install
-gh auth login       # /next claims GitHub Issues atomically — gh must be authenticated
+claude .            # or: codex, cursor, …
 ```
 
-Open your agent in the repo directory. Every project skill auto-loads from [`.claude/skills/`](./.claude/skills/) (or [`.agents/skills/`](./.agents/skills/) for Codex) — no separate install.
+Then, inside your agent:
 
-Then run, in order:
+1. **`/onboard`** — installs the pinned toolchain (`mise install`), verifies `gh auth`, reads rules + pillars, lists ready tasks. Run this first in every fresh session (and after any context-compaction). *(Auto-install behaviours are tracked for implementation — see [#52](https://github.com/mroche14/physa-db/issues/52) and the follow-up `/onboard` enrichment issue.)*
+2. **`/next`** — claims the next `status:ready` GitHub Issue atomically, creates the `agent/<n>-<slug>` branch, and invokes `/plan-feature` if the issue has no plan yet.
 
-1. **`/onboard`** — mandatory first read: pillars, rules, causal chain, reading order.
-2. **`/next`** — claims the next `status:ready` issue, creates `agent/<n>-<slug>` branch, invokes `/plan-feature` if needed.
+That's the entry gate. The full loop (`/plan-feature` → code → `/pre-commit-check` → commit → push + PR → `/wait-ci`) plus error-recovery paths and the skills-by-moment reference live in [`CONTRIBUTING.md`](./CONTRIBUTING.md). The complete agent contract — rules §§1–15, claim protocol §6.1, skills catalog §16 — lives in [`AGENTS.md`](./AGENTS.md).
 
-Everything else (`/plan-feature`, `/write-adr`, `/pre-commit-check`, `/run-stress`, `/run-bench`, `/review-pr`, `/file-issue`, `/abandon`) is documented in [`CONTRIBUTING.md`](./CONTRIBUTING.md) and [`AGENTS.md`](./AGENTS.md) §16.
+## The dev loop
+
+```
+/onboard → /next → /plan-feature → [code] → /pre-commit-check → commit + push → gh pr create → /wait-ci
+                                                                                                    ├─ ✅ green   → done
+                                                                                                    ├─ ❌ fail    → fix & repush  OR  /abandon blocked
+                                                                                                    └─ ⏳ timeout → surface & resume later
+```
+
+Each arrow is a skill or a standard git/gh command. Skills exist to make the AGENTS.md rules mechanical — you don't memorise them, you invoke the right skill at the right moment. If a skill exists for the action you are about to take, use it (AGENTS.md §16).
+
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the detailed step-by-step, the full skills-by-moment reference, and what to do when a step fails.
 
 ## Status & dashboard
 

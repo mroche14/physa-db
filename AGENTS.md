@@ -356,7 +356,7 @@ M1 (see `ROADMAP.md`) is the milestone where all primary feature rows move from 
 
 ## 16. Skills — mechanical rule enforcement
 
-The repo ships a catalog of skills under [`.claude/skills/`](./.claude/skills/). Each skill is a playbook that enforces one or more of the rules above so they are checked mechanically, not recalled from memory. Codex discovers the same canonical skill files through the symlink bridge under [`.agents/skills/`](./.agents/skills/); keep `.claude/skills/` as the source of truth and refresh the bridge when skills are added, renamed, or removed.
+The repo ships a catalog of skills under [`.claude/skills/`](./.claude/skills/). Each skill is a playbook that enforces one or more of the rules above so they are checked mechanically, not recalled from memory. Codex discovers the same canonical skill files through a single directory-level symlink (`.agents/skills -> ../.claude/skills`); a skill added, renamed, or removed under `.claude/skills/` is immediately visible to Codex — no bridge-refresh step.
 
 Invocation syntax differs by agent. Claude Code exposes these as slash commands such as `/next`. Codex skills are not CLI slash commands; invoke them with `$next`, `$plan-feature`, etc., or by asking Codex to use the named skill.
 

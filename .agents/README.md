@@ -1,20 +1,32 @@
 # Codex skill bridge
 
-Codex discovers repository-scoped skills from `.agents/skills/`.
+Codex discovers repository-scoped skills from `.agents/skills/`. physa-db keeps
+its canonical skill definitions in `.claude/skills/`, and `.agents/skills` is a
+**single directory-level symlink** to that canonical location:
 
-The project already keeps its canonical skill definitions in `.claude/skills/`.
-Each entry in `.agents/skills/` is therefore a symlink to the matching Claude
-skill directory. This keeps one source of truth while making the same `SKILL.md`
-files visible to Codex.
+```
+.agents/skills -> ../.claude/skills
+```
 
-If you add, rename, or remove a project skill under `.claude/skills/`, refresh
-the bridge from the repository root:
+Every skill that lives under `.claude/skills/<name>/` is therefore automatically
+visible to Codex at `.agents/skills/<name>/`. No per-skill symlink to maintain,
+no "refresh the bridge" step when you add or remove a skill.
+
+If `.agents/skills/` ever looks broken (empty or showing a stale set of entries)
+— most likely because a tool that doesn't follow symlinks well clobbered it —
+recreate it from the repository root:
 
 ```bash
-mkdir -p .agents/skills
-for skill in .claude/skills/*; do
-  [ -d "$skill" ] || continue
-  name=$(basename "$skill")
-  ln -sfn "../../.claude/skills/$name" ".agents/skills/$name"
-done
+rm -rf .agents/skills
+ln -s ../.claude/skills .agents/skills
+git add .agents/skills
 ```
+
+Invocation syntax differs by agent:
+
+- **Claude Code** — slash commands (`/next`, `/plan-feature`, …).
+- **Codex** — prefix invocation (`$next`, `$plan-feature`, …) or "use the named
+  skill" in a prompt.
+
+Skill semantics, allowed-tools, and argument hints are identical across agents —
+the `SKILL.md` file is the single source of truth.
