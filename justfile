@@ -41,6 +41,15 @@ test-doc:
 fuzz target:
     cargo +nightly fuzz run {{target}} -- -max_total_time=60
 
+# Truthful placeholder for the future CI fuzz-smoke gate.
+fuzz-smoke:
+    @if find . -path '*/fuzz/Cargo.toml' -print -quit | grep -q .; then \
+        echo "fuzz-smoke: fuzz targets exist, but per-target smoke wiring is not implemented yet."; \
+        echo "fuzz-smoke: run \`just fuzz <target>\` explicitly until the dedicated gate lands."; \
+    else \
+        echo "fuzz-smoke: no fuzz targets exist yet; placeholder gate passes."; \
+    fi
+
 # ------------------------------------------------------------------
 # Benchmarks & stress — "all along the dev" per founder's rule.
 # ------------------------------------------------------------------
@@ -64,11 +73,23 @@ bench-save baseline="current":
 bench-iai:
     cargo bench -p physa-core --bench iai
 
+# Truthful placeholder for the future local regression gate.
+bench-regression-guard:
+    @if [[ "$(uname -s)" == "Linux" ]] && command -v valgrind >/dev/null 2>&1; then \
+        echo "bench-regression-guard: running iai smoke bench on Linux with valgrind."; \
+        cargo bench -p physa-core --bench iai; \
+    else \
+        echo "bench-regression-guard: skipping local iai run (needs Linux + valgrind)."; \
+        echo "bench-regression-guard: PR workflow remains the authoritative regression gate."; \
+    fi
+
 # Macro benchmarks (LDBC SNB / SNAP) on SF1.
+# M0/M1: this is a truthful placeholder scaffold until issue #47 lands.
 bench-macro sf="1":
     cargo run --release -p physa-cli --bin physa-bench -- run --sf {{sf}}
 
 # Run a stress scenario (chaos, soak, partition, disk-full, …).
+# M0/M1: this is a truthful placeholder scaffold until issue #48 lands.
 stress scenario="smoke":
     cargo run --release -p physa-cli --bin physa-stress -- {{scenario}}
 
@@ -76,8 +97,8 @@ stress scenario="smoke":
 # CI / release / docs
 # ------------------------------------------------------------------
 
-# The exact gate CI runs. Must pass locally before you push.
-ci: fmt-check lint test test-doc
+# The exact core gate CI runs. Must pass locally before you push.
+ci: fmt-check lint test test-doc fuzz-smoke bench-regression-guard
     @echo "CI gate passed."
 
 # Validate release-plz config and run a disposable local update.

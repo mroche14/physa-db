@@ -2,6 +2,10 @@
 
 > Long-running, adversarial tests designed to surface bugs that unit/integration tests miss.
 
+At M0/M1, `just stress` is wired to a truthful placeholder scaffold. It proves
+the documented command shape and scenario naming, but it does **not** execute a
+real workload or verify invariants yet.
+
 ## Scenarios (to be implemented starting M2)
 
 | Scenario | What it does | Signal |
@@ -26,7 +30,10 @@ just stress soak         # release candidates only
 
 ## Harness
 
-Implemented in `physa-cli` as the `physa-stress` subcommand. Each scenario is self-contained: it owns its dataset, its workload generator, its invariant checkers. No scenario may share state with another.
+Implemented in `physa-cli` as the `physa-stress` subcommand. During M0/M1 this
+subcommand is a placeholder; the real harness lands later and each scenario
+will be self-contained with its own dataset, workload generator, and invariant
+checkers.
 
 ## Invariant checkers
 

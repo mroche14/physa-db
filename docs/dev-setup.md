@@ -31,8 +31,8 @@ That's it. The `just` recipes expose every other workflow you need.
 | Fuzz a target for 60 s | `just fuzz <target>` |
 | Micro benches | `just bench` |
 | Compare vs `main` | `just bench-compare main` |
-| Macro benches (LDBC SNB SF1) | `just bench-macro 1` |
-| Stress (chaos) | `just stress chaos` |
+| Macro benches (LDBC SNB SF1) | `just bench-macro 1` — placeholder scaffold at M0/M1 |
+| Stress (chaos) | `just stress chaos` — placeholder scaffold at M0/M1 |
 | Preview the dashboard | `just dashboard` then open http://localhost:8000 |
 | Check release automation | `just release-check` |
 | Check commit subjects | `just check-commits origin/main` |
@@ -87,6 +87,7 @@ just check-commits origin/main
 - **CI fails but `just ci` passes locally** → ensure you're on the same `mise` tool versions; check `mise ls` vs `.mise.toml`.
 - **Bench numbers unstable** → use `just bench-iai` for instruction-count benches; they're stable across hardware.
 - **Fuzz targets missing** → they live under `fuzz/` (created in M2+); list with `cargo fuzz list`.
+- **`just bench-macro` / `just stress` look too successful** → at M0/M1 these commands are intentionally wired as truthful placeholders. They prove command shape and documentation wiring, not benchmark or correctness evidence.
 
 ## Self-hosted bench runner
 
@@ -134,10 +135,11 @@ security risk and is intentionally avoided for PR-triggered runs.
        --component rustfmt --component clippy --no-modify-path
    '
    ```
-5. Install the Cargo helpers used by `just bench` and `just bench-iai`:
+5. Install the CLI helpers used by the benchmark workflows:
    ```bash
    sudo -u github-runner -H bash -lc '
      export PATH=/home/github-runner/.cargo/bin:$PATH
+     cargo install just --version 1.50.0 --locked
      cargo install cargo-criterion --version ^1.1 --locked
      cargo install iai-callgrind-runner --version ^0.14 --locked
    '

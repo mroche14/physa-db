@@ -120,14 +120,14 @@ If no issue matches your task, **stop and open one first** via `file-issue`. Iss
 - **Unit tests:** in-file with `#[cfg(test)]`.
 - **Integration tests:** under `tests/integration/`.
 - **Property tests:** `proptest` for storage codecs, serialization, query planner equivalence.
-- **Fuzzing:** `cargo fuzz` targets for parser (GQL + Cypher), wire protocol, storage codec. Smoke run every PR, soak run weekly.
+- **Fuzzing:** `cargo fuzz` targets for parser (GQL + Cypher), wire protocol, storage codec. Until those targets land, `just fuzz-smoke` is a truthful scaffold that reports the gap without pretending coverage exists.
 - **Concurrency:** `loom` for lock-free / atomic code. No concurrency primitive ships without a `loom` test.
 - **Deterministic simulation:** `turmoil` (or equivalent) for cluster/network-partition scenarios.
-- **Benchmarks:** `criterion` for wall-time micro-benches, `iai-callgrind` for instruction-stable benches, custom harness in `benchmarks/` for macro (LDBC SNB, SNAP, YCSB). Run via `just bench` and `just bench-compare`.
-- **Stress tests:** `tests/stress/` holds chaos, soak, disk-full, OOM, partition scenarios. Run via `just stress`.
-- **Coverage:** tracked with `cargo llvm-cov`, reported in CI. Coverage is a diagnostic, not a target.
+- **Benchmarks:** `criterion` for wall-time micro-benches, `iai-callgrind` for instruction-stable benches, and a macro harness behind `just bench-macro`. During M0/M1 the macro command is a truthful placeholder scaffold until the real harness lands.
+- **Stress tests:** `tests/stress/` defines the target scenario matrix and `just stress` is the entrypoint. During M0/M1 the command is a truthful placeholder scaffold until the real harness lands.
+- **Coverage:** `cargo llvm-cov` is pinned for later use. Coverage reporting lands once the first non-trivial product-test surface exists. Coverage is a diagnostic, not a target.
 
-Every CI gate is a local `just` command — **if it passes locally, it must pass in CI**.
+Every **core** CI gate is a local `just` command — **if it passes locally, it must pass in CI**. Specialized workflows (for example `bench-regression`) may add extra checks on top.
 
 ---
 
@@ -136,7 +136,7 @@ Every CI gate is a local `just` command — **if it passes locally, it must pass
 **Single source of truth: GitHub Issues + GitHub Projects v2.** See ADR-0001.
 
 - Every task, bug, feature, research item is a GitHub Issue.
-- The GitHub Pages dashboard (`dashboard/`) reads a pre-generated `dashboard/data/state.json`, rebuilt by `snapshot-dashboard.yml` on every issue event.
+- The GitHub Pages dashboard (`dashboard/`) reads a pre-generated `dashboard/data/state.json`, rebuilt by `snapshot-dashboard.yml` when that workflow is enabled.
 - **Do not** create parallel tracking systems (TODO files, taskwarrior, etc.). If you need transient state inside a task, put it in a PR description or issue comment.
 
 ### Labels (canonical set)
@@ -206,7 +206,7 @@ See ADR-0006 for the full rationale.
   - `## Benchmarks` (required for `type:perf`) — before/after numbers, hardware, command.
   - `## Stress` (required for `type:stress` and any concurrency change) — scenario, duration, outcome.
   - `## Checklist` — tests added, docs updated, ADR if architectural.
-- **Required checks before merge:** `just ci` (which runs fmt + lint + test + fuzz-smoke + bench-regression-guard).
+- **Required checks before merge:** `just ci` (the shared core gate) plus any applicable specialized workflows such as `bench-regression`.
 
 ---
 

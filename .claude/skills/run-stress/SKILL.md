@@ -28,6 +28,9 @@ Stress scenarios surface bugs that unit and integration tests miss: crash
 recovery, soak-leak, hotspots, clock skew, network partitions. A scenario
 run is a signal, not a ceremony — read the output carefully.
 
+If `just stress` prints `status: placeholder`, the harness is not implemented
+yet. Treat that as wiring verification only, not evidence of correctness.
+
 ## Pick the right scenario
 
 | Scenario | Duration | When to use |
@@ -51,9 +54,10 @@ invariant list each scenario enforces.
 just stress {{scenario}}
 ```
 
-Under the hood this invokes the `physa-stress` subcommand of `physa-cli`
-which owns the dataset, workload generator, and invariant checker for
-the chosen scenario.
+Under the hood this invokes the `physa-stress` subcommand of `physa-cli`.
+During M0/M1 that subcommand is still a placeholder scaffold; once the real
+harness lands it will own the dataset, workload generator, and invariant
+checker for the chosen scenario.
 
 For long scenarios (`soak`, `supernode`), run in the background and
 monitor:

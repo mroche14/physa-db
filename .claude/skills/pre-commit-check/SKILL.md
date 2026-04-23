@@ -4,7 +4,8 @@ description: >
   Run all physa-db pre-commit gates in one pass — formatting, clippy with
   -D warnings, tests, doc tests, private/ path check, conventional-commit
   message format, and a secrets scan. Must pass locally before any commit.
-  Mirrors what CI will run; if it passes here, it passes in CI.
+  Runs the CI core gate plus additional pre-commit-only checks such as
+  secrets scanning and commit-message validation.
 when_to_use: >
   "pre-commit", "check before commit", "ready to commit", right before
   staging a change for commit.
@@ -21,11 +22,15 @@ allowed-tools:
   - Grep
 ---
 
-# pre-commit-check — local gate mirroring CI
+# pre-commit-check — local gate aligned with CI core
 
 Run every gate below **in order** and report a single pass/fail summary at
 the end. Do not skip gates; if one fails, stop, report, and wait for the
 user to fix.
+
+This skill is intentionally a **superset** of the CI core gate. CI checks the
+shared workspace gate; this skill also checks local-only concerns such as
+staged secrets and commit-message shape.
 
 ## Gate 1 — Working tree sanity
 
