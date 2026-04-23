@@ -131,4 +131,4 @@ By contributing, you agree that your contribution is licensed under Apache-2.0, 
 
 ## Security
 
-Do **not** open public issues for security vulnerabilities. Contact the maintainer at `55630565+mroche14@users.noreply.github.com` (temporary; a security policy will be set up with M0).
+Do **not** open public issues for security vulnerabilities. Use GitHub's private vulnerability reporting: [report a security issue](https://github.com/mroche14/physa-db/security/advisories/new). Details in [`SECURITY.md`](./SECURITY.md).

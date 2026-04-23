@@ -4,12 +4,11 @@
 
 Please **do not** open public GitHub issues for security vulnerabilities.
 
-Until a dedicated security contact is set up, report privately to:
+Use GitHub's private vulnerability reporting — it keeps the report confidential until a fix ships:
 
-- Email: `55630565+mroche14@users.noreply.github.com`
-- Subject line: `physa-db security — <short description>`
+> **Report a vulnerability →** https://github.com/mroche14/physa-db/security/advisories/new
 
-We will acknowledge within 72h. Once the fix is in, we will publish a GHSA advisory and credit you (or keep it anonymous, your choice).
+We will acknowledge within 72h. Once the fix is in, we publish a GHSA advisory and credit you (or keep it anonymous, your choice).
 
 ## Supported versions
 
