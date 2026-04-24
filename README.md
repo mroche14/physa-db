@@ -143,9 +143,9 @@ That's the entry gate. The full loop (`/plan-feature` → code → `/pre-commit-
 Two paths, one command each as the entry point:
 
 - **Contributor path** — you have an agent (Claude Code, Codex, Cursor, …) and tokens to burn. You run `/onboard` once per clone, then `/next` on repeat. The agent decides everything else: whether the claimed issue needs `/plan-feature` first, whether a bug surfaced mid-work warrants `/file-issue`, whether to `/abandon blocked` when stuck. You don't pick skills — the agent does. Ideal for external contributors who want to ship without reading the full contract.
-- **Maintainer path** — directional work that stays human-owned: editing the feature matrix, promoting ADRs to `Accepted`, label/milestone taxonomy, release cuts. These are not automatable because they set the direction the agents then execute against.
+- **Maintainer path** — directional work that stays human-owned: editing the [feature matrix](./docs/requirements/feature-matrix.md) (the single-source list of what physa-db will do, tier-scored, that every issue links back to), promoting Architecture Decision Records ([ADRs](./docs/architecture/adr/)) from `Proposed` to `Accepted`, governing the label/milestone taxonomy, and cutting releases. These are not automatable because they set the direction the agents then execute against.
 
-The diagram below shows both paths in one view. Maintainers curate the issue queue on the left; contributors (or their agents) consume it on the right. Dotted edges are escape hatches the agent takes autonomously when the conditions match — including `/file-issue`, which feeds a newly-surfaced bug back into the same queue the loop consumes.
+The diagram below shows both paths in one view. Maintainers curate the issue queue on the left; contributors (or their agents) consume it on the right. `/onboard` is a **one-shot** bootstrap — run once per clone (or after a context compaction) to load the rules and positioning into the agent — and after that every session enters the loop directly at `/next`. Dotted edges are escape hatches the agent takes autonomously when the conditions match, including `/file-issue`, which feeds a newly-surfaced bug back into the same queue the loop consumes.
 
 ```mermaid
 flowchart TD
@@ -158,8 +158,9 @@ flowchart TD
 
     m2 --> next
 
-    start([new agent session]) --> onboard[/onboard/]
+    first([first time on this clone,<br/>or after compaction]) --> onboard[/onboard/]
     onboard --> next[/next/]
+    repeat([any subsequent session]) --> next
 
     next -->|acceptance criteria<br/>present in issue| code[write code<br/>run-stress / run-bench as needed]
     next -->|acceptance criteria<br/>missing| plan[/plan-feature/]
@@ -185,10 +186,12 @@ flowchart TD
     classDef terminal fill:#e8ffe8,stroke:#4a8f4a,color:#1a3a1a
     classDef escape fill:#fff0e0,stroke:#b07a2a,color:#3a2a1a
     classDef maint fill:#f5e0ff,stroke:#7a4a8f,color:#2a1a3a
+    classDef entry fill:#f8f8f8,stroke:#888,color:#333
     class onboard,next,plan,precheck,waitci,fileissue skill
     class review,resume terminal
     class nh,blocked escape
     class m1,m2,m3,m4 maint
+    class first,repeat entry
 ```
 
 Every arrow is a skill or a standard `git` / `gh` command. Skills exist to make the AGENTS.md rules mechanical — you don't memorise them, the agent invokes them. If a skill matches the action about to happen, it's invoked (AGENTS.md §16).
