@@ -301,7 +301,36 @@ Filter further by agent capability (optional but recommended):
 
 Sort by priority label (`p0`/`p1`/`p2`/`p3`) — pick the highest.
 
-If the list is **empty** after all filters:
+If the **first pass** is empty, **retry without the milestone filter**
+before falling back any further. A ready, unassigned issue with no
+milestone is almost always a triage gap (the maintainer filed a task
+and forgot to milestone it), not a deliberate choice — and an external
+contributor running `/next` should never have to debug that. The
+widened query is identical except `--milestone "$MILESTONE"` is
+dropped:
+
+```bash
+gh issue list \
+  --label status:ready \
+  --state open \
+  --limit 50 \
+  --json number,title,labels,assignees,milestone,url \
+  --jq '[.[] | select(
+          (.assignees | length == 0) and
+          ([.labels[].name] | contains(["status:in-progress"]) | not) and
+          ([.labels[].name] | contains(["status:blocked"]) | not) and
+          ([.labels[].name] | contains(["agent:needs-human"]) | not)
+        )]'
+```
+
+If a candidate surfaces here, claim it normally (Step 4) and add a
+one-line note when reporting the claim:
+
+> *Note: issue #N had no milestone — picked up via the widened fallback.*
+
+The maintainer can re-tag at leisure; the contributor is unblocked.
+
+If the **widened pass is also empty**:
 
 - Check if any issues are `status:blocked` — unblocking one is
   higher-value than nothing.
