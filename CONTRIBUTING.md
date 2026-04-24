@@ -26,7 +26,7 @@ claude .            # or: codex, cursor, …
 
 Then, inside your agent:
 
-1. **`/onboard`** — installs the pinned toolchain (`mise install`), verifies `gh auth`, reads the rules and pillars, lists ready tasks. Run it first in every fresh session and after any context-compaction.
+1. **`/onboard`** — installs the pinned toolchain (`mise install`), verifies `gh auth`, reads the rules and pillars, lists ready tasks. Run it once per fresh clone; subsequent sessions enter the loop directly at `/next`. (If an agent mid-session loses a specific rule, it should re-read the relevant `AGENTS.md` section from disk — not re-run the full onboarding.)
 2. **`/next`** — claims the next `status:ready` GitHub Issue atomically, creates the `agent/<n>-<slug>` branch, and invokes `/plan-feature` if the issue has no plan yet.
 
 After that, you're inside the dev loop.
@@ -90,7 +90,7 @@ The skills catalog organised by *when to use*, not by tier. Every skill lives un
 | CI red after push (pre-existing rot, not your diff) | File a follow-up issue via `/file-issue`, add a surgical exclusion in the config that owns it (e.g. `lychee.toml`), reference the follow-up issue in the exclusion comment. Keeps your PR mergeable without papering over the root cause. |
 | You are stuck (context / dependency / environment) | `/abandon blocked "<reason>"` — releases the claim back to the pool. Don't walk away silently. |
 | Session ended mid-task, claim still yours | New session: `/onboard` then `/next`. The skill sees your existing claim and resumes instead of claiming a new issue. |
-| Context lost to compaction | `/onboard` again — it's idempotent and designed to re-hydrate. |
+| Specific rule forgotten mid-session | Re-read the relevant `AGENTS.md` section from disk. The full `/onboard` guided tour is for cold-start agents, not for re-hydration. |
 | You left a dormant claim > 24 h | [`reap-stale-claims.yml`](.github/workflows/reap-stale-claims.yml) reverts it to `status:ready` automatically. No cleanup needed from you. |
 
 ## Issue lifecycle

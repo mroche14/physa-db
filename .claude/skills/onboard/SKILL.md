@@ -1,14 +1,15 @@
 ---
 name: onboard
 description: >
-  Mandatory first read for any agent joining physa-db. Surfaces the two-pillar
-  positioning, the rules (§§7, 11, 12, 15), the causal chain
+  Mandatory first read for any agent arriving cold on this clone. Surfaces
+  the two-pillar positioning, the rules (§§7, 11, 12, 15), the causal chain
   (positioning → workloads → features → ADRs → code), and the reading order.
-  Invoke when a new agent session starts, or when re-hydrating context after
-  compaction, or when the user asks "where should I start?".
+  Invoke once at the start of a fresh clone (or when the user asks "where
+  do I start?"). If an agent mid-session loses specific rules, re-read the
+  relevant AGENTS.md section directly — do not re-run the full onboarding.
 when_to_use: >
   "onboard", "how does this project work", "where do I start", "what are the
-  rules", new agent session on physa-db, re-orientation after compaction.
+  rules", fresh clone of physa-db with no prior session context.
 argument-hint: ""
 user-invocable: true
 ---

@@ -403,7 +403,7 @@ Invocation syntax differs by agent. Claude Code exposes these as slash commands 
 
 | Skill | Rule encoded | When to call |
 |-------|--------------|--------------|
-| `onboard` | §§0, 7, 11, 12, 15 | Start of every new agent session, or after compaction |
+| `onboard` | §§0, 7, 11, 12, 15 | First run on a fresh clone (a guided tour of the rules — not a re-hydration command; an agent mid-session that lost context should re-read the relevant AGENTS.md section directly) |
 | `plan-feature <desc>` | §§11, 15 | Before any code — locks the FM row, workload anchor, derivation, AC |
 | `write-adr <NNNN> <title>` | §§11, 15 | When `plan-feature` concluded an ADR is needed |
 | `research-competitor <CODENAME> <real-name>` | §7, ADR-0006 | Any competitor profile — forces codename + private input + public delta |

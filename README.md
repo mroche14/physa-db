@@ -133,7 +133,7 @@ claude .            # or: codex, cursor, …
 
 Then, inside your agent:
 
-1. **`/onboard`** — installs the pinned toolchain (`mise install`), verifies `gh auth`, reads rules + pillars, lists ready tasks. Run this first in every fresh session (and after any context-compaction). *(Auto-install behaviours are tracked for implementation — see [#52](https://github.com/mroche14/physa-db/issues/52) and the follow-up `/onboard` enrichment issue.)*
+1. **`/onboard`** — installs the pinned toolchain (`mise install`), verifies `gh auth`, reads rules + pillars, lists ready tasks. Run this once per fresh clone; subsequent sessions enter the loop directly at `/next`. *(Auto-install behaviours are tracked for implementation — see [#52](https://github.com/mroche14/physa-db/issues/52) and the follow-up `/onboard` enrichment issue.)*
 2. **`/next`** — claims the next `status:ready` GitHub Issue atomically, creates the `agent/<n>-<slug>` branch, and invokes `/plan-feature` if the issue has no plan yet.
 
 That's the entry gate. The full loop (`/plan-feature` → code → `/pre-commit-check` → commit → push + PR → `/wait-ci`) plus error-recovery paths and the skills-by-moment reference live in [`CONTRIBUTING.md`](./CONTRIBUTING.md). The complete agent contract — rules §§1–15, claim protocol §6.1, skills catalog §16 — lives in [`AGENTS.md`](./AGENTS.md).
@@ -145,7 +145,7 @@ Two paths, one command each as the entry point:
 - **Contributor path** — you have an agent (Claude Code, Codex, Cursor, …) and tokens to burn. You run `/onboard` once per clone, then `/next` on repeat. The agent decides everything else: whether the claimed issue needs `/plan-feature` first, whether a bug surfaced mid-work warrants `/file-issue`, whether to `/abandon blocked` when stuck. You don't pick skills — the agent does. Ideal for external contributors who want to ship without reading the full contract.
 - **Maintainer path** — directional work that stays human-owned: editing the [feature matrix](./docs/requirements/feature-matrix.md) (the single-source list of what physa-db will do, tier-scored, that every issue links back to), promoting Architecture Decision Records ([ADRs](./docs/architecture/adr/)) from `Proposed` to `Accepted`, governing the label/milestone taxonomy, and cutting releases. These are not automatable because they set the direction the agents then execute against.
 
-The diagram below shows both paths in one view. Maintainers curate the issue queue on the left; contributors (or their agents) consume it on the right. `/onboard` is a **one-shot** bootstrap — run once per clone (or after a context compaction) to load the rules and positioning into the agent — and after that every session enters the loop directly at `/next`. Dotted edges are escape hatches the agent takes autonomously when the conditions match, including `/file-issue`, which feeds a newly-surfaced bug back into the same queue the loop consumes.
+The diagram below shows both paths in one view. Maintainers curate the issue queue on the left; contributors (or their agents) consume it on the right. `/onboard` is a **one-shot** bootstrap — run once per clone to load the rules and positioning into the agent — and after that every session enters the loop directly at `/next`. Dotted edges are escape hatches the agent takes autonomously when the conditions match, including `/file-issue`, which feeds a newly-surfaced bug back into the same queue the loop consumes.
 
 ```mermaid
 flowchart TD
@@ -158,7 +158,7 @@ flowchart TD
 
     m2 --> next
 
-    first([first time on this clone,<br/>or after compaction]) --> onboard[/onboard/]
+    first([first time on this clone]) --> onboard[/onboard/]
     onboard --> next[/next/]
     repeat([any subsequent session]) --> next
 
