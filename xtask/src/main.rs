@@ -1,12 +1,12 @@
 //! xtask — workspace dev-task runner for physa-db.
 //!
-//! Invoked through the `justfile` (`just snapshot-dashboard`, `just seed-issues`, …).
+//! Invoked through the `justfile` (`just snapshot-dashboard`, `just research-prompt`, …).
 //! Each subcommand is a first-class workflow that any contributor can reproduce locally.
 
 use std::path::PathBuf;
 
 use anyhow::Result;
-use clap::{ArgAction, Parser, Subcommand};
+use clap::{Parser, Subcommand};
 use xtask::dashboard;
 
 #[derive(Parser)]
@@ -26,12 +26,6 @@ enum Cmd {
         /// Override the output path (default: `dashboard/data/state.json`).
         #[arg(long)]
         out: Option<PathBuf>,
-    },
-    /// Create GitHub issues from `docs/seed-issues.md`.
-    SeedIssues {
-        /// If true, print what would be created without calling the API.
-        #[arg(long, default_value_t = true, action = ArgAction::Set)]
-        dry_run: bool,
     },
     /// Emit the agent prompt that walks through profiling a competitor codename.
     ResearchPrompt {
@@ -57,22 +51,9 @@ fn main() -> Result<()> {
             dry_run,
             output: out,
         }),
-        Cmd::SeedIssues { dry_run } => seed_issues(dry_run),
         Cmd::ResearchPrompt { codename } => research_prompt(&codename),
         Cmd::BenchReport => bench_report(),
     }
-}
-
-#[expect(
-    clippy::unnecessary_wraps,
-    reason = "stub becomes fallible when the gh API call lands"
-)]
-fn seed_issues(dry_run: bool) -> Result<()> {
-    tracing::warn!(
-        dry_run,
-        "seed-issues: not yet implemented — will parse docs/seed-issues.md and call `gh issue create`"
-    );
-    Ok(())
 }
 
 #[expect(

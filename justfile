@@ -120,10 +120,6 @@ check-commits base="origin/main":
 snapshot-dashboard:
     cargo run --release -p xtask -- snapshot-dashboard
 
-# Create GitHub issues from docs/seed-issues.md (dry-run by default).
-seed-issues dry_run="true":
-    cargo run --release -p xtask -- seed-issues --dry-run={{dry_run}}
-
 # Build and preview the dashboard locally.
 dashboard:
     cd dashboard && python3 -m http.server 8000
