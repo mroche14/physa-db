@@ -49,37 +49,65 @@ silently branch off an out-of-date `main` and ship a broken diff.
 git fetch --all --prune --tags
 ```
 
-Then prune local branches whose upstream was deleted AND whose commits
-are already reachable from `origin/main`. `--prune` cleans
-remote-tracking refs but leaves local branches behind; left alone they
-accumulate across every `/next` cycle, clutter `git branch`, and can
-confuse the Step 1 sanity check if one of them matches `agent/*`.
-
-**Safety rule:** a `[gone]` upstream alone is not enough — another
-agent (or a previous self) may have local-only commits that were
-never pushed, or were pushed and then the remote branch was deleted
-for a reason other than merge. Deleting such a branch with `-D`
-silently drops unmerged work. So check reachability first:
+If the current `HEAD` is a strict-subset `agent/*` branch — the
+common "the previous session ended on a merged branch" state — step
+back onto `main` first, so the broader prune that follows can delete
+it. The tree must be clean to do this safely; a dirty tree means
+there is uncommitted work that belongs to the current task and has
+not yet been released, so we stop instead.
 
 ```bash
-git branch --list --format='%(refname:short) %(upstream:track)' \
-  | awk '$2 == "[gone]" {print $1}' \
+CURRENT="$(git branch --show-current)"
+if [[ "$CURRENT" == agent/* ]]; then
+  UNREACHABLE="$(git rev-list --count "$CURRENT" --not origin/main 2>/dev/null || echo 999)"
+  if [[ "$UNREACHABLE" == "0" ]]; then
+    if [[ -n "$(git status --porcelain)" ]]; then
+      echo "HEAD on strict-subset branch '$CURRENT' but tree is dirty — aborting."
+      exit 1
+    fi
+    git switch main
+    git pull --ff-only
+    echo "HEAD rescued: $CURRENT is a strict subset of origin/main, switched to main."
+  fi
+fi
+```
+
+Then prune **every** local `agent/*` branch whose commits are already
+reachable from `origin/main`, regardless of upstream state. This
+catches the three leftover-state families observed in practice:
+
+1. `[gone]` upstream + absorbed by main — the classical case (PR
+   merged, GitHub auto-deleted the remote).
+2. `[gone]` upstream + some divergence — we keep it, user may have
+   local work to rescue.
+3. **No upstream at all** — branch was created by a `/next` that
+   never pushed (abandoned claim, short exploration). The old
+   `[gone]`-only filter missed this forever; the catch-all below
+   handles it.
+
+**Safety rule unchanged**: only delete branches that are **strict
+subsets** of `origin/main` (`git rev-list --count <br> --not
+origin/main` == 0). Branches with any divergence survive the sweep
+and are surfaced for human / original-agent inspection.
+
+```bash
+PRUNED=()
+KEPT=()
+git branch --list 'agent/*' --format='%(refname:short)' \
   | while read -r br; do
-      # Skip if this branch has ANY commit not reachable from origin/main.
-      # That means real work is at risk — leave the branch alone and
-      # surface it for the human / original agent.
+      [[ "$br" == "$(git branch --show-current)" ]] && continue
       UNREACHABLE="$(git rev-list --count "$br" --not origin/main 2>/dev/null || echo 999)"
       if [[ "$UNREACHABLE" == "0" ]]; then
-        git branch -D "$br"
+        git branch -D "$br" >/dev/null && echo "pruned $br (strict subset of origin/main)"
       else
-        echo "skipping $br: $UNREACHABLE commit(s) not on origin/main — inspect manually"
+        echo "kept   $br: $UNREACHABLE commit(s) not on origin/main — inspect manually"
       fi
     done
 ```
 
-Only branches that are **strict subsets** of `origin/main` get deleted
-— those are provably safe (the squash-merge already absorbed their
-content). Branches with any divergence survive the sweep.
+Nothing outside the `agent/*` namespace is touched. Branches the dev
+owns for other workflows (`feature/*`, `wip-*`, personal experiments)
+are invisible to this sweep.
 
 Then sweep **remote** orphan `agent/*` branches. Local pruning above
 only catches branches whose remote was already deleted. The opposite
@@ -151,6 +179,25 @@ fi
 If this fails, stop and report. Never claim an issue on top of a
 divergent local `main` — the branch you create will carry commits
 that do not belong to the issue.
+
+Finally, surface any local stashes — non-destructively. Stashes
+encode in-flight work the skill has no right to drop (the user
+stashed for a reason), but an accumulating stash list is a symptom
+of abandoned branches the earlier sweep may not have caught.
+
+```bash
+STASH_COUNT="$(git stash list | wc -l)"
+if [[ "$STASH_COUNT" -gt 0 ]]; then
+  echo "⚠️ $STASH_COUNT local stash(es) present — inspect with 'git stash list':"
+  git stash list
+fi
+```
+
+The invariant after Step 0 is **mechanical**: a clone that finishes
+a `/next` cycle holds only `main` + optionally the branch of the
+currently claimed issue. No dangling `agent/*` branches, no stale
+`[gone]` entries. If a user runs `/next` twice back-to-back on a
+clean clone, the second run's sweep is a no-op.
 
 ## Step 0.5 — Resolve the agent identity (non-PII)
 
@@ -508,6 +555,11 @@ If the rerun also stalls, treat as 9d and escalate.
 - Do not walk away from a PR you opened. Own it through the first CI
   round; if you cannot stay, call `/abandon` with a clear hand-off
   comment on the PR so the next agent (or human) knows the state.
+- Do not skip Step 0 when resuming a session. It is how the repo
+  self-heals between cycles; skipping it leaves stale `agent/*`
+  branches that accumulate across every run and pollute `git branch`
+  until a human cleans up manually. The sweep is cheap (one
+  `git fetch` + a few `rev-list` per branch) and idempotent.
 - Do not read `git config --get user.email` as an identity source,
   and do not echo `$HOME`, `whoami`, or `hostname` into any GitHub
   comment, PR body, or issue body. Those strings are PII under
