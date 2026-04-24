@@ -143,7 +143,7 @@ That's the entry gate. The full loop (`/plan-feature` → code → `/pre-commit-
 Two paths, one command each as the entry point:
 
 - **Contributor path** — you have an agent (Claude Code, Codex, Cursor, …) and tokens to burn. You run `/onboard` once per clone, then `/next` on repeat. The agent decides everything else: whether the claimed issue needs `/plan-feature` first, whether a bug surfaced mid-work warrants `/file-issue`, whether to `/abandon blocked` when stuck. You don't pick skills — the agent does. Ideal for external contributors who want to ship without reading the full contract.
-- **Maintainer path** — directional work that stays human-owned: editing the feature matrix, promoting ADRs to `Accepted`, label/milestone taxonomy, release cuts. These are not automatable because they set the direction the agents then execute against.
+- **Maintainer path** — directional work that stays human-owned: editing the [feature matrix](./docs/requirements/feature-matrix.md) (the single-source list of what physa-db will do, tier-scored, that every issue links back to), promoting Architecture Decision Records ([ADRs](./docs/architecture/adr/)) from `Proposed` to `Accepted`, governing the label/milestone taxonomy, and cutting releases. These are not automatable because they set the direction the agents then execute against.
 
 The diagram below shows both paths in one view. Maintainers curate the issue queue on the left; contributors (or their agents) consume it on the right. Dotted edges are escape hatches the agent takes autonomously when the conditions match — including `/file-issue`, which feeds a newly-surfaced bug back into the same queue the loop consumes.
 
