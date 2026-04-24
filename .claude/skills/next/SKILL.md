@@ -439,98 +439,114 @@ agent until Step 9 confirms the PR is green — otherwise a red PR
 becomes a stale `needs-review` that the reaper will not touch and no
 other agent will pick up.
 
-## Step 9 — Watch the PR through CI
+## Step 9 — Hand off to `/wait-ci`
 
-A PR is not "done" when pushed — it is done when every required check
-passes. An agent that opens a PR and walks away ships the red to the
-human reviewer. The agent owns its PR until CI is green.
-
-### 9a — Block on the first round
+A PR is not "done" at `gh pr create`. It is done when every required
+check is green AND the PR body's test-plan checklist has been walked.
+Both are the job of [`/wait-ci`](../wait-ci/SKILL.md); `/next` just
+dispatches on the verdict.
 
 ```bash
-gh pr checks "$PR_NUM" --watch --fail-fast --interval 10
-CHECK_RC=$?
+/wait-ci "$PR_NUM"
+CI_RC=$?
 ```
 
-`--watch` blocks while any check is pending. `--fail-fast` returns
-non-zero the moment one fails (no need to wait for the rest). The
-`--interval 10` polls every 10 s — costs nothing on a quiet repo, and
-is polite on GitHub's API.
+`/wait-ci` returns one of four exit codes. Dispatch:
 
-### 9b — If all green
+### 9a — `success` (exit 0): hand off cleanly
+
+All required checks green, every test-plan item auto-verified by the
+predicate library. Flip the label and release the claim.
 
 ```bash
-if [[ "$CHECK_RC" -eq 0 ]]; then
+if [[ "$CI_RC" -eq 0 ]]; then
   gh issue edit "$N" \
     --add-label status:needs-review \
     --remove-label status:in-progress
-  echo "PR #$PR_NUM green — handed off for review"
+  echo "PR #$PR_NUM green + checklist resolved — handed off for review"
   exit 0
 fi
 ```
 
-### 9c — If any red: diagnose, fix, re-push
+### 9b — `pending-human` (exit 5): hand off with a surfaced list
+
+CI green, but one or more test-plan items fell into the manual-pending
+or deferred-follow-up buckets. Technically mergeable, but the human
+should see the list first.
+
+```bash
+if [[ "$CI_RC" -eq 5 ]]; then
+  gh issue edit "$N" \
+    --add-label status:needs-review \
+    --remove-label status:in-progress
+  echo "PR #$PR_NUM green — items pending human verification surfaced in \`/wait-ci\`'s comment on the PR"
+  echo "Review the ⚠️ and 🔁 lists before merging."
+  exit 0
+fi
+```
+
+### 9c — `fail` (exit 4): diagnose, fix, re-push; max 3 iterations
+
+`/wait-ci` already posted a structured failure comment with the last 50
+lines of the failing job. Read it, reason about the root cause, apply
+the fix (run `/pre-commit-check` before committing), push, re-invoke
+`/wait-ci`.
 
 Budget: **3 fix iterations**. Past that, the failure is almost
-certainly not a surface bug — it needs a human.
+certainly not a surface bug — escalate per 9d.
 
 ```bash
 ITER=0
-while [[ "$CHECK_RC" -ne 0 && "$ITER" -lt 3 ]]; do
+while [[ "$CI_RC" -eq 4 && "$ITER" -lt 3 ]]; do
   ITER=$((ITER + 1))
   echo "=== CI fix iteration $ITER/3 ==="
 
-  # Which checks failed, and why.
-  FAILED_JOBS="$(gh pr checks "$PR_NUM" --json name,state,link \
-    --jq '[.[] | select(.state == "FAILURE" or .state == "CANCELLED")]')"
-  echo "$FAILED_JOBS"
+  # The structured diagnosis is already on the PR — scroll `gh pr view --comments`.
+  gh pr view "$PR_NUM" --comments --json comments \
+    --jq '[.comments[] | select(.body | test("<!-- wait-ci:fail -->"))] | last | .body' \
+    | head -80
 
-  # Fetch logs for each failed job. The `--log-failed` flag returns only
-  # failing steps, which fits agent context windows better than full logs.
-  RUN_ID="$(gh pr checks "$PR_NUM" --json link \
-    --jq '.[] | select(.state == "FAILURE") | .link' \
-    | head -1 | grep -oE '/runs/[0-9]+' | grep -oE '[0-9]+')"
-  gh run view "$RUN_ID" --log-failed > /tmp/failed-${PR_NUM}-${ITER}.log
-
-  # Read the log, reason about the root cause, apply the fix,
-  # run `/pre-commit-check`, commit with a `fix(ci): …` prefix, push.
-  # THEN re-enter the watch loop:
-  gh pr checks "$PR_NUM" --watch --fail-fast --interval 10
-  CHECK_RC=$?
+  # Fix the code, commit (conventional prefix `fix(ci): …`), push.
+  # Then re-run /wait-ci for the next round:
+  /wait-ci "$PR_NUM"
+  CI_RC=$?
 done
 ```
 
-### 9d — If still red after 3 iterations
+### 9d — Still `fail` after 3 iterations: hand to a human
 
-The failure is not mechanical. Hand the PR back to a human instead of
-wasting more cycles:
+The failure is not mechanical. Don't burn more cycles.
 
 ```bash
-gh pr comment "$PR_NUM" --body "CI failing after 3 automated fix \
-attempts. Handing to human — see \`/tmp/failed-${PR_NUM}-*.log\` \
-snapshots in the last commits. Likely root cause: <one-sentence \
-summary from the logs>."
-gh issue edit "$N" \
-  --add-label agent:needs-human \
-  --remove-label status:in-progress
+if [[ "$CI_RC" -eq 4 ]]; then
+  gh pr comment "$PR_NUM" --body "CI failing after 3 automated fix \
+attempts. Handing to human — see the \`/wait-ci\` failure comments \
+above for the log tails. Likely root cause: <one-sentence summary>."
+  gh issue edit "$N" \
+    --add-label agent:needs-human \
+    --remove-label status:in-progress
+fi
 ```
 
 Do **not** mark the issue `status:needs-review` while CI is red — a
 red PR masquerading as ready-to-review poisons the review queue and
 demoralises the human reviewer who opens it expecting a clean diff.
 
-### 9e — If the tree is clean but checks are stuck pending
+### 9e — `timeout` (exit 3): surface and resume later
 
-GitHub Actions sometimes wedges (queue stall, runner outage). After 30
-minutes of pending with no state transition:
+`/wait-ci`'s 20 min cap fired (GitHub Actions queue pressure, runner
+outage, …). The PR isn't green yet, but there's no failing check to
+fix either. Leave the claim in place, surface to the user, optionally
+re-invoke.
 
 ```bash
-gh pr comment "$PR_NUM" --body "CI stuck in pending for 30+ min — \
-re-running via \`gh pr rerun\`."
-gh run rerun "$RUN_ID" --failed
+if [[ "$CI_RC" -eq 3 ]]; then
+  echo "PR #$PR_NUM CI still pending after 20 min — \`/wait-ci\` left a"
+  echo "marker comment. Re-run \`/wait-ci $PR_NUM\` later, or \`gh run rerun\`"
+  echo "the stuck workflow if it's been > 30 min with no state change."
+  exit 6
+fi
 ```
-
-If the rerun also stalls, treat as 9d and escalate.
 
 ## What NOT to do
 

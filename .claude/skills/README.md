@@ -49,6 +49,7 @@ Companion infra: [`.github/workflows/reap-stale-claims.yml`](../../.github/workf
 | [`run-stress`](./run-stress/SKILL.md) | Run a stress scenario (smoke / chaos / soak / disk-full / oom / partition / clock-skew / poison / supernode) and check invariants | Any PR touching storage / MVCC / cluster |
 | [`run-bench`](./run-bench/SKILL.md) | Reproducible criterion + iai-callgrind + macro bench with hardware context and baseline comparison | Any PR labelled `type:perf` |
 | [`file-issue`](./file-issue/SKILL.md) | Canonical GitHub Issue template with FM row, acceptance criteria, labels | Every task > 1 h of effort |
+| [`wait-ci`](./wait-ci/SKILL.md) | Poll CI after a push, walk the PR test-plan checklist against the predicate library, post a single verdict comment | Every `gh pr create` (Step 9 of `/next`) |
 
 ### Planned (Tier 3 — not yet authored)
 
