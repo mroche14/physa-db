@@ -53,7 +53,7 @@ Codex syntax: the same skills are invoked with `$onboard`, `$next`, `$plan-featu
 | 5b | `/run-bench` *(conditional)* | Mandatory evidence for any PR labelled `type:perf` (AGENTS.md §§1.2, 8) |
 | 6 | `/pre-commit-check` | Local mirror of the CI gate: fmt, clippy, tests, doc-tests, link-check, private path check, secrets scan, conventional commit subject |
 | 7 | `git commit && git push && gh pr create` | Conventional commit subject · PR template auto-fills summary + test plan · branch `agent/<n>-<slug>` carries the issue number |
-| 8 | `/wait-ci` | Poll CI, walk the PR test-plan checklist, report the verdict on the PR · returns `success` / `pending-human` / `fail` (see [#52](https://github.com/mroche14/physa-db/issues/52) for current status of this skill) |
+| 8 | `/wait-ci` | Poll CI, walk the PR test-plan checklist against the predicate library, post the single verdict comment · returns `success` / `pending-human` / `fail` / `timeout` |
 
 "Done" is **PR green + checklist resolved**, not "PR open". See AGENTS.md §6.1.
 
@@ -71,7 +71,7 @@ The skills catalog organised by *when to use*, not by tier. Every skill lives un
 | Before commit | [`/pre-commit-check`](.claude/skills/pre-commit-check/SKILL.md) | §§1, 4, 5, 7, 8 | every commit |
 | Storage / MVCC / cluster change | [`/run-stress`](.claude/skills/run-stress/SKILL.md) | §5 | every such PR |
 | Perf claim | [`/run-bench`](.claude/skills/run-bench/SKILL.md) | §§1.2, 8 | every `type:perf` PR |
-| After push | `/wait-ci` *(see [#52](https://github.com/mroche14/physa-db/issues/52))* | §6.1 | every `gh pr create` |
+| After push | `/wait-ci` | §6.1 | every `gh pr create` |
 | Reviewing a PR | [`/review-pr`](.claude/skills/review-pr/SKILL.md) | §§1, 5, 7, 8, 11, 12, 15 | every PR review |
 | Track follow-up | [`/file-issue`](.claude/skills/file-issue/SKILL.md) | §6 | any task > 1 h of effort |
 | Can't finish | [`/abandon`](.claude/skills/abandon/SKILL.md) | §§3, 6.1 | every unfinished task |

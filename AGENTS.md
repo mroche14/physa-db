@@ -418,6 +418,7 @@ Invocation syntax differs by agent. Claude Code exposes these as slash commands 
 | `run-stress <scenario>` | After any storage / MVCC / cluster change. Mandatory evidence for those PRs |
 | `run-bench <mode> <baseline>` | Before claiming any perf win. Mandatory for `type:perf` PRs |
 | `file-issue <title>` | End of `plan-feature`; any tracked task > 1 h of effort |
+| `wait-ci [pr]` | After every `gh pr create` and after every re-push on a red PR. Polls CI, walks the test-plan checklist, posts the verdict. Mandatory gate before flipping an issue to `status:needs-review` |
 
 Read [`.claude/skills/README.md`](./.claude/skills/README.md) for the full catalog, conventions, and the Tier 3 backlog (proptest / loom / fuzz scaffolds, regression diff tool, subagent delegations).
 
