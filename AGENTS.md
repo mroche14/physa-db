@@ -173,6 +173,10 @@ When multiple agents work in parallel, GitHub acts as the lock manager. The prot
 
 If you are extending the protocol (e.g. adding a claim TTL override label), update this section, the `next` and `abandon` skills, and the reaper workflow in the same PR.
 
+### 6.2 Clean-repo invariant
+
+After every `/next` run, the developer's clone holds **only** `main` + optionally the branch of the currently claimed issue. No dangling `agent/*` branches (whether from abandoned claims or merged PRs whose remote was auto-deleted), no stale `[gone]` upstreams, no HEAD parked on a merged branch. The Step 0 sweep in `/next` is the enforcer; invoking `/next` twice back-to-back on a clean clone is a no-op. Stashes are surfaced non-destructively but never auto-dropped — they may encode in-flight work no skill has the right to discard.
+
 ---
 
 ## 7. Research protocol (public output, private input)
