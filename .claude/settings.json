@@ -37,7 +37,8 @@
       "Bash(cargo build*)",
       "Bash(cargo clippy*)",
       "Bash(cargo fmt*)",
-      "Bash(cargo doc*)"
+      "Bash(cargo doc*)",
+      "Bash(git branch -D agent/*)"
     ],
     "deny": [
       "Bash(rm -rf*)",
@@ -46,7 +47,6 @@
       "Bash(git push -f)",
       "Bash(git push --force-with-lease*)",
       "Bash(git reset --hard*)",
-      "Bash(git branch -D *)",
       "Bash(git clean -f*)",
       "Bash(git clean -d*)",
       "Bash(gh repo delete*)",

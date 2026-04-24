@@ -60,8 +60,7 @@ physa-db/
 │   │   └── ...            ← subsystem design docs
 │   ├── requirements/      ← PUBLIC synthesised feature set, targets, non-goals
 │   ├── benchmarks/        ← PUBLIC methodology + historical results
-│   ├── dev-setup.md       ← one-command onboarding guide
-│   └── seed-issues.md     ← initial backlog to file once repo is on GitHub
+│   └── dev-setup.md       ← one-command onboarding guide
 ├── private/               ← GITIGNORED; never commit contents
 │   └── research/          ← competitor profiles, pain-point mining (sensitive)
 ├── crates/                ← Cargo workspace
