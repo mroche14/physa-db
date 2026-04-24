@@ -140,16 +140,48 @@ That's the entry gate. The full loop (`/plan-feature` → code → `/pre-commit-
 
 ## The dev loop
 
-```
-/onboard → /next → /plan-feature → [code] → /pre-commit-check → commit + push → gh pr create → /wait-ci
-                                                                                                    ├─ ✅ green   → done
-                                                                                                    ├─ ❌ fail    → fix & repush  OR  /abandon blocked
-                                                                                                    └─ ⏳ timeout → surface & resume later
+Two paths, one command each as the entry point:
+
+- **Contributor path** — you have an agent (Claude Code, Codex, Cursor, …) and tokens to burn. You run `/onboard` once per clone, then `/next` on repeat. The agent decides everything else: whether the claimed issue needs `/plan-feature` first, whether a bug surfaced mid-work warrants `/file-issue`, whether to `/abandon blocked` when stuck. You don't pick skills — the agent does. Ideal for external contributors who want to ship without reading the full contract.
+- **Maintainer path** — directional work that stays human-owned: editing the feature matrix, promoting ADRs to `Accepted`, label/milestone taxonomy, release cuts. These are not automatable because they set the direction the agents then execute against.
+
+The Mermaid below is the contributor path. Dotted edges are escape hatches; the agent takes them autonomously when the conditions match.
+
+```mermaid
+flowchart TD
+    start([new agent session]) --> onboard[/onboard/]
+    onboard --> next[/next/]
+
+    next -->|issue has AC| code[write code<br/>run-stress / run-bench as needed]
+    next -->|no AC or FM row missing| plan[/plan-feature/]
+    plan --> code
+
+    code --> precheck[/pre-commit-check/]
+    precheck -->|fail| code
+    precheck -->|pass| push[commit + push<br/>gh pr create]
+    push --> waitci[/wait-ci/]
+
+    waitci -->|✅ all green| review([PR → status:needs-review])
+    waitci -->|⏳ timeout| resume([surface + resume later])
+    waitci -->|❌ CI fails| retries{≤ 3 fix<br/>iterations?}
+
+    retries -->|yes| code
+    retries -->|no| nh[/abandon → agent:needs-human/]
+
+    code -. stuck / blocker .-> blocked[/abandon → status:blocked/]
+    code -. new bug surfaced .-> fileissue[/file-issue/]
+
+    classDef skill fill:#e8f0ff,stroke:#4a6fa5,color:#1a2a3a
+    classDef terminal fill:#e8ffe8,stroke:#4a8f4a,color:#1a3a1a
+    classDef escape fill:#fff0e0,stroke:#b07a2a,color:#3a2a1a
+    class onboard,next,plan,precheck,waitci,fileissue skill
+    class review,resume terminal
+    class nh,blocked escape
 ```
 
-Each arrow is a skill or a standard git/gh command. Skills exist to make the AGENTS.md rules mechanical — you don't memorise them, you invoke the right skill at the right moment. If a skill exists for the action you are about to take, use it (AGENTS.md §16).
+Every arrow is a skill or a standard `git` / `gh` command. Skills exist to make the AGENTS.md rules mechanical — you don't memorise them, the agent invokes them. If a skill matches the action about to happen, it's invoked (AGENTS.md §16).
 
-See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the detailed step-by-step, the full skills-by-moment reference, and what to do when a step fails.
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the detailed step-by-step, the full skills-by-moment reference, and what to do when a step fails. The complete agent contract — rules §§1–15, claim protocol §6.1, clean-repo invariant §6.2, skills catalog §16 — lives in [`AGENTS.md`](./AGENTS.md).
 
 ## Status & dashboard
 
