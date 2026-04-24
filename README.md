@@ -158,28 +158,28 @@ flowchart TD
 
     m2 --> next
 
-    first([first time on this clone]) --> onboard[/onboard/]
-    onboard --> next[/next/]
+    first([first time on this clone]) --> onboard[/"/onboard"/]
+    onboard --> next[/"/next"/]
     repeat([any subsequent session]) --> next
 
     next -->|acceptance criteria<br/>present in issue| code[write code<br/>run-stress / run-bench as needed]
-    next -->|acceptance criteria<br/>missing| plan[/plan-feature/]
+    next -->|acceptance criteria<br/>missing| plan[/"/plan-feature"/]
     plan --> code
 
-    code --> precheck[/pre-commit-check/]
+    code --> precheck[/"/pre-commit-check"/]
     precheck -->|fail| code
     precheck -->|pass| push[commit + push<br/>gh pr create]
-    push --> waitci[/wait-ci/]
+    push --> waitci[/"/wait-ci"/]
 
     waitci -->|✅ all green| review([PR → status:needs-review])
     waitci -->|⏳ timeout| resume([surface + resume later])
     waitci -->|❌ CI fails| retries{≤ 3 fix<br/>iterations?}
 
     retries -->|yes| code
-    retries -->|no| nh[/abandon → agent:needs-human/]
+    retries -->|no| nh[/"/abandon → agent:needs-human"/]
 
-    code -. stuck / blocker .-> blocked[/abandon → status:blocked/]
-    code -. new bug surfaced .-> fileissue[/file-issue/]
+    code -. stuck / blocker .-> blocked[/"/abandon → status:blocked"/]
+    code -. new bug surfaced .-> fileissue[/"/file-issue"/]
     fileissue -.-> m2
 
     classDef skill fill:#e8f0ff,stroke:#4a6fa5,color:#1a2a3a
