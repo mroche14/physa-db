@@ -2,13 +2,7 @@
 # CLI flags in .github/workflows/ci.yml combine with this config.
 
 # URLs to skip entirely. Keep this list small and always include a reason.
-exclude = [
-    # release-plz generates CHANGELOG entries with `release_link` pointing to
-    # tags like `physa-<crate>-v0.0.0` before those tags actually exist on
-    # GitHub. Remove this entry once real v0.0.0 (or later) releases are cut.
-    # Tracked in: fix(infra): release-plz generates CHANGELOG links to unreleased tags
-    "^https://github\\.com/mroche14/physa-db/releases/tag/physa-[a-z]+-v0\\.0\\.0$",
-]
+exclude = []
 
 # Don't follow localhost / loopback — duplicates the CLI flag, belt-and-braces.
 exclude_loopback = true
