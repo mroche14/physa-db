@@ -145,15 +145,24 @@ Two paths, one command each as the entry point:
 - **Contributor path** — you have an agent (Claude Code, Codex, Cursor, …) and tokens to burn. You run `/onboard` once per clone, then `/next` on repeat. The agent decides everything else: whether the claimed issue needs `/plan-feature` first, whether a bug surfaced mid-work warrants `/file-issue`, whether to `/abandon blocked` when stuck. You don't pick skills — the agent does. Ideal for external contributors who want to ship without reading the full contract.
 - **Maintainer path** — directional work that stays human-owned: editing the feature matrix, promoting ADRs to `Accepted`, label/milestone taxonomy, release cuts. These are not automatable because they set the direction the agents then execute against.
 
-The Mermaid below is the contributor path. Dotted edges are escape hatches; the agent takes them autonomously when the conditions match.
+The diagram below shows both paths in one view. Maintainers curate the issue queue on the left; contributors (or their agents) consume it on the right. Dotted edges are escape hatches the agent takes autonomously when the conditions match — including `/file-issue`, which feeds a newly-surfaced bug back into the same queue the loop consumes.
 
 ```mermaid
 flowchart TD
+    subgraph maintainer ["maintainer path — human-owned, directional"]
+        direction TB
+        m1[curate feature matrix<br/>& non-goals] --> m2[file issues<br/>status:ready]
+        m3[promote ADR<br/>to Accepted]
+        m4[cut releases,<br/>govern labels & milestones]
+    end
+
+    m2 --> next
+
     start([new agent session]) --> onboard[/onboard/]
     onboard --> next[/next/]
 
-    next -->|issue has AC| code[write code<br/>run-stress / run-bench as needed]
-    next -->|no AC or FM row missing| plan[/plan-feature/]
+    next -->|acceptance criteria<br/>present in issue| code[write code<br/>run-stress / run-bench as needed]
+    next -->|acceptance criteria<br/>missing| plan[/plan-feature/]
     plan --> code
 
     code --> precheck[/pre-commit-check/]
@@ -170,13 +179,16 @@ flowchart TD
 
     code -. stuck / blocker .-> blocked[/abandon → status:blocked/]
     code -. new bug surfaced .-> fileissue[/file-issue/]
+    fileissue -.-> m2
 
     classDef skill fill:#e8f0ff,stroke:#4a6fa5,color:#1a2a3a
     classDef terminal fill:#e8ffe8,stroke:#4a8f4a,color:#1a3a1a
     classDef escape fill:#fff0e0,stroke:#b07a2a,color:#3a2a1a
+    classDef maint fill:#f5e0ff,stroke:#7a4a8f,color:#2a1a3a
     class onboard,next,plan,precheck,waitci,fileissue skill
     class review,resume terminal
     class nh,blocked escape
+    class m1,m2,m3,m4 maint
 ```
 
 Every arrow is a skill or a standard `git` / `gh` command. Skills exist to make the AGENTS.md rules mechanical — you don't memorise them, the agent invokes them. If a skill matches the action about to happen, it's invoked (AGENTS.md §16).
