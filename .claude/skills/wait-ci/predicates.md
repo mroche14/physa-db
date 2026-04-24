@@ -51,6 +51,12 @@ gate\s*6[ab]?\b.*(self[- ]check|clean|confirmed|no leak|no email literal)
 # "no X remains" / "grep confirms" — author's static grep assertion, reproducible in CI.
 grep\s+confirms|no\s+.{0,30}\s+remains|returns\s+only\s+prose\s+mentions
 # example: "- [ ] No abbreviation (AC, FM, …) remains in the section — grep confirms."
+
+# "grep/rg <cmd> returns N hits/matches/results/lines" — same intent as the above,
+# different phrasing. Narrow: requires the line to name grep or rg, and to end the
+# assertion with one of the counted-noun keywords. Zero, no, and 0 are all accepted.
+(grep|rg)\s.{0,120}returns?\s+(zero|no|0)\s+(hits?|matches?|results?|lines?)
+# example: "- [ ] grep -rE 'foo' . returns zero hits across the working tree."
 ```
 
 ## Bucket 2 — auto-skip (manual-by-design)
