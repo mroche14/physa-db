@@ -40,3 +40,6 @@ Thumbs.db
 
 # Mise cache (tool downloads)
 .mise.local.toml
+
+# Gemini CLI workspace override (respectGitIgnore disabled for campaign-m1 reads)
+/.gemini/
