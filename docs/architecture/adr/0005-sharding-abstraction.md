@@ -1,76 +1,104 @@
-# ADR-0005: Sharding — fully abstracted at the user surface, graph-aware internally
+# ADR-0005: Tenant-first hybrid partition classes with explicit replica roles
 
-- **Status:** Proposed (direction pending M1 feature lock — see `AGENTS.md` §15)
-- **Date:** 2026-04-20
+- **Status:** Accepted
+- **Date:** 2026-04-25
+- **Features addressed:** FM-021, FM-022, FM-023, FM-024, FM-025, FM-026, FM-027, FM-123, FM-124, FM-126
+- **Workloads addressed:** W-A, W-B, W-D, W-E, W-F
 - **Context issue:** _(to be filed as `type:feature area:cluster priority:p1`)_
-
-> **Note on status.** Downgraded from *Accepted* on 2026-04-20 under the features-first rule. The shard-transparent surface is likely to survive, but the *internal* sharding scheme must now account for AI-agent workloads ([`ai-agent-workloads.md`](../../requirements/ai-agent-workloads.md)): vector ANN indices that span shards (a query must fan-out and merge top-K), blob storage that may live entirely off-shard in an object store, agent-observability time-partitioned data whose ideal layout is temporal rather than graph-cut. Promotion to *Accepted* is gated on the partitioner ADR showing these shapes do not regress (or, if they do, explicitly documenting the trade).
 
 ## Context
 
-Horizontal scaling requires splitting the graph across many nodes. The user-facing question the founder raised was:
-
-> "Can the complexity be fully abstracted?"
-
-Answer: **yes at the user surface, no at the planner and operator surface**. Nobody should write a different query just because the graph is sharded; but the query planner and the operator must be shard-aware to produce good plans and healthy clusters. This ADR commits to that layering.
+physa-db still promises shard-transparent user semantics, but Campaign M1-Lock showed that one implicit "graph-aware partitioner" is not enough. Graph topology, ANN locality, time-partitioned observability, and blob manifests have different optimal partition axes. The accepted cluster decision therefore keeps a single logical namespace while allowing multiple physical partition classes under one tenant-first routing model. This is the minimum structure that preserves locality without hiding staleness or cross-tenant interference.
 
 ## Decision
 
-1. **User-facing API is shard-transparent.** Any GQL or Cypher query that works on a single-node deployment works identically on a 1000-shard cluster, with identical semantics. No new syntax. No "shard key" hints in queries.
-2. **Query planner is shard-aware.** It pushes down predicates to shards, minimises cross-shard hops, uses bloom filters for fan-out reduction, and caches shard-affinity statistics.
-3. **Sharding scheme is graph-aware and adaptive.** Initial placement uses **streaming edge-cut partitioning** (LDG / Fennel style) to keep neighbourhoods co-located. An online re-balancer migrates partitions when hotspots emerge. Random hash partitioning is available as a fallback mode for workloads that don't benefit from locality (e.g. pure random-access OLTP).
-4. **Metadata via Raft, data via sharded consensus groups.** Metadata (schema, tenants, partition map) lives in a Raft group. Each data partition lives in its own Raft group (`multi-Raft`). Cross-partition transactions use two-phase commit over the partition groups when strong consistency is required; eventual consistency with bounded staleness is offered as an opt-in for read-scale.
-5. **Tenants as a sharding axis.** A tenant can be pinned to a single shard (cheapest, strongest locality) or spread across shards (needed beyond a scale threshold). Tenant migration is online and automatic.
+physa-db replaces the old single-partitioner model with tenant-first hybrid partition classes and explicit replica roles.
+
+1. Tenant is the first routing key. By default, one tenant owns its own partition set; small tenants stay pinned and large tenants scale out inside their own partition space.
+2. Partition classes are explicit: `graph`, `ann`, `event_time`, and `blob_manifest`. Each class can choose placement and rebalance policy according to its access path.
+3. Graph partitions keep graph-aware placement, chunk-aware hot splitting, and mirror hooks for read-heavy supernodes.
+4. ANN placement defaults to graph-home-shard co-location. Hot ANN subsets may be mirrored on evidence, and fully independent ANN placement is an exception for large-tenant memory pressure rather than the planner default.
+5. Replica roles are explicit: `voter`, `learner`, and `witness`. Strong reads route to the authoritative replica; follower reads require explicit bounded-staleness opt-in.
+6. The policy hook for partition-class assignment is part of the public cluster architecture:
+
+```rust
+pub trait PartitionClassPolicy {
+    fn assign_class(
+        &self,
+        tenant: TenantId,
+        object: &PlacementObject,
+        metrics: &SentinelMetrics,
+    ) -> PartitionClass;
+}
+```
+
+`PlacementObject` carries object family, model/version scope, time range, and blob-manifest hints; `SentinelMetrics` carries skew, fanout, lag, and budget pressure needed for class-aware routing.
 
 ## First-principles derivation
 
-The irreducible costs of a distributed graph query:
+### 1. Irreducible constraints
 
-- **Cross-node hop** costs ≈ 100 μs within a datacentre (RDMA / 25 Gb/s) to 50 ms cross-region.
-- **A 3-hop traversal on a badly partitioned graph** becomes 3 × 100 μs = 300 μs of wait; the same traversal if co-located = tens of microseconds.
-- **Broadcast to N shards** costs N × log-factor on the bandwidth bus and wastes (N − k) / N of work when only k shards matter.
+1. An extra cross-partition handoff in the common ANN-to-graph retrieval path adds a network RTT and a second failure point to nearly every W-A and W-B query.
+2. Time-range observability queries first prune by tenant and time, not by graph cut. Using only graph edge-cut logic for W-E forces the wrong partition shape.
+3. Large tenants can create ANN memory skew that is not visible in graph-edge counts alone.
+4. Tenant quotas and noisy-neighbor defenses lose force if multiple tenants are mixed into the same physical hot path by default.
+5. Follower reads are useful for scaling reads, but stale semantics must stay explicit and measurable.
 
-Therefore: the sharding algorithm must maximise *edge cuts minimised* (neighbourhoods together) and the planner must minimise *broadcast fan-out*. Hash partitioning is fine when queries are per-key; it is terrible for traversal-heavy workloads (the dominant case).
+### 2. Theoretical optimum
 
-Users don't know the partition map and shouldn't need to — that's the abstraction. The planner does know it, and the operator can inspect/override it.
+The optimum is one logical namespace and multiple physical classes. The common path should keep ANN and first graph expansion local, event scans should prune by time partition before graph work, and blob manifests should stay near metadata-hot reads without dragging large payload placement into the same rebalance policy. Replica placement should expose cheap read scale without silently changing consistency semantics.
+
+Any "one partitioner fits all" design pays the wrong lower bound for at least one class: graph cuts are wrong for event scans, independent ANN everywhere is wrong for hybrid retrieval, and mixed-tenant hot partitions are wrong for isolation.
+
+### 3. Smallest structure that realizes the optimum
+
+The smallest structure is:
+
+- tenant-first routing;
+- four physical partition classes;
+- class-aware replica roles;
+- explicit bounded-staleness follower reads;
+- one policy trait that assigns placement class from object shape and live metrics.
+
+That is enough to keep user semantics shard-transparent while allowing the storage substrate to use the right partition shape for each access path.
+
+### 4. Prior art reused patternwise
+
+physa-db reuses established patterns from distributed databases: consensus groups for metadata and partitions, learner and witness style replicas, graph-aware edge-cut placement where topology is the primary access path, and mirror-based read offload for read-skewed hot ranges. The novelty is not any one ingredient; it is applying those ingredients by partition class under a tenant-first contract.
 
 ## Consequences
 
 **Positive**
-- Users write the same query regardless of scale.
-- Performance stays close to the theoretical cross-node-bounded minimum on real workloads.
-- Tenant-as-shard is the simple case; horizontal scaling within a big tenant is the hard case, handled by the same machinery.
+- Hybrid retrieval keeps its common ANN-to-graph path local.
+- Observability partitions can optimize for append and time pruning without corrupting graph placement.
+- Tenant isolation and quota enforcement stay load-bearing at the routing layer.
+- Replica roles and follower-read semantics become explicit and auditable.
 
 **Negative**
-- Graph partitioning is NP-hard; streaming approximations have worst-case pathological layouts. Mitigation: online re-balancer.
-- `multi-Raft` is complex to operate (many consensus groups). Tooling investment required (dashboards, per-group health, leader balancing).
-- Cross-shard transactions cost a two-phase commit round-trip. We document this cost and offer per-transaction `AFFINITY` hints when the application *knows* everything is co-located.
+- Placement, rebalance, and routing logic become class-aware instead of uniform.
+- Operators must monitor more metrics: skew, lag, cross-partition fanout, and tenant budget pressure.
+- ANN mirrors and hot splits add maintenance traffic when activated.
 
-Accepted under `AGENTS.md` §§11, 12.
+## Open items
 
-## What stays out of the user surface
+- Mirror activation, hot-split thresholds, and the exceptional path for fully independent ANN placement remain benchmark-gated sentinel settings for the Phase 6c benchmark-tracking issue once filed.
+- Cross-region policies for FM-024 and FM-025 remain future cluster work on top of this partition-class foundation.
+- The default size at which a pinned tenant graduates to a multi-partition tenant remains an operational constant, not an architecture gap.
 
-- No `CREATE SHARD`, `USE SHARD`, or sharding syntax in GQL/Cypher.
-- No manual rebalancing command — admins can *suggest* moves; they cannot fracture invariants.
-- No partition key in the data model (unlike Cassandra's `PRIMARY KEY`).
+## FM coverage
 
-## Alternatives considered
-
-- **Hash partitioning only.** Rejected: fails on traversal locality.
-- **User-specified partition keys.** Rejected: violates "fully abstracted" directive.
-- **Share-everything (Aurora-style shared storage).** Interesting, but compute-storage separation adds its own latency floor and capex assumptions. Deferred to a possible future ADR; not in the critical path.
-- **Gossip-based eventual consistency for data.** Rejected as the default: correctness-first project (§1.3). Offered as an opt-in for stale-read workloads (FM-024).
-
-## Open sub-ADRs (to be written under M4)
-
-- ADR-0012: streaming partitioner algorithm choice (LDG vs Fennel vs METIS-stream).
-- ADR-0013: re-balancer trigger heuristics and cost model.
-- ADR-0014: two-phase commit protocol for cross-partition transactions.
-- ADR-0015: tenant affinity and migration strategy.
+- FM-021, FM-022, FM-023: metadata consensus, transparent scale-out, and online re-sharding
+- FM-024, FM-025: replica roles are the basis for future regional semantics
+- FM-026, FM-027: tenant-first routing and resource boundaries
+- FM-123, FM-124: event-time partitions and cold-tier movement
+- FM-126: tenant-local ANN roots and follower-read visibility rules
 
 ## References
 
-- Stanton & Kliot, *Streaming Graph Partitioning for Large Distributed Graphs*, KDD 2012 (LDG).
-- Tsourakakis et al., *FENNEL: Streaming Graph Partitioning for Massive Scale Graphs*, WSDM 2014.
-- Ongaro & Ousterhout, *In Search of an Understandable Consensus Algorithm* (Raft), ATC 2014.
-- Huang et al., *TiKV: A Distributed Transactional Key-Value Database*, VLDB 2020 (multi-Raft).
+- Ongaro and Ousterhout, "In Search of an Understandable Consensus Algorithm", 2014.
+- Corbett et al., "Spanner: Google's Globally-Distributed Database", OSDI 2012.
+- Malkov and Yashunin, "Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs", TPAMI 2018.
+
+## Changelog
+
+- 2026-04-25: Accepted with revisions per Campaign M1-Lock synthesis (formerly Proposed pending feature lock).

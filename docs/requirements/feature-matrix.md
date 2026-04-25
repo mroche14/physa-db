@@ -73,30 +73,82 @@ Every row below cites the workload family (from [`ai-agent-workloads.md`](./ai-a
 | FM-104 | ai-native | Similarity operators: `COSINE`, `DOT`, `L2`, `HAMMING`, `JACCARD` | Parity | M3 | — | — | W-A, W-B |
 | FM-105 | ai-native | Retrieval operators: `NEAREST(v, K)`, `WITHIN_DISTANCE(v, r)` | Parity | M3 | — | — | W-B |
 | FM-106 | ai-native | Hybrid query plans (ANN → graph expansion → rerank) in one plan | Novel | M3 | — | — | W-B |
-| FM-107 | ai-native | Full-text (BM25) index + `RRF` / `HYBRID` scoring operators | Parity | M6 | — | — | W-B |
+| FM-107 | ai-native | Full-text (BM25) index with shared-ID `RRF` / `HYBRID` scoring inside one optimizer-owned plan | Parity | M4 | ADR-0008 | — | W-B |
 | FM-108 | ai-native | Multi-hop retrieval over heterogeneous schema (planner picks direction) | Novel | M4 | — | — | W-B, W-C |
 | FM-109 | ai-native | Built-in graph algorithms: PageRank, SSSP, BFS/DFS with early termination, Louvain, Leiden (AFM-028) | Parity | M6 | — | — | W-C |
-| FM-110 | ai-native | Bi-temporal model (valid-time + transaction-time) + `AS OF` / `BETWEEN` | Novel | M6 | — | — | W-F |
+| FM-110 | ai-native | Bi-temporal model (valid-time + transaction-time) with `AS OF` / `BETWEEN` pushdown across ANN, BM25, and graph access paths | Novel | M6 | ADR-0004 | — | W-F |
 | FM-111 | ai-native | Per-fact TTL / forgetting curves + reinforcement primitive | Novel | M3 | — | — | W-A |
 | FM-112 | ai-native | Provenance (source, timestamp, extraction confidence) per node/edge | Novel | M3 | — | — | W-C |
 | FM-113 | ai-native | Confidence scores with composition under traversal (`CONFIDENCE` type) | Novel | M6 | — | — | W-C |
-| FM-114 | ai-native | Blob storage: inline (<1 MB) + external (S3-compatible) with content-addressing | Novel | M4 | — | — | W-D |
+| FM-114 | ai-native | Blob storage via content-addressed manifest with size-tiered placement: inline, local `blob-log`, and external object reference | Novel | M4 | ADR-0003 | — | W-D |
 | FM-115 | ai-native | Content-addressable dedup for blobs and chunks | Novel | M4 | — | — | W-D |
 | FM-116 | ai-native | Chunk hierarchy: `Asset -HAS_CHUNK-> Chunk` with chunk types (page, frame, segment, span) | Novel | M4 | — | — | W-D |
-| FM-117 | ai-native | Embedding hook point at ingest (user supplies the model; DB provides the slot) | Novel | M3 | — | — | W-A, W-B, W-D |
+| FM-117 | ai-native | Ingest stage-hook contract for embeddings, extraction, chunk revisions, and provider provenance; physa supplies orchestration, not bundled models | Novel | M3 | ADR-0008 | — | W-A, W-B, W-D |
 | FM-118 | ai-native | Embedding model version registry (navigate chunk embeddings by model version) | Novel | M6 | — | — | W-D, W-F |
 | FM-119 | ai-native | Streaming results so the LLM can start generating before retrieval completes | Novel | M4 | — | — | W-B |
-| FM-120 | ai-native | Token-budget-aware result shaping (`CONTEXT_WINDOW(results, budget)`) | Novel | M4 | — | — | W-B |
+| FM-120 | ai-native | Token-budget tooling boundary: token counting, chunk-by-token-limit APIs, and output shaping | Novel | M4 | ADR-0007 | — | W-B |
 | FM-121 | ai-native | `TO_JSONLD(node)` and Markdown summary output shaping | Novel | M4 | — | — | W-B, W-C |
-| FM-122 | ai-native | MCP (Model Context Protocol) server — agents call physa-db as a tool directly | Novel | M4 | — | — | W-A, W-B, W-C, W-D, W-E |
-| FM-123 | ai-native | High-throughput streaming ingest (AFM-029) (target 100k events/s per tenant on reference HW) | Novel | M4 | — | — | W-E |
-| FM-124 | ai-native | Time-partitioned storage layout with cold-tier auto-demotion | Novel | M6 | — | — | W-E |
+| FM-122 | ai-native | MCP server with stdio and HTTP transports, auth, schema discovery, read-only default, write-scoped profiles, sample-size controls, and health/readiness semantics | Novel | M4 | ADR-0007 | — | W-A, W-B, W-C, W-D, W-E |
+| FM-123 | ai-native | Append-only tenant-scoped ingest lane with async secondary indexing and explicit ACK / lag budget | Novel | M4 | ADR-0009 | — | W-E |
+| FM-124 | ai-native | `event-store` partition class with cold-tier mover and tenant retention classes | Novel | M6 | ADR-0009 | — | W-E |
 | FM-125 | ai-native | JSON-LD property type for structured log payloads | Novel | M4 | — | — | W-E |
-| FM-126 | ai-native | Per-tenant vector isolation (one tenant's vectors never in another's index) | Parity | M5 | — | — | W-A, W-B |
+| FM-126 | ai-native | Per-tenant isolation for all secondary roots and projections: ANN, text, temporal, and derived structures never cross tenant boundaries | Parity | M5 | ADR-0010 | — | W-A, W-B |
 | FM-127 | ai-native | PII marking on properties + redaction / mandatory encryption / audited reads | Parity | M5 | — | — | all |
-| FM-128 | ai-native | Entity resolution helpers (`CANONICAL_OF` edge type + dedupe) | Novel | M6 | — | — | W-C |
+| FM-128 | ai-native | Entity resolution via canonicalization edges, exact/fuzzy/embedding prefilters, merge policy, and provenance-preserving merges | Novel | M6 | — | — | W-C |
 | FM-129 | ai-native | Plan caching keyed by structural signature (not exact text) | Novel | M6 | — | — | W-B |
 | FM-130 | ai-native | Cancellable queries (agents frequently abandon) | Parity | M4 | — | — | W-A, W-B |
+| FM-131 | ai-native | Tenant-scoped schema and ontology introspection in JSON / Markdown under explicit token budget | Novel | M1 | ADR-0007 | — | W-B, W-C, W-E |
+| FM-132 | ai-native | Validated semantic tool profiles for retrieval, neighborhood expansion, path search, `query.read`, and role-scoped `query.write` | Novel | M1 | ADR-0007 | — | W-A, W-B, W-C, W-E |
+| FM-133 | ai-native | Structured evidence artifact output with contributing IDs, scores, pruning reasons, snapshot timestamps, partition IDs, and policy hits | Novel | M1 | ADR-0007 | — | W-B, W-C, W-E, W-F |
+| FM-134 | ai-native | First-class graph ingestion pipeline with manifest commit, stable chunk IDs, durable stage DAG, schema-guided extraction hooks, entity-resolution write-back, and idempotent retries | Novel | M2 | — | — | W-C, W-D |
+| FM-135 | ai-native | First-party context-graph surface for sessions, messages, observations, actions, long-term facts, reinforcement, and reasoning traces | Novel | M1 | — | — | W-A, W-E |
+| FM-136 | ai-native | Planner-selected WCOJ / factorized execution for cyclic and high-branching query shapes | Novel | M1 | — | — | W-B, W-C |
+| FM-137 | ai-native | Safe-time watermark, pinned-snapshot metrics, retention classes, and cold-move policy as separate controls | Novel | M1 | ADR-0004 | — | W-A, W-E, W-F |
+| FM-138 | ai-native | Per-tenant admission control for CPU, memory, spill, WAL, compaction, extraction, and ingest budgets | Novel | M1 | ADR-0010 | — | all |
+| FM-139 | ai-native | Tenant-first hybrid partitioning with graph, ANN, event-time, and blob-manifest classes plus `voter` / `learner` / `witness` replica roles | Novel | M2 | ADR-0005 | — | W-A, W-B, W-D, W-E |
+| FM-140 | ai-native | Hotspot mitigation via chunked neighborhoods, hot-split triggers, mirror reads, and commutative update lanes | Novel | M1 | ADR-0005 | — | W-A, W-C, W-E |
+
+## Campaign M1-Lock acceptance criteria
+
+These rows changed or were added during Campaign M1-Lock. `Locked` means the public contract is set; future changes require a new synthesis or ADR-backed revision.
+
+| ID | Acceptance criterion | Tier | Status |
+|----|----------------------|------|--------|
+| FM-107 | A single plan may fuse BM25, vector candidates, and graph expansion over shared tenant-scoped IDs; `RRF` / `HYBRID` scoring is computed inside the optimizer, not as client-side post-processing. | M4 | Locked |
+| FM-110 | Plans using `AS OF` or `BETWEEN` must prune by time before ANN, BM25, or graph fanout; late temporal filtering is invalid except for an internal correctness-only fallback path. | M6 | Locked |
+| FM-114 | Shipped defaults are `<= 16 KiB` inline, `> 16 KiB && <= 1 MiB` in a local `blob-log`, and `> 1 MiB` by external object reference; every byte tier hangs off a content-addressed manifest and tenant-local dedupe domain. | M4 | Locked |
+| FM-117 | One durable stage contract covers embedding, extraction, chunk revision metadata, and provider provenance; model execution may be external, but retries, orchestration, and graph write-back remain in-core. | M3 | Locked |
+| FM-120 | Public APIs expose token counting, chunk-by-token-limit operations, and output shaping under an explicit token budget; truncation-only behavior is insufficient. | M4 | Locked |
+| FM-122 | The tool surface ships over stdio and HTTP with auth, schema discovery, read-only-by-default profiles, explicit write scopes, sample-size controls, and deployment-safe health / readiness behavior. | M4 | Locked |
+| FM-123 | Tenant-scoped ingest ACK follows durable append; secondary indexes build asynchronously with explicit lag accounting and visible lag budget. | M4 | Locked |
+| FM-124 | Observability data lives in `event-store` time partitions with separate cold-move and tenant retention classes; history retention is not conflated with visibility GC. | M6 | Locked |
+| FM-126 | ANN, BM25, temporal side indexes, projections, and evidence outputs are single-tenant by construction; no cross-tenant roots or postings exist. | M5 | Locked |
+| FM-128 | Resolution uses canonicalization edges plus exact, fuzzy, and embedding prefilters; merges preserve provenance and apply a declared merge policy instead of destructive rewrite. | M6 | Locked |
+| FM-131 | Emit tenant-scoped schema and ontology summaries, canonicalization edges, temporal fields, and edge-type stats in JSON / Markdown under an explicit token budget, with stable IDs and zero cross-tenant leakage. | M1 | Locked |
+| FM-132 | Expose validated tool profiles for retrieval, neighborhood expansion, path search, `query.read`, and role-scoped `query.write`; every call preflights against schema epoch and safety policy. | M1 | Locked |
+| FM-133 | Any query may request contributing node and edge IDs, scores, pruning reasons, snapshot timestamps, partition IDs, read path, and policy hits as structured output, without chain-of-thought text. | M1 | Locked |
+| FM-134 | Manifest commit, stable chunk IDs, durable stage DAG, schema-guided extraction hooks, entity-resolution write-back, and idempotent retries are first-class; model execution may be external, but graph-state ownership remains in-core. | M2 | Locked |
+| FM-135 | Ship a first-party canonical context-graph schema and tool surface for sessions, messages, observations, actions, long-term facts, reinforcement, and reasoning traces on top of general graph primitives. | M1 | Locked |
+| FM-136 | The planner chooses WCOJ / factorized operators on qualifying cyclic or high-branching patterns, and benchmark evidence must show lower peak memory than binary joins without regressing simple path queries. | M1 | Locked |
+| FM-137 | Expose safe-time watermark, pinned-snapshot metrics, retention classes, and cold-move policy as separate tunable controls; visibility GC, product retention, and cold demotion remain distinct. | M1 | Locked |
+| FM-138 | Enforce per-tenant CPU, memory, spill, WAL, compaction, extraction, and ingest budgets, with mixed-workload replay showing no starvation across foreground and background work classes. | M1 | Locked |
+| FM-139 | Graph, ANN, event-time, and blob-manifest partitions place independently under one logical namespace; replica roles include `voter`, `learner`, and `witness`; strong reads are default and follower reads require explicit bounded-staleness opt-in. | M2 | Locked |
+| FM-140 | Chunked neighborhoods are mandatory; hot-split triggers, mirror reads, and commutative update lanes must exist and be benchmarked under skewed fan-in / fan-out without abort storms on declared commutative paths. | M1 | Locked |
+
+## Glossary
+
+- `ANN` (approximate nearest neighbor): search that returns near vectors quickly without exact full-collection scan.
+- `BM25` (Best Matching 25): lexical ranking function over tokenized text used for full-text retrieval.
+- `Blob-log` (local append-only value log): local storage tier for payloads too large to inline but too small to externalize by default.
+- `Canonicalization edge`: graph edge linking an alias, mention, or duplicate record to the canonical entity it resolves to.
+- `Factorized execution`: execution strategy that stores shared intermediate structure once instead of repeating the same tuples.
+- `HLC` (hybrid logical clock): timestamp scheme that combines physical time with logical counters for ordered commits and freshness checks.
+- `RRF` (Reciprocal Rank Fusion): rank-combination method that blends multiple scored candidate lists into one retrieval order.
+- `Safe-time`: replica or partition watermark before which a snapshot is fully visible and some obsolete versions may be reclaimed.
+- `Schema epoch`: monotonically increasing schema version used to reject tool calls compiled against stale structure or policy state.
+- `WAL` (write-ahead log): durable journal flushed before a change is treated as committed.
+- `WCOJ` (worst-case-optimal join): multiway join strategy that avoids binary-join blow-ups on cyclic or high-branching patterns.
+- `Zone map`: compact min/max summary used to skip entire partitions or stripes during time pruning.
 
 _Add rows as research surfaces new requirements. Row IDs are stable once published — do not renumber._
 

@@ -1,97 +1,98 @@
-# ADR-0003: Custom graph-native storage engine, derived from first principles
+# ADR-0003: Segment-class storage substrate under one transactional fabric
 
-- **Status:** Proposed (direction pending M1 feature lock — see `AGENTS.md` §15)
-- **Date:** 2026-04-20
+- **Status:** Accepted
+- **Date:** 2026-04-25
+- **Features addressed:** FM-008, FM-009, FM-015, FM-017, FM-041, FM-042, FM-100, FM-102, FM-110, FM-114, FM-115, FM-118, FM-123, FM-124, FM-126
+- **Workloads addressed:** W-A, W-B, W-C, W-D, W-E, W-F
 - **Context issue:** _(to be filed as `type:feature area:storage priority:p0`)_
-
-> **Note on status.** Downgraded from *Accepted* on 2026-04-20 when features-first discipline was re-established. The first-principles derivation below assumes a workload mix dominated by graph traversal. AI-agent workloads ([`ai-agent-workloads.md`](../../requirements/ai-agent-workloads.md)) introduce additional shapes — dense vectors with ANN indices, large inline/external blobs, append-heavy observability traces, bi-temporal history — that may reshape the tiered layout (e.g. a third tier for vector-heavy nodes, dedicated blob-segment files, log-structured temporal layers). The promotion to *Accepted* is gated on the storage-layout ADR absorbing those workload constraints.
 
 ## Context
 
-Every graph DB on the market either:
-
-1. **Wraps a generic KV or page-oriented engine** (RocksDB, LMDB, sled, InnoDB, WiredTiger, FoundationDB). Examples: Dgraph (BadgerDB), ArangoDB (RocksDB), JanusGraph (Cassandra/HBase), SurrealDB (rocksdb / speedb).
-2. **Builds its own engine** tuned for graph workloads. Examples: Neo4j (native adjacency), Memgraph (in-memory), TigerGraph (proprietary), KuzuDB (columnar, research-driven).
-
-Wrapping a generic engine is cheaper in engineering hours; it also caps the performance ceiling at what that engine can do for point lookups and range scans, which is a bad fit for graph traversal. Graph workloads are dominated by **pointer chasing** — following edges — and the engines above are built for **range scans**.
-
-The founder's guidance (`AGENTS.md` §§0, 11, 12):
-- most efficient graph DB on the planet;
-- first-principles thinking;
-- no shortcuts, unlimited engineering budget.
+physa-db cannot meet the locked workload set with one universal physical layout. Agent memory, hybrid retrieval, knowledge graphs, blobs, observability, and bi-temporal history each force different hot paths, different write shapes, and different retention behavior. Campaign M1-Lock therefore replaced the earlier "two-tier graph layout" draft with an explicit segment-class substrate. The storage engine remains custom and graph-native, but its physical contract is now broader and more precise.
 
 ## Decision
 
-physa-db implements a **custom, graph-native storage engine** designed ground-up. We do NOT wrap RocksDB, sled, or LMDB as the primary store.
+physa-db adopts a segment-class storage substrate. A write-ahead log (WAL) is the durable journal that records every change before the storage engine applies it. A blob is a value too large to inline next to its key - typically at least several KiB - kept in a separate value store so the hot index remains small and cache-resident.
+
+1. **Topology segments.** Store vertex headers, inline mini-adjacency for low-degree neighborhoods, and external adjacency chunks for high-degree neighborhoods. The topology WAL records edge and vertex mutations as ordered logical records before chunk or header mutation becomes visible.
+2. **Value/blob segments.** Store property columns, manifest metadata, and three blob tiers: `<= 16 KiB` inline, `> 16 KiB && <= 1 MiB` in local append-only blob logs, and `> 1 MiB` by external object reference. The architecture permits per-tenant threshold overrides, but shipped defaults are the values above and any override remains sentinel-gated until benchmark evidence justifies exposure. The value/blob WAL is metadata-first: manifest and dedupe intent record durably before blob-log append or external object commit flips the steady-state pointer.
+3. **Embedding/ANN segments.** Store contiguous vector payloads and segment-local ANN overlays keyed by tenant and model version. Their WAL appends vector-version mutations and ANN delta overlays; full ANN rebuilds are background maintenance, never commit-path work.
+4. **Temporal delta segments.** Store version fragments plus per-segment interval lists and partition zone maps for `tx_time` and `valid_time`. Their WAL appends the version fragment and the temporal side-index delta atomically so temporal pushdown is crash-safe.
+5. **Event-append segments.** Store append-only, time-partitioned observability runs and causal edge references. Their WAL is sequential and ingest-optimized: event batches commit by durable append, while secondary summaries and compaction metadata lag behind but remain replayable.
+6. Segment classes compact, scan, and cold-move independently. No universal page format is allowed to force all workload families through the same locality tradeoff.
 
 ## First-principles derivation
 
-Frame the problem by what the hardware actually forces us to pay.
+### 1. Irreducible constraints
 
-### Irreducible costs
+1. A cold 4 KiB NVMe read is roughly two orders of magnitude slower than an L3 hit and roughly five orders of magnitude slower than an L1 hit. Hot graph topology and cold blob payloads therefore cannot share the same locality target.
+2. A 64-byte cache line can hold a compact vertex header plus a small adjacency sketch, but it cannot also hold a `1 MiB` asset body or a long temporal history.
+3. A `1536`-dimension `F16` embedding is about `3 KiB`; a top-K ANN probe wants contiguous vectors, not graph-pointer indirection.
+4. W-E targets `100k events/s` per tenant. At `1 KiB` of payload per event before indexes, that is about `100 MiB/s` of raw append traffic; random in-place mutation is the wrong physical shape.
+5. W-F requires time pruning before ANN, text, or graph expansion. Version chains alone are not a sufficient access path.
 
-- **Follow one edge, cold**: one random NVMe 4 KB read ≈ 80 μs; one memory page fault ≈ 100 ns if in OS cache; one L3 hit ≈ 10 ns; one L1 hit ≈ 1 ns. Three orders of magnitude between the levels.
-- **Neighbourhood locality**: in most real graphs, traversals access the out-neighbours of a node together. Co-locating those neighbours on a single cache line (L1: 64 B) or a single NVMe block (4 KB) amortises the fetch across many edges.
-- **Graph skew**: degree distributions are power-law — a few nodes have millions of edges, most have very few. A one-size data layout is hostile to one of those regimes.
+### 2. Theoretical optimum
 
-### Theoretical optimum
+The theoretical optimum is not one universal page layout. It is one transactional fabric with multiple physical classes, each approaching the lower bound of its access path:
 
-For **low-degree nodes**: store the node record *and* its out-adjacency inline in a single cache line. One read = the node and its edges.
+- topology: one local read for the common low-degree neighborhood and bounded chunk reads for supernodes;
+- blobs: keep only the range where local microsecond access changes latency, and externalize payloads once bytes dominate over seeks;
+- ANN: contiguous vector scans and bounded graph-walk overlays per segment;
+- temporal: coarse partition prune first, then segment-local interval prune before payload fetch;
+- observability: sequential append on ingest and partition-level cold movement later.
 
-For **high-degree nodes**: separate the adjacency from the node record, laid out as a compressed, columnar edge list (source implicit, destinations + edge properties in dictionary-encoded columns). Vectorised scans.
+Any single-class design pays the wrong lower bound for at least one of these workloads.
 
-For **property access**: a columnar property store decoupled from the graph topology, so analytical queries don't pay for graph structure they don't read.
+### 3. Smallest structure that realizes the optimum
 
-No generic KV store offers this. Wrapping one imposes its page structure on top of ours — a structural mismatch that caps performance.
+The smallest structure is exactly the accepted class set above: topology, value/blob, embedding/ANN, temporal delta, and event-append segments under one transaction, isolation, and scheduling regime. That structure is small enough because each class is also the unit of compaction, repair, and cold movement. The earlier draft's "graph pages plus external adjacency" idea survives only as the topology class, not as a universal answer.
 
-### What prior art we reuse
+### 4. Prior art reused patternwise
 
-- **LSM-tree insight** (RocksDB, LevelDB): out-of-place writes + background compaction = great write throughput with durable ordering. We adopt *the idea*; we don't adopt *the library*, because RocksDB serialises our graph-native tuples into opaque KV pairs and loses the layout we just fought to design.
-- **Vectorised, cache-conscious scans** (MonetDB, DuckDB, KuzuDB): columnar + SIMD + morsel-driven parallelism. Directly applicable to our analytical (BI) path.
-- **Copy-on-write B-tree** (LMDB, Btrfs): serializable snapshot isolation with cheap reads. We adopt the technique for our metadata layer.
-- **io_uring** (Linux): batch async I/O without syscall overhead per op. We target it for the storage I/O path.
+physa-db reuses four patterns without inheriting any one engine wholesale:
 
-### What we'll build (outline; detailed ADRs to follow)
+- adjacency-local graph storage for traversal-heavy workloads;
+- large-value separation for keeping hot metadata and cold payloads apart;
+- graph-based ANN indexes for mutable dense-vector search;
+- append-friendly lineage and interval pruning for temporal history.
 
-1. **Tiered node layout.** Low-degree (< 32 edges) nodes stored inline with their adjacency in a graph-native page. High-degree nodes point to an external adjacency chunk (columnar).
-2. **Columnar property store.** Per-label, per-property column files with dictionary encoding.
-3. **WAL + checkpointed pages** with per-tenant segment isolation for multi-tenancy.
-4. **io_uring-backed block I/O** on Linux; AIO on others; synchronous fallback.
-5. **MVCC (see ADR-0004) layered on top.**
+The prior art is useful as a set of local techniques. The project still needs a custom composition because no single existing pattern covers graph locality, large-value tiers, ANN locality, temporal pushdown, and append-only observability in one substrate.
 
 ## Consequences
 
 **Positive**
-- Performance ceiling is governed by the hardware, not by a generic wrapper.
-- Graph-native layout makes traversal queries approach the theoretical minimum I/O.
-- Tiered layout handles power-law skew natively (a top concern of real-world graphs).
+- Each workload family gets a physical class shaped to its dominant cost instead of inheriting a compromise.
+- Blob tiers, temporal side indexes, and ANN segments become first-class durability objects rather than ad hoc side stores.
+- WAL replay, compaction, and cold movement can operate per class, which improves fault isolation.
+- Tenant isolation applies to every major storage root, not only namespaces.
 
 **Negative**
-- Massive engineering investment. We must build WAL, crash recovery, page cache, compaction, checksums ourselves.
-- Correctness burden: a generic engine like RocksDB is battle-tested; our engine must earn that trust via property tests, fuzzers, Jepsen-style linearizability tests, and years of soak.
-- Any bug in the storage layer is a data-loss bug. We adopt a **"prove it or don't ship it"** policy for every storage primitive: it ships with proptest + loom + fuzz + integration crash tests.
+- The storage engine now has more control-plane surfaces: class-aware compaction, replay, checksums, and quota enforcement.
+- Cross-class transaction testing becomes more demanding because one logical write may touch topology, value, ANN, and temporal segments together.
+- Thresholds and maintenance policies still need benchmark validation even though the architecture is now fixed.
 
-Accepted under `AGENTS.md` §§11, 12.
+## Open items
 
-## Alternatives considered
+- Blob-tier thresholds are accepted with shipped defaults but remain sentinel-gated for exposure. Phase 6c benchmarking will validate write amplification, replay time, and local-vs-external fetch crossover before tenant-visible knobs are broadened.
+- Temporal side-index constants such as list fragmentation limits and compaction rewrite budgets are accepted directionally and remain subject to the Phase 6c benchmark-tracking issue once filed.
+- Event partition sizing, ANN rebuild cadence, and cross-class compaction fairness remain benchmark-tracked operational constants, not open architecture questions.
 
-- **Wrap RocksDB.** Rejected: caps performance; opaque to graph layouts; LSM compaction tuning is a full-time job even for dedicated projects.
-- **Wrap LMDB.** Rejected: excellent for read-dominant workloads but single-writer; our multi-tenant, write-heavy SaaS target is a poor fit.
-- **Wrap sled.** Rejected: sled is not production-ready for our scale; also still a KV store.
-- **Fork KuzuDB's engine.** Tempting (columnar, graph-aware), but rejected: C++ codebase, licence & ergonomics mismatch, and forking locks us into someone else's architectural choices. We will study their papers and absorb the lessons into a Rust-native design.
+## FM coverage
 
-## Open sub-ADRs (to be written under M2)
-
-- ADR-0008: on-disk page format (header, checksum, version, tenant tag).
-- ADR-0009: WAL format & group commit protocol.
-- ADR-0010: compaction strategy.
-- ADR-0011: tiered node layout thresholds (benchmark-derived).
+- FM-008, FM-009: graph-native adjacency and columnar property storage
+- FM-015, FM-100, FM-102: vector-aware storage roots and ANN locality
+- FM-017, FM-110, FM-118: bi-temporal history and embedding-version navigation
+- FM-114, FM-115: blob tiers and content-addressed dedup
+- FM-123, FM-124: append-first event partitions with cold-tier support
+- FM-041, FM-042, FM-126: class-aware memory, spill, and tenant-local secondary isolation
 
 ## References
 
-- Neo Technology, *The Neo4j Manual*, particularly on the "native graph storage" design.
-- Köpcke, *KuzuDB: Efficient Columnar Graph Processing for Research Workloads*, CIDR 2023.
-- Idreos et al., *The MonetDB Architecture*, IEEE Data Eng. Bull. 2012.
-- Leis et al., *Morsel-driven Parallelism*, SIGMOD 2014.
-- Kleppmann, *Designing Data-Intensive Applications*, chapters 3 & 7.
-- Axboe, *Efficient IO with io_uring*, 2019.
+- Lu et al., "WiscKey: Separating Keys from Values in SSD-conscious Storage", FAST 2016.
+- Malkov and Yashunin, "Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs", TPAMI 2018.
+- Sadoghi et al., "L-Store: A Real-time OLTP and OLAP System", EDBT 2018.
+- columnar graph execution paper, CIDR 2023.
+
+## Changelog
+
+- 2026-04-25: Accepted with revisions per Campaign M1-Lock synthesis (formerly Proposed pending feature lock).

@@ -1,61 +1,96 @@
-# ADR-0002: physa-db supports GQL AND openCypher, no compromise
+# ADR-0002: Equal GQL and openCypher frontends over one graph-native IR
 
-- **Status:** Proposed (pending M1 feature lock — see `AGENTS.md` §15)
-- **Date:** 2026-04-20
+- **Status:** Accepted
+- **Date:** 2026-04-25
+- **Features addressed:** FM-001, FM-002, FM-017, FM-121, FM-122, FM-130
+- **Workloads addressed:** W-A, W-B, W-C, W-E, W-F
 - **Context issue:** _(to be filed as `type:feature area:query`)_
-
-> **Note on status.** This ADR was initially drafted as *Accepted* on 2026-04-20, then downgraded to *Proposed* the same day when the project reformalised its features-first discipline (`AGENTS.md` §15, `docs/requirements/positioning.md`). The direction here — both dialects, shared IR — is very likely to survive M1 because it follows directly from the dual workload demand: Cypher for migrations from the incumbent, GQL for forward-compatibility and AI-agent-native extensions (`PHYSA` namespace for vector / temporal / hybrid operators in [`ai-agent-workloads.md`](../../requirements/ai-agent-workloads.md)). It will be promoted to *Accepted* when (a) the AI-native feature rows in `feature-matrix.md` are ratified and (b) the cross-dialect extension grammar is specified.
 
 ## Context
 
-Two graph query languages matter in 2026:
-
-- **openCypher** — de facto standard. Originated in Neo4j, now maintained as an open specification. Every serious graph DB either speaks it (Memgraph, RedisGraph/FalkorDB, AgensGraph) or bridges to it. The millions of lines of production Cypher out there define the migration market physa-db wants to capture.
-- **GQL (ISO/IEC 39075:2024)** — the ISO-ratified standard graph query language, published April 2024. It is the long-term equilibrium: a single standard language that every compliant vendor must implement. Cypher is in effect a dialect that GQL generalised.
-
-An earlier draft of this ADR framed this as a choice: "which one do we privilege?". The founder's explicit guidance rejects that framing:
-
-> "Both, no compromise."
+physa-db must satisfy both positioning pillars at once: migration-grade language parity and AI-agent-native retrieval, evidence, and temporal semantics. Campaign M1-Lock fixed the product boundary: GQL and openCypher remain equal public frontends, while deterministic agent surfaces sit above a shared graph-native plan substrate. The architecture must therefore preserve source-language fidelity, keep extensions explicit, and make tool traffic safe by default. The summary below records that locked decision.
 
 ## Decision
 
-physa-db implements **both GQL and openCypher** as first-class front-ends from day one of M2.
+physa-db keeps two first-class query frontends and one execution substrate.
 
-Architecturally:
-
-1. A **shared logical plan IR** (`physa-query::plan::Logical`) is the single execution substrate.
-2. Two parsers — `physa-query::parser::gql` and `physa-query::parser::cypher` — lower to that IR.
-3. A **dialect tag** is attached to each query on ingress so error messages cite the source language.
-4. **Semantic differences** (e.g. GQL's explicit graph pattern matching vs Cypher's pattern-match semantics in `OPTIONAL MATCH`) are handled in dialect-specific lowerings. Where a construct exists in only one language, the other simply rejects it at parse time with a clear error.
-5. **Extensions** beyond the standards (e.g. vector search, time-travel) live in a `PHYSA` pseudo-namespace in both dialects to preserve portability.
+1. GQL and openCypher parse independently and lower into one shared graph-native logical IR. No dialect is translated through the other.
+2. Non-standard features live only in the `PHYSA` extension namespace so that temporal, retrieval, and evidence features stay explicit in both dialects.
+3. Deterministic agent surfaces are part of the query architecture: `schema.describe`, `schema.prune`, `retrieval.search`, `query.read`, `query.write`, and `evidence.render` compile to validated IR templates over the same engine as handwritten queries.
+4. Agent profiles are read-only by default. Any write-capable profile requires an explicit capability grant scoped by tenant, namespace, role, and schema epoch.
+5. Bolt, HTTP/JSON, gRPC, and MCP are transports over the same validation boundary. Transport choice must not change query meaning, safety policy, or evidence format.
+6. Evidence and schema exports are tenant-scoped, namespace-scoped, and role-scoped. Cross-tenant schema statistics and evidence payloads are unreachable from this layer.
 
 ## First-principles derivation
 
-The irreducible constraint of a query layer is: **a query language is a surface, the plan IR is the substrate.** If we can map both surfaces to the same substrate faithfully, there is no inherent cost in supporting both — except engineering hours, which §12 of `AGENTS.md` grants.
+### 1. Irreducible constraints
 
-A common failure mode in past projects (e.g. projects that tried to bolt Cypher onto an SQL engine) was a lossy IR that forced unnatural translations. We avoid it by designing the IR **natively for graphs**, expressive enough that GQL's `GRAPH_TABLE` and Cypher's `MATCH` both project cleanly.
+1. The commercial pillar requires native openCypher compatibility, while the standards pillar requires native GQL support. Treating one as a translator target for the other loses source positions, dialect-specific errors, and feature detection.
+2. Agent traffic is safety-sensitive: the same tool call must mean the same thing every time. A stochastic text-to-query surface cannot be the engine's semantic boundary.
+3. A single round trip from an agent tool call already costs an RTT; adding a second parsing or translation stage adds avoidable latency and an avoidable failure mode.
+4. Temporal and retrieval operators such as `AS OF`, `NEAREST`, and evidence export must preserve snapshot and plan context across every transport.
+
+### 2. Theoretical optimum
+
+The optimum is one semantic core and multiple syntax frontends. In cost terms, each request should pay for:
+
+- one parse in its source language;
+- one lowering into one shared IR;
+- one validation pass against one schema epoch;
+- one execution plan.
+
+Any design that parses openCypher, emits GQL text, then reparses pays at least two parse/validate passes for one query and still loses exact source semantics. Any design that lets tools send free-form natural language instead of validated profiles pays an unbounded error surface.
+
+### 3. Smallest structure that realizes the optimum
+
+The smallest structure is:
+
+- one `LogicalPlan` substrate expressive enough for both GQL and openCypher;
+- two dialect frontends with dialect-tagged error reporting;
+- one explicit extension namespace, `PHYSA`, shared across both dialects;
+- one profile validator that turns agent tool calls into pre-validated IR templates;
+- one structural signature for caching and replay keyed by `(tenant_id, schema_epoch, plan_shape, time_class, result_mode)`.
+
+This is enough to keep language parity, deterministic agent access, and transport neutrality without multiplying execution semantics.
+
+### 4. Prior art reused patternwise
+
+The design follows the common pattern used by mature database engines that accept multiple frontends but converge on one logical algebra. On the language side, the useful inputs are the ISO GQL standard and the openCypher specification. On the agent side, the useful pattern is capability-scoped RPC and tool profiles rather than free-form text translation. physa-db reuses those patterns but keeps the graph IR, temporal operators, and evidence surfaces graph-native from the start.
 
 ## Consequences
 
 **Positive**
-- Full migration story from Neo4j (Cypher) AND from any GQL-compliant tool.
-- Future-proof as Cypher stabilises within GQL (the two languages will converge over time — our IR absorbs that convergence at no cost).
-- Dual-language test coverage catches IR bugs that a single dialect would miss.
+- Migration users get native openCypher and standards users get native GQL without a second system hidden underneath.
+- Agent traffic becomes reproducible: every tool call validates against the same schema epoch and policy rules as direct queries.
+- `PHYSA` extensions make non-standard retrieval and temporal features explicit instead of silently overloading standard syntax.
+- Evidence export, streaming, and cancellation share one substrate across Bolt, HTTP, gRPC, and MCP.
 
 **Negative**
-- Two parsers, two sets of conformance tests, two documentation pipelines.
-- Some semantic edge cases (null handling, list comprehension semantics) differ between dialects; we must document them explicitly.
+- physa-db must maintain two parser/conformance suites instead of one.
+- Dialect-specific semantics still need explicit documentation where the standards differ.
+- Tool-profile governance becomes part of the query surface, not just client packaging.
 
-Accepted trade-offs under `AGENTS.md` §12.
+## Open items
 
-## Alternatives considered
+- Schema export size budgets, sample-size controls, and evidence artifact payload limits remain benchmark-gated sentinel settings to be validated in the Phase 6c benchmark-tracking issue once filed.
+- The exact JSON and Markdown wire schema for evidence artifacts is accepted in principle here but still needs its own compatibility test corpus before client SDKs freeze.
 
-- **Cypher-only at v1.0, GQL later** — rejected: founder's no-compromise directive. Also, GQL is the forward standard, and adding it later forces a retroactive IR redesign.
-- **GQL-only, Cypher translator emitting GQL text** — rejected: translators strip semantics (error positions, feature detection), and users expect native Cypher error messages.
+## FM coverage
+
+- FM-001: native GQL support
+- FM-002: native openCypher compatibility
+- FM-017: temporal syntax must surface cleanly in both frontends
+- FM-121: JSON-LD and Markdown result shaping belong to the deterministic surface
+- FM-122: MCP support is transport plus policy, not a separate query engine
+- FM-130: cancellation must work identically for typed tools and handwritten queries
 
 ## References
 
-- openCypher: https://opencypher.org/
-- ISO/IEC 39075:2024 "Information technology — Database languages — GQL": https://www.iso.org/standard/76120.html
-- Deutsch et al., *Graph Pattern Matching in GQL and SQL/PGQ*, SIGMOD 2022.
-- Francis et al., *Cypher: An Evolving Query Language for Property Graphs*, SIGMOD 2018.
+- ISO/IEC 39075:2024, Information technology - Database languages - GQL.
+- openCypher specification, https://opencypher.org/
+- Francis et al., "Cypher: An Evolving Query Language for Property Graphs", SIGMOD 2018.
+- Deutsch et al., "Graph Pattern Matching in GQL and SQL/PGQ", SIGMOD 2022.
+
+## Changelog
+
+- 2026-04-25: Accepted with revisions per Campaign M1-Lock synthesis (formerly Proposed pending feature lock).
