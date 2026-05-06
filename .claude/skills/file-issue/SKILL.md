@@ -41,7 +41,7 @@ Bugs, features, perf investigations, stress-test failures, research
 tasks, docs gaps — all are issues. Refactors that nobody asked for are
 not.
 
-## Step 2 — Choose labels
+## Step 2 — Choose labels and milestone
 
 Combine one label from each applicable prefix (`AGENTS.md` §6):
 
@@ -55,6 +55,16 @@ Combine one label from each applicable prefix (`AGENTS.md` §6):
 - **`agent:`** — `agent:good-first-task` for newly-onboarded agents,
   `agent:needs-human` if human judgement is required, `agent:long-running`
   if the task is > 1 day.
+
+**Milestone is required.** Every issue must be filed against a milestone
+(`AGENTS.md` §6). The `/next` skill filters by milestone; an issue with
+none falls outside discovery and gets stranded. List milestones with
+`gh api repos/:owner/:repo/milestones --jq '.[].title'` and pick the one
+that captures *when* this work belongs. If the answer is "I don't know
+yet", that decision must be made before filing — do **not** default to
+the current milestone "to unblock". The CI gate
+(`.github/workflows/issue-milestone-gate.yml`) will refuse a milestone-less
+issue and force `agent:needs-human` until a human decides.
 
 ## Step 3 — Fill the template
 
@@ -127,6 +137,7 @@ line and move on.>
 
 - [ ] Title is imperative, ≤ 72 chars.
 - [ ] Labels: area, type, status, priority, agent.
+- [ ] Milestone assigned (no exceptions — see AGENTS.md §6).
 - [ ] FM row cited (or "not applicable — explain").
 - [ ] Optimization research brief present and exhaustive (or explicit
       "no optimisation surface" for trivial plumbing).
@@ -136,18 +147,33 @@ line and move on.>
 
 ## Step 4 — File it
 
+The skill **refuses** to call `gh issue create` without `--milestone`.
+The flag is mandatory — not a default, not a fallback. If you cannot
+name the milestone, go back to Step 2 and decide; do not paper over
+the gap with a placeholder.
+
 ```bash
+# Sanity-check: milestone exists and is open.
+MILESTONE="<milestone title>"   # e.g. "M0 — Foundation"
+gh api repos/:owner/:repo/milestones --jq '.[] | select(.state == "open") | .title' \
+  | grep -Fxq "$MILESTONE" \
+  || { echo "Refusing to file: milestone '$MILESTONE' not found among open milestones." >&2; exit 1; }
+
 gh issue create \
   --title "<imperative title>" \
   --label "area:<x>,type:<y>,status:ready,priority:<p>,agent:<q>" \
+  --milestone "$MILESTONE" \
   --body-file /tmp/issue-body.md
 ```
 
-Or via the browser with the template pre-filled if you prefer the UI.
+If you use the browser instead of the CLI, the milestone field on the
+right-hand sidebar must be set **before** clicking "Submit new issue".
+The CI gate (see `.github/workflows/issue-milestone-gate.yml`) will
+otherwise label the issue `agent:needs-human` and force a human to
+decide which milestone the work belongs to.
 
 ## Step 5 — Post-create
 
-- Add the issue to the relevant GitHub Project (milestone → M1/M2/M3/...).
 - If this is the feature branch kickoff, open a PR stub with
   `Closes #<N>`.
 - If this blocks other issues, add `Depends on #X` lines and update the
@@ -164,6 +190,9 @@ Or via the browser with the template pre-filled if you prefer the UI.
   `plan-feature` first to add it.
 - Do not use `status:in-progress` at creation time. Start at
   `status:ready`; the agent picking up the work flips it.
+- Do not file an issue without a milestone. The CI gate will catch it
+  and label it `agent:needs-human` — that's a triage burden you've
+  punted to a maintainer. Pick the milestone in Step 2.
 - Do not include personal information in the issue body (email
   addresses, legal names, phone numbers, home directory paths,
   hostnames). The issue is public. Refer to yourself or other

@@ -1,0 +1,73 @@
+name: Issue milestone gate
+
+# Enforces "every issue carries a milestone" (AGENTS.md §6, issue #76).
+#
+# When an issue is opened or edited without a milestone, this workflow:
+#   - adds the `agent:needs-human` label (the human decides which
+#     milestone the work belongs to — we do not auto-default);
+#   - posts a one-time policy comment explaining why and how to fix.
+#
+# When a milestone is present, this workflow is a no-op. It does NOT
+# proactively remove `agent:needs-human` — the human who attached the
+# milestone owns clearing the label after triage.
+#
+# Idempotency: a hidden marker comment (`<!-- milestone-gate-marker -->`)
+# guards against duplicate comments across re-fires (e.g. body edits on
+# a still-milestone-less issue). The label add is naturally idempotent.
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  # One run per issue; never cancel — a body edit must not pre-empt the
+  # opened-event run for the same issue.
+  group: issue-milestone-gate-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    if: github.event.issue.milestone == null
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ISSUE: ${{ github.event.issue.number }}
+      REPO: ${{ github.repository }}
+      AGENTS_URL: ${{ github.server_url }}/${{ github.repository }}/blob/main/AGENTS.md#6-project-tracking-the-system-of-record
+    steps:
+      - name: Add agent:needs-human label
+        run: |
+          set -euo pipefail
+          gh issue edit "$ISSUE" \
+            --repo "$REPO" \
+            --add-label agent:needs-human
+
+      - name: Post policy comment (idempotent)
+        run: |
+          set -euo pipefail
+          MARKER="<!-- milestone-gate-marker -->"
+
+          ALREADY="$(gh issue view "$ISSUE" \
+            --repo "$REPO" \
+            --json comments \
+            --jq "[.comments[] | select(.body | contains(\"$MARKER\"))] | length")"
+
+          if [[ "$ALREADY" -gt 0 ]]; then
+            echo "Marker comment already posted on #$ISSUE; skipping."
+            exit 0
+          fi
+
+          {
+            printf '**This issue is missing a milestone.**\n\n'
+            printf 'physa-db requires every issue to carry a milestone — no exceptions. See [`AGENTS.md` §6](%s). Without a milestone the issue falls outside the `/next` skill'"'"'s discovery filter and gets stranded.\n\n' "$AGENTS_URL"
+            printf 'The `agent:needs-human` label has been applied. To clear it: pick the milestone this work belongs to (sidebar → Milestone, or `gh issue edit %s --milestone <name>`), then remove the label. Do not default to the current milestone to unblock — the choice is the point.\n\n' "$ISSUE"
+            printf '%s\n' "$MARKER"
+          } > /tmp/milestone-gate-body.md
+
+          gh issue comment "$ISSUE" \
+            --repo "$REPO" \
+            --body-file /tmp/milestone-gate-body.md
