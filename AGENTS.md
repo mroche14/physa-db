@@ -135,6 +135,7 @@ Every **core** CI gate is a local `just` command — **if it passes locally, it 
 **Single source of truth: GitHub Issues + GitHub Projects v2.** See ADR-0001.
 
 - Every task, bug, feature, research item is a GitHub Issue.
+- **Every issue carries a milestone — no exceptions.** The `/next` skill filters by milestone; an issue without one falls outside discovery and gets stranded. The `issue-milestone-gate.yml` workflow enforces this on every `issues.opened` / `issues.edited` event: a milestone-less issue is auto-labelled `agent:needs-human` and a one-time policy comment is posted (idempotent — guarded by a hidden marker). The `/file-issue` skill refuses to call `gh issue create` without `--milestone`. Do not default to the current milestone "to unblock" — the choice of which milestone the work belongs to *is the work* of triage, and the gate exists so an external contributor running `/next` never has to debug a triage gap.
 - The GitHub Pages dashboard (`dashboard/`) reads a pre-generated `dashboard/data/state.json`, rebuilt by `snapshot-dashboard.yml` when that workflow is enabled.
 - **Do not** create parallel tracking systems (TODO files, taskwarrior, etc.). If you need transient state inside a task, put it in a PR description or issue comment.
 
