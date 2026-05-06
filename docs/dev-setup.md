@@ -31,8 +31,8 @@ That's it. The `just` recipes expose every other workflow you need.
 | Fuzz a target for 60 s | `just fuzz <target>` |
 | Micro benches | `just bench` |
 | Compare vs `main` | `just bench-compare main` |
-| Macro benches (LDBC SNB SF1) | `just bench-macro 1` — placeholder scaffold at M0/M1 |
-| Stress (chaos) | `just stress chaos` — placeholder scaffold at M0/M1 |
+| Macro benches (LDBC SNB SF1) | `just bench-macro 1` — placeholder scaffold until M3 + #47 |
+| Stress (chaos) | `just stress chaos` — placeholder scaffold until M3 + #48 |
 | Preview the dashboard | `just dashboard` then open http://localhost:8000 |
 | Check release automation | `just release-check` |
 | Check commit subjects | `just check-commits origin/main` |
@@ -86,8 +86,8 @@ just check-commits origin/main
 - **`just` not found** → `mise install` didn't run. Re-run it.
 - **CI fails but `just ci` passes locally** → ensure you're on the same `mise` tool versions; check `mise ls` vs `.mise.toml`.
 - **Bench numbers unstable** → use `just bench-iai` for instruction-count benches; they're stable across hardware.
-- **Fuzz targets missing** → they live under `fuzz/` (created in M2+); list with `cargo fuzz list`.
-- **`just bench-macro` / `just stress` look too successful** → at M0/M1 these commands are intentionally wired as truthful placeholders. They prove command shape and documentation wiring, not benchmark or correctness evidence.
+- **Fuzz targets missing** → they will live under `fuzz/` once the first parser/codec lands in M3+; list with `cargo fuzz list`.
+- **`just bench-macro` / `just stress` look too successful** → until M3 + the harness issues (#47, #48) land, these commands are intentionally wired as truthful placeholders. They prove command shape and documentation wiring, not benchmark or correctness evidence.
 
 ## Self-hosted bench runner
 

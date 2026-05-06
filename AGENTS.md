@@ -122,8 +122,8 @@ If no issue matches your task, **stop and open one first** via `file-issue`. Iss
 - **Fuzzing:** `cargo fuzz` targets for parser (GQL + Cypher), wire protocol, storage codec. Until those targets land, `just fuzz-smoke` is a truthful scaffold that reports the gap without pretending coverage exists.
 - **Concurrency:** `loom` for lock-free / atomic code. No concurrency primitive ships without a `loom` test.
 - **Deterministic simulation:** `turmoil` (or equivalent) for cluster/network-partition scenarios.
-- **Benchmarks:** `criterion` for wall-time micro-benches, `iai-callgrind` for instruction-stable benches, and a macro harness behind `just bench-macro`. During M0/M1 the macro command is a truthful placeholder scaffold until the real harness lands.
-- **Stress tests:** `tests/stress/` defines the target scenario matrix and `just stress` is the entrypoint. During M0/M1 the command is a truthful placeholder scaffold until the real harness lands.
+- **Benchmarks:** `criterion` for wall-time micro-benches, `iai-callgrind` for instruction-stable benches, and a macro harness behind `just bench-macro`. The macro command is a truthful placeholder scaffold until the M3 engine lands and #47 replaces it with a real LDBC/SNAP harness.
+- **Stress tests:** `tests/stress/` defines the target scenario matrix and `just stress` is the entrypoint. The command is a truthful placeholder scaffold until the M3 engine lands and #48 replaces it with the real `smoke` scenario.
 - **Coverage:** `cargo llvm-cov` is pinned for later use. Coverage reporting lands once the first non-trivial product-test surface exists. Coverage is a diagnostic, not a target.
 
 Every **core** CI gate is a local `just` command — **if it passes locally, it must pass in CI**. Specialized workflows (for example `bench-regression`) may add extra checks on top.
@@ -365,7 +365,7 @@ Reading the chain right-to-left: any line of code traces back to an ADR; every A
 
 ### Rules
 
-1. **No architectural ADR may be Accepted before the features it addresses are locked.** Until M1 feature lock completes, architectural ADRs stay in *Proposed* status (direction only). This is why ADRs 0002, 0003, 0004, 0005 sit in *Proposed*.
+1. **No architectural ADR may be Accepted before the features it addresses are locked.** Until the corresponding feature rows are locked, architectural ADRs stay in *Proposed* status (direction only). Campaign M1-Lock (#84) locked the M1 feature rows on 2026-04-25, which is why ADRs 0002–0006 are now *Accepted* and ADRs 0007–0010 were filed *Accepted* against the new locked rows.
 2. **Every non-trivial ADR header lists the `FM-NNN` rows it addresses.** If you cannot fill that list, stop and lock the features first.
 3. **Every `FM-NNN` row traces back to a workload** in `ai-agent-workloads.md` or to a commercial requirement derived from `initial-vision.md`. Rows without a workload anchor must be justified or deleted.
 4. **When a workload surfaces a new sub-requirement, add an `FM-NNN` row first. ADRs follow.** Do not write an ADR that introduces a new capability without first encoding it as a feature row.
@@ -382,7 +382,7 @@ A feature row is **locked** when:
 - it references a workload in `ai-agent-workloads.md` OR the commercial pillar;
 - it has a numerical or behavioural acceptance criterion (even if "TBD with research" — the TBD is itself a tracked issue).
 
-M1 (see `ROADMAP.md`) is the milestone where all primary feature rows move from draft to locked; M2 is where the corresponding ADRs move from Proposed to Accepted.
+M1 (see `ROADMAP.md`) is the milestone where all primary feature rows move from draft to locked; M2 is where the corresponding ADRs move from Proposed to Accepted. In practice Campaign M1-Lock (#84) executed both at once on 2026-04-25.
 
 ---
 

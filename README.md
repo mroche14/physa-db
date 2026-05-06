@@ -200,7 +200,7 @@ See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the detailed step-by-step, the fu
 
 ## Status & dashboard
 
-**Pre-alpha. Architecture phase. Not usable yet.** Milestone M0 (project genesis & docs) is shipping; M1 (feature lock) is next.
+**Pre-alpha. Architecture phase. Not usable yet.** M0 (project genesis & docs) and M1/M2 (feature & architecture lock) shipped via Campaign M1-Lock (#84, 2026-04-25); M3 (embedded single-node kernel) is next.
 
 Public development dashboard — features in flight, benchmarks, open issues — at a GitHub Pages URL *(pending first deploy)*.
 

@@ -20,7 +20,7 @@ M1 locks the first three. M2 locks the fourth. M3+ is build.
 
 ---
 
-## M0 — Foundation (in progress)
+## M0 — Foundation (complete — Pages publish deferred)
 
 Goal: make the repo navigable by both humans and agents; all conventions in place.
 
@@ -36,37 +36,40 @@ Goal: make the repo navigable by both humans and agents; all conventions in plac
 - [x] `justfile` + `.mise.toml` + `xtask/` dev workflow
 - [x] `release-plz` configured for automated versioning
 - [x] `private/` gitignored for competitive research; `docs/requirements/` for public synthesis
-- [ ] CI: `fmt`, `clippy`, `test`, `bench-regression-guard`, `fuzz-smoke` on push and PR
-- [ ] Issue + PR templates live on the pushed repo
-- [ ] GitHub Pages dashboard MVP deployed
-- [ ] Labels provisioned
+- [x] CI: `fmt`, `clippy`, `test`, `bench-regression-guard`, `fuzz-smoke` on push and PR (`.github/workflows/ci.yml`, `bench-regression.yml`; `fuzz-smoke` ships as a truthful scaffold per AGENTS.md §5 until the first fuzz target lands)
+- [x] Issue + PR templates live on the pushed repo (`.github/ISSUE_TEMPLATE/`, `.github/PULL_REQUEST_TEMPLATE.md`)
+- [x] Labels provisioned (`.github/labels.yml` + `sync-labels.yml`)
+- [ ] GitHub Pages dashboard MVP deployed — deferred to the M1 product-launch activation call; tracked in #6
 
 ## M1 — Feature lock (positioning → workloads → feature matrix)
 
 Goal: every feature physa-db will ship is captured as an `FM-NNN` row, each traced to a workload in `ai-agent-workloads.md` or to the commercial positioning. Private research fuels the output; no competitor attribution in public files.
 
+**Status:** Locked via Campaign M1-Lock on 2026-04-25 (meta issue #84). The feature matrix, performance targets, and supporting ADRs landed in commit `757e399`. Five §J defaults shipped with explicit sentinel metrics; their post-lock validation work is tracked in #79–#83 and is **not** an M1 blocker.
+
 **Exit criterion:** `feature-matrix.md` is ratified and frozen for M2 entry. Any later row addition requires a new research cycle.
 
-- [ ] Private competitor profiles for all tracked competitors (one file per codename in `private/research/competitors/`)
-- [ ] Private pain-point mining complete across Reddit / X / HN / forum / GH issues
-- [ ] LDBC SNB and SNAP dataset ingestion harness (no DB yet — just loaders + checkers)
-- [ ] **AI-agent workload refinement:** expand `ai-agent-workloads.md` with concrete numbers (ingest rates, vector dims, chunk sizes, retention periods) derived from real agent frameworks (LangChain, LlamaIndex, MCP clients, observability tools)
-- [ ] **Public output:** `docs/requirements/feature-matrix.md` completed — both parity rows (FM-001…099) and AI-native rows (FM-100…) with workload references and tier assignments
-- [ ] **Public output:** `docs/requirements/performance-targets.md` with numerical targets for LDBC SNB + AI-native benchmarks (ANN recall vs latency, hybrid-query p95, ingest throughput for agent traces)
-- [ ] **Public output:** `docs/requirements/non-goals.md` refined (graph+vector not vector-only, property store with blobs not S3, etc.)
-- [ ] Research-surfaced ADRs filed as drafts (ADR-0007+) — stay in Draft until M1 exits
+- [x] Private competitor profiles + pain-point mining complete (private; output synthesised into the locked FM rows)
+- [x] **Public output:** `docs/requirements/feature-matrix.md` ratified — parity rows (FM-001…099) and AI-native rows (FM-100…140) with workload references and tier assignments
+- [x] **Public output:** `docs/requirements/performance-targets.md` defines machine class M, workload targets, and regression policy for follow-up benchmarks
+- [x] **Public output:** `docs/requirements/non-goals.md` refined (graph+vector not vector-only, property store with blobs not S3, etc.)
+- [x] **Public output:** `docs/requirements/ai-agent-workloads.md` carries the six workload families (W-A…W-F) referenced by every AI-native FM row
+- [x] Research-surfaced ADRs filed (ADR-0007 agent surfaces, ADR-0008 hybrid index, ADR-0009 observability, ADR-0010 multi-tenancy)
+- [ ] LDBC SNB and SNAP dataset ingestion harness — slipped to M3 (#47); the M1 placeholder ships as a truthful scaffold
 
 ## M2 — Architecture lock (feature matrix → ADRs)
 
 Goal: every architectural ADR is promoted from *Proposed* to *Accepted* by citing the FM rows it addresses; no premature choices remain.
 
+**Status:** Folded into Campaign M1-Lock (#84) and complete. ADRs 0002–0006 transitioned from *Proposed* to *Accepted* in the same campaign that locked the feature matrix; ADRs 0007–0010 were filed *Accepted* against the new locked rows. The §J validation benchmarks (#79–#83) are post-lock evidence and do not gate M2 exit — they are filed under the M2 milestone for tracking and run when the M3 engine can execute them.
+
 **Exit criterion:** every *Proposed* ADR is either promoted, reshaped, or rejected, and the set of *Accepted* ADRs covers every FM row that needs architectural backing.
 
-- [ ] Promote ADR-0002 (GQL + Cypher) with cross-dialect extension grammar for the `PHYSA` namespace (vector, temporal, hybrid operators)
-- [ ] Promote ADR-0003 (storage) after specifying the vector + blob + temporal tiers alongside the tiered node layout
-- [ ] Promote ADR-0004 (MVCC) with the bi-temporal extension ADR that layers valid-time × transaction-time on the version chain
-- [ ] Promote ADR-0005 (sharding) after specifying how ANN indices span shards and how blob/observability data partitions
-- [ ] New ADRs for AI-native subsystems: vector index (HNSW/IVF-PQ), blob storage adapter, hybrid query planner, MCP server, streaming result pipeline, embedding-version registry
+- [x] Promote ADR-0002 (GQL + Cypher) with cross-dialect extension grammar for the `PHYSA` namespace (vector, temporal, hybrid operators)
+- [x] Promote ADR-0003 (storage) after specifying the vector + blob + temporal tiers alongside the tiered node layout
+- [x] Promote ADR-0004 (MVCC) with the bi-temporal extension that layers valid-time × transaction-time on the version chain
+- [x] Promote ADR-0005 (sharding) after specifying how ANN indices span shards and how blob/observability data partitions
+- [x] New ADRs for AI-native subsystems: ADR-0007 (agent surfaces + evidence trace), ADR-0008 (vector-graph hybrid index + ANN class), ADR-0009 (observability primitives), ADR-0010 (multi-tenancy isolation)
 
 ## M3 — Embedded single-node kernel
 
