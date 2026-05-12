@@ -61,7 +61,7 @@ Goal: every feature physa-db will ship is captured as an `FM-NNN` row, each trac
 
 Goal: every architectural ADR is promoted from *Proposed* to *Accepted* by citing the FM rows it addresses; no premature choices remain.
 
-**Status:** Folded into Campaign M1-Lock (#84) and complete. ADRs 0002–0006 transitioned from *Proposed* to *Accepted* in the same campaign that locked the feature matrix; ADRs 0007–0010 were filed *Accepted* against the new locked rows. The §J validation benchmarks (#79–#83) are post-lock evidence and do not gate M2 exit — they are filed under the M2 milestone for tracking and run when the M3 engine can execute them.
+**Status:** Folded into Campaign M1-Lock (#84) and complete. ADRs 0002–0006 transitioned from *Proposed* to *Accepted* in the same campaign that locked the feature matrix; ADRs 0007–0010 were filed *Accepted* against the new locked rows. The §J validation benchmarks (#79–#83) are post-lock evidence and do not gate M2 exit — they are filed under the M3 milestone, since M3 is the first point an engine exists to execute them.
 
 **Exit criterion:** every *Proposed* ADR is either promoted, reshaped, or rejected, and the set of *Accepted* ADRs covers every FM row that needs architectural backing.
 
