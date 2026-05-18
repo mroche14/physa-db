@@ -52,5 +52,17 @@
       "Bash(gh repo delete*)",
       "Bash(gh auth logout*)"
     ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "drafts=$(grep -l '^status: draft' docs/principles/PRIN-*.md 2>/dev/null | wc -l | tr -d ' '); if [ \"${drafts:-0}\" -gt 0 ]; then echo \"[principles] ${drafts} draft principle(s) pending review under docs/principles/. Run /update-principles before ending the session to promote, retire, or refine them.\"; fi"
+          }
+        ]
+      }
+    ]
   }
 }

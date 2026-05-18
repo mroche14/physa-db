@@ -37,10 +37,12 @@ Companion infra: [`.github/workflows/reap-stale-claims.yml`](../../.github/workf
 | [`onboard`](./onboard/SKILL.md) | Mandatory first read for any new agent — pillars, causal chain, rules, reading order | All |
 | [`plan-feature`](./plan-feature/SKILL.md) | Before any code: locate FM row, workload anchor, first-principles derivation, acceptance criteria | §11, §15 |
 | [`write-adr`](./write-adr/SKILL.md) | ADR template with FM refs and quantitative derivation; always starts as Proposed | §11, §15 |
+| [`capture-principle`](./capture-principle/SKILL.md) | Record a cross-cutting invariant (multi-tenancy, observability, perf, config) the moment it surfaces, before context is lost. Auto-invokes on "every X must…" / "we always…" phrasing; gates on AskUserQuestion before writing | §11, §15 |
 | [`research-competitor`](./research-competitor/SKILL.md) | Codename-only private profile + attribution-free public delta | §7, ADR-0006 |
 | [`pre-commit-check`](./pre-commit-check/SKILL.md) | CI-core gate plus pre-commit-only checks: fmt, clippy, tests, privacy check, secrets scan, conventional-commit | §§1, 4, 5, 7, 8 |
 | [`review-pr`](./review-pr/SKILL.md) | Full reviewer checklist cross-referencing every applicable rule | §§1, 5, 7, 8, 11, 12, 15 |
 | [`promote-adr`](./promote-adr/SKILL.md) | Proposed → Accepted promotion, gated on feature lock + quantitative derivation | §15 |
+| [`update-principles`](./update-principles/SKILL.md) | End-of-session review for `docs/principles/`: promote draft → active, graduate active → AGENTS.md or ADR, retire withdrawn. Stop hook nudges if drafts pending | §11, §15 |
 
 ### Workflow automators (Tier 2)
 

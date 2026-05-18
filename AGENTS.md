@@ -406,10 +406,12 @@ Invocation syntax differs by agent. Claude Code exposes these as slash commands 
 | `onboard` | §§0, 7, 11, 12, 15 | First run on a fresh clone (a guided tour of the rules — not a re-hydration command; an agent mid-session that lost context should re-read the relevant AGENTS.md section directly) |
 | `plan-feature <desc>` | §§11, 15 | Before any code — locks the FM row, workload anchor, derivation, AC |
 | `write-adr <NNNN> <title>` | §§11, 15 | When `plan-feature` concluded an ADR is needed |
+| `capture-principle [statement]` | §§11, 15 | Auto-invokes whenever the user states a cross-cutting invariant ("every request must carry a tenant", "every RPC must emit a span"). Gates on AskUserQuestion; writes `docs/principles/PRIN-NNN-<slug>.md` as `draft` |
 | `research-competitor <CODENAME> <real-name>` | §7, ADR-0006 | Any competitor profile — forces codename + private input + public delta |
 | `pre-commit-check` | §§1, 4, 5, 7, 8 | Before every commit — local mirror of CI |
 | `review-pr <num>` | §§1, 5, 7, 8, 11, 12, 15 | Reviewing any PR |
 | `promote-adr <NNNN>` | §15 | Only at M2 exit — gates Proposed → Accepted |
+| `update-principles [--dry-run]` | §§11, 15 | End-of-session review of `docs/principles/`: promote / graduate / retire; regenerates the index; one commit. Stop hook nudges if drafts pending |
 
 **Tier 2 (workflow automators).** Make the expensive / error-prone operations reproducible.
 
