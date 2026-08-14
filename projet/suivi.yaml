@@ -1,0 +1,989 @@
+instance:
+  url: https://plane.systemx.tech
+  workspace: system-x
+  source: physa-db
+projet:
+  identifiant: PHYSA
+  nom: physa db
+  description: Base de donnees graphe Rust hybride graphe/vectoriel/plein-texte pour charges de travail
+    d'agents IA.
+  creer_si_absent: true
+  intake: false
+labels:
+- nom: backend
+  couleur: '#3b82f6'
+- nom: frontend
+  couleur: '#8b5cf6'
+- nom: infra
+  couleur: '#0891b2'
+- nom: sécurité
+  couleur: '#dc2626'
+- nom: docs
+  couleur: '#65a30d'
+- nom: action-humaine
+  couleur: '#ea580c'
+- nom: bloquant
+  couleur: '#991b1b'
+modules:
+- cle: moteur
+  nom: Moteur graphe
+  description: physa-core, physa-server, physa-client, physa-cli.
+- cle: infra-ci
+  nom: CI et outillage dev
+  description: GitHub Actions, xtask, justfile, skills /next et /wait-ci, release automation.
+- cle: recherche-positioning
+  nom: Recherche et positionnement
+  description: Profils concurrents prives, pain-point mining, feature matrix, positioning.
+- cle: docs-brand
+  nom: Documentation et image de marque
+  description: README, branding, dashboard de statut.
+- cle: architecture-adr
+  nom: Architecture et ADR
+  description: Architecture Decision Records, verrouillage architectural M2.
+cycles:
+- cle: genese
+  nom: Genese et scaffolding
+  debut: '2026-04-20'
+  fin: '2026-04-20'
+  description: 'Amorcage du depot : workspace Cargo, CI multi-OS, branding v1, premiers profils concurrents.'
+- cle: recherche-rebrand
+  nom: Recherche concurrentielle et rebrand Physarum
+  debut: '2026-04-21'
+  fin: '2026-04-21'
+  description: Quatre profils concurrents supplementaires, rigueur de recherche, rebrand complet autour
+    de Physarum polycephalum.
+- cle: hygiene-onboarding
+  nom: Hygiene infra et onboarding
+  debut: '2026-04-23'
+  fin: '2026-04-23'
+  description: Alignement des workflows CI, simplification de l'onboarding, correctif de fuite de PII.
+- cle: devloop-wait-ci
+  nom: Boucle de dev et skill /wait-ci
+  debut: '2026-04-24'
+  fin: '2026-04-24'
+  description: README de la boucle de developpement en Mermaid, skill /wait-ci, corrections release-plz.
+- cle: m1-lock
+  nom: Verrouillage M1
+  debut: '2026-04-25'
+  fin: '2026-04-25'
+  description: Atterrissage du verrouillage des fonctionnalites M1 (synthese Campaign M1-Lock).
+- cle: ouvert
+  nom: Reliquat ouvert (ROADMAP)
+  debut: '2026-04-26'
+  fin: '2027-12-31'
+  description: Backlog migre depuis ROADMAP.md (M0 restant a M8) ; aucun travail constate depuis le 2026-04-25.
+items:
+- cle: genese-scaffold
+  titre: Genese du depot et scaffolding du workspace Cargo
+  description: Commit fondateur qui pose l'arborescence du monorepo Rust (crates physa-core/server/client/cli,
+    xtask, justfile) — le point de depart de tout le reste.
+  etat: Done
+  module:
+  - moteur
+  - infra-ci
+  cycle: genese
+  labels:
+  - backend
+  - infra
+- cle: ci-matrix-cache
+  titre: CI multi-OS avec cache de workspace
+  description: '`just ci` tourne sur ubuntu/macos/windows avec cache Swatinem verifie, et le badge CI
+    pointe vers le bon depot — condition de base pour que chaque PR soit fiable des le premier jour.'
+  etat: Done
+  module:
+  - infra-ci
+  cycle: genese
+  labels:
+  - infra
+- cle: ci-hygiene-bench-gates
+  titre: Garde-fous CI — hygiene d'arbre, bench et fuzz
+  description: Verification section 7 de l'arbre de travail, metadonnees du workspace, gate de regression
+    bench nocturne + iai sur PR, et le cron snapshot-dashboard desactive tant que Pages n'est pas active
+    — decision qui documente pourquoi le dashboard n'est pas encore publie.
+  etat: Done
+  module:
+  - infra-ci
+  cycle: genese
+  labels:
+  - infra
+- cle: xtask-snapshot-dashboard
+  titre: Generateur snapshot-dashboard reel dans xtask
+  description: Remplace le squelette par une implementation fonctionnelle qui produit les donnees consommees
+    par dashboard/ — preparation a la publication future, meme si le deploiement reste desactive.
+  etat: Done
+  module:
+  - infra-ci
+  cycle: genese
+  labels:
+  - infra
+- cle: brand-readme-v1
+  titre: Systeme de marque v1 et illustrations README
+  description: Premieres illustrations hero, logo, diagrammes Mermaid, avec correction de lisibilite en
+    mode sombre/clair — etablit l'identite visuelle avant tout code fonctionnel.
+  etat: Done
+  module:
+  - docs-brand
+  cycle: genese
+  labels:
+  - docs
+- cle: agents-credential-safety
+  titre: Regle de securite des identifiants codifiee dans AGENTS.md
+  description: Section 10 d'AGENTS.md pose la regle qu'aucun agent ne doit faire fuiter de credential
+    — garde-fou pris tot, avant que des agents ne travaillent sans supervision sur le depot.
+  etat: Done
+  module:
+  - infra-ci
+  cycle: genese
+  labels:
+  - sécurité
+  - docs
+- cle: skills-next-codex-bridge
+  titre: Skills /next et pont codex
+  description: /next synchronise le remote et porte sa PR jusqu'au premier tour de CI vert ; pont vers
+    codex et elargissement du workflow research-competitor (extract->aggregate->inspire->create) — outillage
+    agentique qui structure tout le developpement qui suit.
+  etat: Done
+  module:
+  - infra-ci
+  cycle: genese
+  labels:
+  - infra
+- cle: infra-labels-release-automation
+  titre: Labels d'issues canoniques et validation de l'automatisation de release
+  description: Labels standardises pour trier les issues, et release-plz valide avant d'en dependre en
+    continu.
+  etat: Done
+  module:
+  - infra-ci
+  cycle: genese
+  labels:
+  - infra
+- cle: research-alpha-featurematrix
+  titre: Profil Concurrent ALPHA et matrice de fonctionnalites
+  description: Premier profil concurrent prive avec cibles derivees, et matrice de fonctionnalites mise
+    a jour pour capturer les operations zero-tuning — amorce le travail M1 de verrouillage des fonctionnalites.
+  etat: Done
+  module:
+  - recherche-positioning
+  cycle: genese
+  labels:
+  - docs
+- cle: research-competitors-batch
+  titre: Profils concurrents BRAVO, CHARLIE, DELTA, INDIA
+  description: Quatre profils prives supplementaires et mises a jour de l'agregat — elargit la base de
+    comparaison avant de figer la feature-matrix publique.
+  etat: Done
+  module:
+  - recherche-positioning
+  cycle: recherche-rebrand
+  labels:
+  - docs
+- cle: research-painpoint-fm042
+  titre: Mining de pain points — FM-042
+  description: Nouvelle ligne de fonctionnalite (FM-042) issue du deuxieme et troisieme lot de mining
+    de pain points communautaires (Reddit/X/HN/forums/issues).
+  etat: Done
+  module:
+  - recherche-positioning
+  cycle: recherche-rebrand
+  labels:
+  - docs
+- cle: research-rigor-recency
+  titre: Rigueur de recherche — fenetre de fraicheur et documentation exhaustive
+  description: Les skills de planification imposent desormais une fenetre de recence et une documentation
+    exhaustive des sources — evite que la recherche concurrentielle se perime silencieusement.
+  etat: Done
+  module:
+  - recherche-positioning
+  - infra-ci
+  cycle: recherche-rebrand
+  labels:
+  - docs
+  - infra
+- cle: requirements-deattribute-afm
+  titre: De-attribution des requirements et correction des mappings AFM
+  description: Les exigences publiques sont dissociees de leur source concurrente precise (confidentialite
+    de la recherche privee, ADR-0006), et la taxonomie AFM-028 analytics/GDS est eclatee par couche pour
+    rester exploitable.
+  etat: Done
+  module:
+  - recherche-positioning
+  cycle: recherche-rebrand
+  labels:
+  - docs
+  - sécurité
+- cle: skills-next-branch-pruning
+  titre: /next elague les branches locales et distantes orphelines
+  description: Supprime automatiquement les branches locales dont l'upstream a disparu et balaie les branches
+    d'agents distantes orphelines (fermees-non-mergees + atteignables depuis main) — evite l'accumulation
+    de dechets de branches produites par des agents.
+  etat: Done
+  module:
+  - infra-ci
+  cycle: recherche-rebrand
+  labels:
+  - infra
+- cle: rebrand-physarum
+  titre: Rebrand complet autour de Physarum polycephalum
+  description: Cinq iterations de logo/symbole/hero pour ancrer l'identite visuelle sur l'organisme eponyme
+    (slime mould qui optimise ses trajets) — choix de marque qui explique le nom du projet et sa metaphore
+    de fonctionnement.
+  etat: Done
+  module:
+  - docs-brand
+  cycle: recherche-rebrand
+  labels:
+  - docs
+- cle: deps-rustsec-time-patch
+  titre: Correctif de securite — time 0.3.47 (RUSTSEC DoS)
+  description: Montee de version de la crate time pour patcher une vulnerabilite d'epuisement de pile
+    (RUSTSEC) — seul correctif de securite sur dependance de cette periode.
+  etat: Done
+  module:
+  - moteur
+  cycle: recherche-rebrand
+  labels:
+  - sécurité
+  - backend
+- cle: infra-workflow-checkout-bump
+  titre: Alignement des workflows et montee actions/checkout v4 vers v6
+  description: Les placeholders de workflow sont alignes sur le contrat du depot, et actions/checkout
+    passe en v6 (runtime Node 24) — maintenance necessaire pour rester compatible avec GitHub Actions.
+  etat: Done
+  module:
+  - infra-ci
+  cycle: hygiene-onboarding
+  labels:
+  - infra
+- cle: docs-onboarding-streamline
+  titre: Simplification de l'onboarding clone-vers-/next
+  description: Le chemin de clonage jusqu'au premier /next est raccourci, et le pont entre agents est
+    fusionne avec l'onboarding developpeur unifie — reduit la friction pour un nouveau contributeur ou
+    agent.
+  etat: Done
+  module:
+  - docs-brand
+  - infra-ci
+  cycle: hygiene-onboarding
+  labels:
+  - docs
+- cle: infra-pii-leak-fix
+  titre: Correction d'une fuite de user.email via /next
+  description: /next arretait de faire fuiter l'adresse email de l'utilisateur ; la regle 'pas de PII'
+    est codifiee pour empecher la regression — correctif de confidentialite sur l'outillage agentique
+    lui-meme.
+  etat: Done
+  module:
+  - infra-ci
+  cycle: hygiene-onboarding
+  labels:
+  - sécurité
+  - infra
+- cle: next-branch-pruning-widen
+  titre: /next durcit l'elagage de branches et elargit le fallback de jalon
+  description: Le Step 0 de /next elague desormais toutes les branches agent/* obsoletes (pas seulement
+    celles marquees gone), et elargit son fallback quand la file du jalon par defaut est vide.
+  etat: Done
+  module:
+  - infra-ci
+  cycle: devloop-wait-ci
+  labels:
+  - infra
+- cle: readme-devloop-mermaid
+  titre: Boucle de dev en Mermaid et parcours contributeur/mainteneur nommes
+  description: L'ASCII art de la boucle de developpement est remplace par un diagramme Mermaid, les abreviations
+    sont developpees, le chemin mainteneur vers file d'issues est montre, et le prefixe / apparait sur
+    les noeuds de skill — rend le README lisible sans connaitre deja le jargon interne.
+  etat: Done
+  module:
+  - docs-brand
+  cycle: devloop-wait-ci
+  labels:
+  - docs
+- cle: readme-featurematrix-adr-refs
+  titre: Feature matrix definie et ADR references des la premiere mention
+  description: Le README explique ce qu'est la feature matrix et developpe chaque ADR a sa premiere occurrence
+    — condition pour qu'un lecteur externe suive le raisonnement sans ouvrir dix fichiers.
+  etat: Done
+  module:
+  - docs-brand
+  - architecture-adr
+  cycle: devloop-wait-ci
+  labels:
+  - docs
+- cle: docs-onboard-cleanup
+  titre: /onboard n'est plus presente comme une commande de re-hydratation
+  description: Corrige une description trompeuse qui laissait croire que /onboard resynchronisait un agent
+    deja actif.
+  etat: Done
+  module:
+  - infra-ci
+  - docs-brand
+  cycle: devloop-wait-ci
+  labels:
+  - docs
+- cle: wait-ci-skill
+  titre: Skill /wait-ci — sondage CI et checklist de plan de test
+  description: Nouveau skill qui attend la fin de la CI et parcourt une checklist de plan de test ; son
+    predicat sait aussi reconnaitre les assertions grep/rg ... retourne N occurrences — automatise une
+    etape qui etait manuelle jusque-la.
+  etat: Done
+  module:
+  - infra-ci
+  cycle: devloop-wait-ci
+  labels:
+  - infra
+- cle: release-plz-fixes
+  titre: Corrections release-plz — fuite de stash et liens v0.0.0
+  description: Elimine la cause racine d'une fuite de stash dans le dry-run de release-plz, et arrete
+    de generer des liens de release morts vers v0.0.0 — deux defauts qui auraient pollue la premiere vraie
+    release.
+  etat: Done
+  module:
+  - infra-ci
+  cycle: devloop-wait-ci
+  labels:
+  - infra
+- cle: infra-seed-issues-cleanup
+  titre: Suppression du scaffolding seed-issues obsolete
+  description: Retire un echafaudage devenu inutile pour l'amorcage des issues.
+  etat: Done
+  module:
+  - infra-ci
+  cycle: devloop-wait-ci
+  labels:
+  - infra
+- cle: gitignore-gemini
+  titre: Ignorer le repertoire de config de l'outil .gemini/
+  description: Petit nettoyage d'hygiene de depot.
+  etat: Done
+  module:
+  - infra-ci
+  cycle: m1-lock
+  labels:
+  - infra
+- cle: m1-feature-lock-landed
+  titre: Verrouillage des fonctionnalites M1 pose (synthese Campaign M1-Lock)
+  description: Atterrit la synthese de la campagne M1-Lock sous forme d'ADR — jalon qui cloture (provisoirement)
+    le travail de recherche/positionnement intensif des cinq premiers jours et bascule le projet en attente
+    de la suite (M0 CI complete, M2 architecture).
+  etat: Done
+  module:
+  - recherche-positioning
+  - architecture-adr
+  cycle: m1-lock
+  labels:
+  - docs
+- cle: roadmap-m0-01-ci-fmt-clippy-test-bench-regression
+  titre: 'CI: fmt, clippy, test, bench-regression-guard, fuzz-smoke on push and PR'
+  description: '[M0] CI: fmt, clippy, test, bench-regression-guard, fuzz-smoke on push and PR'
+  etat: Todo
+  module: infra-ci
+  cycle: ouvert
+  labels:
+  - infra
+  priorite: high
+- cle: roadmap-m0-02-issue-pr-templates-live-on-the-pushed
+  titre: Issue + PR templates live on the pushed repo
+  description: '[M0] Issue + PR templates live on the pushed repo'
+  etat: Todo
+  module: infra-ci
+  cycle: ouvert
+  labels:
+  - infra
+  priorite: high
+- cle: roadmap-m0-03-github-pages-dashboard-mvp-deployed
+  titre: GitHub Pages dashboard MVP deployed
+  description: '[M0] GitHub Pages dashboard MVP deployed'
+  etat: Todo
+  module: infra-ci
+  cycle: ouvert
+  labels:
+  - infra
+  priorite: high
+- cle: roadmap-m0-04-labels-provisioned
+  titre: Labels provisioned
+  description: '[M0] Labels provisioned'
+  etat: Todo
+  module: infra-ci
+  cycle: ouvert
+  labels:
+  - infra
+  priorite: high
+- cle: roadmap-m1-01-private-competitor-profiles-for-all
+  titre: Private competitor profiles for all tracked competitors (one file per codename in priva...
+  description: '[M1] Private competitor profiles for all tracked competitors (one file per codename in
+    private/research/competitors/)'
+  etat: Todo
+  module: recherche-positioning
+  cycle: ouvert
+  labels:
+  - docs
+  priorite: high
+- cle: roadmap-m1-02-private-pain-point-mining-complete
+  titre: Private pain-point mining complete across Reddit / X / HN / forum / GH issues
+  description: '[M1] Private pain-point mining complete across Reddit / X / HN / forum / GH issues'
+  etat: Todo
+  module: recherche-positioning
+  cycle: ouvert
+  labels:
+  - docs
+  priorite: high
+- cle: roadmap-m1-03-ldbc-snb-and-snap-dataset-ingestion
+  titre: LDBC SNB and SNAP dataset ingestion harness (no DB yet — just loaders + checkers)
+  description: '[M1] LDBC SNB and SNAP dataset ingestion harness (no DB yet — just loaders + checkers)'
+  etat: Todo
+  module: recherche-positioning
+  cycle: ouvert
+  labels:
+  - docs
+  priorite: high
+- cle: roadmap-m1-04-ai-agent-workload-refinement-expand
+  titre: 'AI-agent workload refinement: expand ai-agent-workloads.md with concrete numbers (inges...'
+  description: '[M1] **AI-agent workload refinement:** expand ai-agent-workloads.md with concrete numbers
+    (ingest rates, vector dims, chunk sizes, retention periods) derived from real agent frameworks (LangChain,
+    LlamaIndex, MCP clients, observability tools)'
+  etat: Todo
+  module: recherche-positioning
+  cycle: ouvert
+  labels:
+  - docs
+  priorite: high
+- cle: roadmap-m1-05-public-output-docs-requirements
+  titre: 'Public output: docs/requirements/feature-matrix.md completed — both parity rows (FM-001...'
+  description: '[M1] **Public output:** docs/requirements/feature-matrix.md completed — both parity rows
+    (FM-001…099) and AI-native rows (FM-100…) with workload references and tier assignments'
+  etat: Todo
+  module: recherche-positioning
+  cycle: ouvert
+  labels:
+  - docs
+  priorite: high
+- cle: roadmap-m1-06-public-output-docs-requirements
+  titre: 'Public output: docs/requirements/performance-targets.md with numerical targets for LDBC...'
+  description: '[M1] **Public output:** docs/requirements/performance-targets.md with numerical targets
+    for LDBC SNB + AI-native benchmarks (ANN recall vs latency, hybrid-query p95, ingest throughput for
+    agent traces)'
+  etat: Todo
+  module: recherche-positioning
+  cycle: ouvert
+  labels:
+  - docs
+  priorite: high
+- cle: roadmap-m1-07-public-output-docs-requirements-non
+  titre: 'Public output: docs/requirements/non-goals.md refined (graph+vector not vector-only, pr...'
+  description: '[M1] **Public output:** docs/requirements/non-goals.md refined (graph+vector not vector-only,
+    property store with blobs not S3, etc.)'
+  etat: Todo
+  module: recherche-positioning
+  cycle: ouvert
+  labels:
+  - docs
+  priorite: high
+- cle: roadmap-m1-08-research-surfaced-adrs-filed-as
+  titre: Research-surfaced ADRs filed as drafts (ADR-0007+) — stay in Draft until M1 exits
+  description: '[M1] Research-surfaced ADRs filed as drafts (ADR-0007+) — stay in Draft until M1 exits'
+  etat: Todo
+  module: recherche-positioning
+  cycle: ouvert
+  labels:
+  - docs
+  priorite: high
+- cle: roadmap-m2-01-promote-adr-0002-gql-cypher-with
+  titre: Promote ADR-0002 (GQL + Cypher) with cross-dialect extension grammar for the PHYSA name...
+  description: '[M2] Promote ADR-0002 (GQL + Cypher) with cross-dialect extension grammar for the PHYSA
+    namespace (vector, temporal, hybrid operators)'
+  etat: Todo
+  module: architecture-adr
+  cycle: ouvert
+  labels:
+  - docs
+  priorite: medium
+- cle: roadmap-m2-02-promote-adr-0003-storage-after
+  titre: Promote ADR-0003 (storage) after specifying the vector + blob + temporal tiers alongsid...
+  description: '[M2] Promote ADR-0003 (storage) after specifying the vector + blob + temporal tiers alongside
+    the tiered node layout'
+  etat: Todo
+  module: architecture-adr
+  cycle: ouvert
+  labels:
+  - docs
+  priorite: medium
+- cle: roadmap-m2-03-promote-adr-0004-mvcc-with-the-bi
+  titre: Promote ADR-0004 (MVCC) with the bi-temporal extension ADR that layers valid-time × tra...
+  description: '[M2] Promote ADR-0004 (MVCC) with the bi-temporal extension ADR that layers valid-time
+    × transaction-time on the version chain'
+  etat: Todo
+  module: architecture-adr
+  cycle: ouvert
+  labels:
+  - docs
+  priorite: medium
+- cle: roadmap-m2-04-promote-adr-0005-sharding-after
+  titre: Promote ADR-0005 (sharding) after specifying how ANN indices span shards and how blob/o...
+  description: '[M2] Promote ADR-0005 (sharding) after specifying how ANN indices span shards and how
+    blob/observability data partitions'
+  etat: Todo
+  module: architecture-adr
+  cycle: ouvert
+  labels:
+  - docs
+  priorite: medium
+- cle: roadmap-m2-05-new-adrs-for-ai-native-subsystems
+  titre: 'New ADRs for AI-native subsystems: vector index (HNSW/IVF-PQ), blob storage adapter, hy...'
+  description: '[M2] New ADRs for AI-native subsystems: vector index (HNSW/IVF-PQ), blob storage adapter,
+    hybrid query planner, MCP server, streaming result pipeline, embedding-version registry'
+  etat: Todo
+  module: architecture-adr
+  cycle: ouvert
+  labels:
+  - docs
+  priorite: medium
+- cle: roadmap-m3-01-property-graph-data-model-nodes
+  titre: Property graph data model (nodes, relationships, properties, labels, types)
+  description: '[M3] Property graph data model (nodes, relationships, properties, labels, types)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: medium
+- cle: roadmap-m3-02-durable-storage-with-wal-crash
+  titre: Durable storage with WAL + crash recovery (first-principles custom layout — see ADR-000...
+  description: '[M3] Durable storage with WAL + crash recovery (first-principles custom layout — see ADR-0003
+    post-promotion)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: medium
+- cle: roadmap-m3-03-mvcc-transactional-layer-see-adr-0004
+  titre: MVCC transactional layer (see ADR-0004 post-promotion)
+  description: '[M3] MVCC transactional layer (see ADR-0004 post-promotion)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: medium
+- cle: roadmap-m3-04-gql-opencypher-parsers-sharing-a
+  titre: GQL + openCypher parsers sharing a logical plan IR (ADR-0002 post-promotion, both from ...
+  description: '[M3] **GQL + openCypher** parsers sharing a logical plan IR (ADR-0002 post-promotion,
+    both from the start)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: medium
+- cle: roadmap-m3-05-vector-property-type-hnsw-index
+  titre: Vector property type, HNSW index, NEAREST(vector, K) operator
+  description: '[M3] Vector property type, HNSW index, NEAREST(vector, K) operator'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: medium
+- cle: roadmap-m3-06-query-planner-physical-executor-for
+  titre: 'Query planner + physical executor for the read path (hybrid plans: ANN → graph expansion)'
+  description: '[M3] Query planner + physical executor for the read path (hybrid plans: ANN → graph expansion)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: medium
+- cle: roadmap-m3-07-index-label-property-b-tree-index
+  titre: 'Index: label + property B-tree index'
+  description: '[M3] Index: label + property B-tree index'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: medium
+- cle: roadmap-m3-08-ldbc-snb-ic-1-ic-14-passing-against
+  titre: LDBC SNB IC-1 … IC-14 passing against SF1 dataset
+  description: '[M3] LDBC SNB IC-1 … IC-14 passing against SF1 dataset'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: medium
+- cle: roadmap-m3-09-representative-rag-benchmark-passing
+  titre: Representative RAG benchmark passing (hybrid vector + graph retrieval over a known data...
+  description: '[M3] Representative RAG benchmark passing (hybrid vector + graph retrieval over a known
+    dataset)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: medium
+- cle: roadmap-m3-10-benchmark-wins-on-a-documented
+  titre: 'Benchmark: wins on a documented workload vs the current fastest OSS option'
+  description: '[M3] Benchmark: wins on a documented workload vs the current fastest OSS option'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: medium
+- cle: roadmap-m3-11-property-tests-pass-on-the-storage
+  titre: Property tests pass on the storage codec under fuzz & proptest
+  description: '[M3] Property tests pass on the storage codec under fuzz & proptest'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: medium
+- cle: roadmap-m3-12-stress-scenarios-disk-full-process
+  titre: 'Stress scenarios: disk-full, process-kill, partial-write, clock-skew, supernode — all pass'
+  description: '[M3] Stress scenarios: disk-full, process-kill, partial-write, clock-skew, supernode —
+    all pass'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: medium
+- cle: roadmap-m4-01-bolt-v5-protocol-server-network
+  titre: Bolt v5 protocol server (network, handshake, message framing)
+  description: '[M4] Bolt v5 protocol server (network, handshake, message framing)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m4-02-http-json-query-endpoint-with-server
+  titre: HTTP/JSON query endpoint with server-sent events streaming
+  description: '[M4] HTTP/JSON query endpoint with server-sent events streaming'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m4-03-mcp-model-context-protocol-server
+  titre: MCP (Model Context Protocol) server — agents can treat physa-db as a tool without glue ...
+  description: '[M4] **MCP (Model Context Protocol) server** — agents can treat physa-db as a tool without
+    glue code'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m4-04-grpc-endpoint-with-reflection-incl
+  titre: gRPC endpoint with reflection (incl. streaming ingest for observability workloads)
+  description: '[M4] gRPC endpoint with reflection (incl. streaming ingest for observability workloads)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m4-05-auth-basic-token-oidc-bridge-stub
+  titre: Auth (basic + token + OIDC bridge stub)
+  description: '[M4] Auth (basic + token + OIDC bridge stub)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m4-06-connection-pooling-backpressure
+  titre: Connection pooling, backpressure, graceful shutdown
+  description: '[M4] Connection pooling, backpressure, graceful shutdown'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m4-07-compatibility-official-neo4j-java
+  titre: 'Compatibility: official Neo4j Java/Python/JS drivers can connect and run MATCH (n) RETU...'
+  description: '[M4] Compatibility: official Neo4j Java/Python/JS drivers can connect and run MATCH (n)
+    RETURN n LIMIT 10 plus a representative LDBC SNB subset'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m4-08-physa-cli-for-admin-tasks-import
+  titre: physa CLI for admin tasks (import, backup, restore, dump, inspect)
+  description: '[M4] physa CLI for admin tasks (import, backup, restore, dump, inspect)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m4-09-native-rust-client-physa-client-with
+  titre: Native Rust client (physa-client) with parity to physa-cli
+  description: '[M4] Native Rust client (physa-client) with parity to physa-cli'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m5-01-raft-consensus-for-metadata-jepsen
+  titre: Raft consensus for metadata (+ Jepsen-style linearizability tests)
+  description: '[M5] Raft consensus for metadata (+ Jepsen-style linearizability tests)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m5-02-sharding-strategy-per-adr-0005
+  titre: Sharding strategy per ADR-0005 (abstracted from API, smart inside the planner)
+  description: '[M5] Sharding strategy per ADR-0005 (abstracted from API, smart inside the planner)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m5-03-replication-leader-followers-follower
+  titre: Replication (leader + followers, follower reads, cross-region async)
+  description: '[M5] Replication (leader + followers, follower reads, cross-region async)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m5-04-tenant-isolation-namespaces-with-per
+  titre: 'Tenant isolation: namespaces with per-tenant quotas, RBAC, per-tenant encryption keys'
+  description: '[M5] Tenant isolation: namespaces with per-tenant quotas, RBAC, per-tenant encryption
+    keys'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m5-05-per-tenant-vector-index-isolation-one
+  titre: Per-tenant vector index isolation (one tenant's embeddings are never in another's ANN s...
+  description: '[M5] Per-tenant vector index isolation (one tenant''s embeddings are never in another''s
+    ANN space)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m5-06-online-re-sharding-with-zero-downtime
+  titre: Online re-sharding with zero-downtime
+  description: '[M5] Online re-sharding with zero-downtime'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m5-07-chaos-testing-via-turmoil-external
+  titre: Chaos testing via turmoil + external Jepsen run
+  description: '[M5] Chaos testing via turmoil + external Jepsen run'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m5-08-multi-region-disaster-recovery-story
+  titre: Multi-region disaster recovery story documented & tested
+  description: '[M5] Multi-region disaster recovery story documented & tested'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m6-01-columnar-property-store-with
+  titre: Columnar property store with dictionary encoding (incl. vector columns as contiguous fl...
+  description: '[M6] Columnar property store with dictionary encoding (incl. vector columns as contiguous
+    float arrays for SIMD)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m6-02-vectorised-morsel-driven-execution
+  titre: Vectorised / morsel-driven execution for analytical (BI) queries
+  description: '[M6] Vectorised / morsel-driven execution for analytical (BI) queries'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m6-03-io-uring-aio-storage-backend-on-linux
+  titre: io_uring / AIO storage backend on Linux
+  description: '[M6] io_uring / AIO storage backend on Linux'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m6-04-query-result-caching-with-plan-level
+  titre: Query result caching with plan-level invalidation
+  description: '[M6] Query result caching with plan-level invalidation'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m6-05-compiled-query-plans-cranelift-jit-or
+  titre: Compiled query plans (cranelift JIT or AoT codegen)
+  description: '[M6] Compiled query plans (cranelift JIT or AoT codegen)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m6-06-numa-aware-scheduling
+  titre: NUMA-aware scheduling
+  description: '[M6] NUMA-aware scheduling'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m6-07-ivf-pq-index-for-memory-efficient-ann
+  titre: IVF-PQ index for memory-efficient ANN over huge vector collections
+  description: '[M6] IVF-PQ index for memory-efficient ANN over huge vector collections'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m6-08-full-text-bm25-index-hybrid-scoring
+  titre: Full-text (BM25) index + hybrid scoring (RRF) in one plan
+  description: '[M6] Full-text (BM25) index + hybrid scoring (RRF) in one plan'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m6-09-publish-a-reproducible-benchmark-head
+  titre: Publish a reproducible benchmark head-to-head vs top competitors on RAG, agent-memory, ...
+  description: '[M6] Publish a reproducible benchmark head-to-head vs top competitors on RAG, agent-memory,
+    and observability workloads'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+  priorite: low
+- cle: roadmap-m7-01-full-gql-iso-iec-39075-2024
+  titre: Full GQL (ISO/IEC 39075:2024) conformance
+  description: '[M7] Full GQL (ISO/IEC 39075:2024) conformance'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+- cle: roadmap-m7-02-drivers-rust-python-node-go-java-all
+  titre: 'Drivers: Rust, Python, Node, Go, Java (all native — no Bolt bridge)'
+  description: '[M7] Drivers: Rust, Python, Node, Go, Java (all native — no Bolt bridge)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+- cle: roadmap-m7-03-managed-cloud-reference-deployment
+  titre: Managed cloud reference deployment (Terraform + Helm + operator)
+  description: '[M7] Managed cloud reference deployment (Terraform + Helm + operator)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+- cle: roadmap-m7-04-migration-tooling-from-dominant
+  titre: Migration tooling from dominant competitor dump formats
+  description: '[M7] Migration tooling from dominant competitor dump formats'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+- cle: roadmap-m7-05-security-audit-external
+  titre: Security audit (external)
+  description: '[M7] Security audit (external)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+- cle: roadmap-m7-06-v1-0-0-release
+  titre: v1.0.0 release
+  description: '[M7] v1.0.0 release'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+- cle: roadmap-m8-01-bi-temporal-as-of-queries-across-all
+  titre: Bi-temporal AS OF queries across all workload families (W-F completeness)
+  description: '[M8] Bi-temporal AS OF queries across all workload families (W-F completeness)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+- cle: roadmap-m8-02-incremental-materialised-views-over
+  titre: Incremental materialised views over subgraphs
+  description: '[M8] Incremental materialised views over subgraphs'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+- cle: roadmap-m8-03-embedded-wasm-udfs-with-sandboxing
+  titre: Embedded WASM UDFs with sandboxing (incl. user-supplied embedding functions)
+  description: '[M8] Embedded WASM UDFs with sandboxing (incl. user-supplied embedding functions)'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+- cle: roadmap-m8-04-built-in-federated-querying-across
+  titre: Built-in federated querying across physa-db instances
+  description: '[M8] Built-in federated querying across physa-db instances'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+- cle: roadmap-m8-05-content-addressable-blob-dedup-at
+  titre: Content-addressable blob dedup at scale with zero-copy fanout
+  description: '[M8] Content-addressable blob dedup at scale with zero-copy fanout'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend
+- cle: roadmap-m8-06-confidence-aware-traversal-path-score
+  titre: Confidence-aware traversal (path-score composition) as a query primitive
+  description: '[M8] Confidence-aware traversal (path-score composition) as a query primitive'
+  etat: Todo
+  module: moteur
+  cycle: ouvert
+  labels:
+  - backend

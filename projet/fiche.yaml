@@ -1,0 +1,51 @@
+nom: physa-db
+objectif: >-
+  Base de données graphe open-source écrite en Rust, combinant graphe, recherche
+  vectorielle et plein-texte dans un seul moteur de requêtes, pour les charges de
+  travail d'agents IA (mémoire, RAG multi-hop, knowledge graphs). Destinée aux
+  développeurs qui construisent des applications d'agents et veulent éviter
+  d'assembler plusieurs bases de données séparées (README.md).
+archetype: librairie
+statut: actif
+sante: orange
+prochaine-etape: >-
+  M0 (fondation) encore ouvert : CI complète (fmt/clippy/test/bench/fuzz), templates
+  issue/PR, dashboard GitHub Pages, labels. M1 (verrouillage des fonctionnalités)
+  encore ouvert : profils concurrents privés, mining de pain points, harness LDBC
+  SNB/SNAP, feature-matrix.md, performance-targets.md, non-goals.md, ADR-0007+.
+revu-le: 2026-08-14
+stacks:
+- Rust 2024 (Cargo workspace)
+- GQL ISO/IEC 39075:2024 + openCypher sur Bolt v5
+- GitHub Actions CI
+- xtask + justfile + mise
+surfaces:
+- type: server (Bolt protocol)
+  chemin: crates/physa-server
+- type: cli
+  chemin: crates/physa-cli
+- type: client driver (librairie)
+  chemin: crates/physa-client
+- type: moteur core (librairie)
+  chemin: crates/physa-core
+- type: dashboard statut (non déployé)
+  chemin: dashboard/
+deploiement:
+  etat: aucun
+  note: >-
+    Rien n'est déployé ni fonctionnel : ROADMAP.md liste "GitHub Pages dashboard
+    MVP deployed" comme non coché sous M0, et le commit "chore(ci): disable
+    snapshot-dashboard cron until Pages is enabled" (2026-04-20) confirme la
+    publication désactivée explicitement. crates/ ne contient que des squelettes ;
+    le projet est en phase de verrouillage des specs (M1), pas de code fonctionnel.
+    Aucune URL trouvée dans le dépôt à tester. Dépôt sans commit depuis le
+    2026-04-25 (~3,5 mois), à confirmer si le projet est toujours suivi.
+suivi:
+  outil: plane
+  instance: https://plane.systemx.tech
+  espace: system-x
+  projet: PHYSA
+secrets:
+  outil: aucun
+depot:
+  remote: https://github.com/mroche14/physa-db.git

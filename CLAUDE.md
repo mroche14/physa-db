@@ -30,3 +30,36 @@ Ask the question the other way: "will this string end up on github.com
 as something a stranger can read?" If yes, it's public; route the
 identity through the resolver and keep personal info out. When in
 doubt, ask the human.
+
+<!-- flotte:suivi -->
+## Suivi de projet
+
+Le suivi vit dans `projet/suivi.yaml`, versionné, appliqué par la skill globale
+`plane-project-tracking`. **L'outil de suivi est une vue du dépôt, pas une source
+parallèle** : quand les deux divergent, le dépôt fait foi.
+
+À la fin d'un chantier significatif, mettre à jour le YAML puis :
+
+```bash
+export PLANE_API_KEY=...   # ~/.config/systemx/infra-secrets.local.md
+python3 ~/.claude/skills/plane-project-tracking/plane_sync.py projet/suivi.yaml --diff
+```
+
+⚠️ Ne jamais recycler une `cle` : elle est l'identité de l'item côté outil, la changer
+crée un doublon au lieu de renommer.
+<!-- /flotte:suivi -->
+
+<!-- flotte:secrets -->
+## Secrets
+
+Les noms des secrets sont déclarés dans `projet/secrets.yaml`. **Les valeurs vivent dans
+Infisical, jamais dans le dépôt** — ni en clair, ni en exemple réaliste, ni dans un
+commentaire. Pour exécuter avec les secrets injectés :
+
+```bash
+infisical run --env=dev -- <commande>
+```
+
+Ajouter un secret : le déclarer dans `projet/secrets.yaml`, puis
+`~/.config/systemx/poser-secret.sh <projet> <env> <CLE> "<usage>"`.
+<!-- /flotte:secrets -->
