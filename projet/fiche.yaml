@@ -46,6 +46,13 @@ suivi:
   espace: system-x
   projet: PHYSA
 secrets:
-  outil: aucun
+  outil: infisical
+  instance: https://infisical.systemx.tech
+  projet: physa-db
+  note: >-
+    Structure posée le 2026-08-14 : projet, environnements dev/staging/prod, et
+    une clé par nom déclaré dans projet/secrets.yaml, créée avec une VALEUR
+    VIDE et le champ `usage` en commentaire. Aucune valeur n'a été déposée —
+    la migration depuis les .env reste entièrement à faire.
 depot:
   remote: https://github.com/mroche14/physa-db.git
